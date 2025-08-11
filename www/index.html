@@ -1,0 +1,865 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Account Settings</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f7f6;
+            color: #333;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+
+        .container {
+            max-width: 500px;
+            margin: 0 auto;
+            background-color: #fff;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        header {
+            display: flex;
+            align-items: center;
+            padding: 15px;
+            border-bottom: 1px solid #eee;
+            background-color: #fff;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+
+        header .back-arrow {
+            font-size: 24px;
+            color: #555;
+            margin-right: 15px;
+        }
+
+        header h1 {
+            font-size: 18px;
+            font-weight: bold;
+            color: #333;
+            flex-grow: 1;
+            text-align: center;
+            margin-right: 40px; /* To balance the back arrow space */
+        }
+
+        .content {
+            padding: 20px;
+            flex-grow: 1;
+        }
+
+        section {
+            margin-bottom: 25px;
+            padding: 15px;
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+        }
+
+        .section-title {
+            font-size: 16px;
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 15px;
+            padding-bottom: 5px;
+            border-bottom: 1px solid #f0f0f0;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-group label {
+            display: block;
+            font-size: 14px;
+            color: #555;
+            margin-bottom: 5px;
+        }
+
+        .form-group input[type="text"],
+        .form-group input[type="email"],
+        .form-group input[type="password"],
+        .form-group select,
+        .form-group textarea,
+        .form-group .code-input-group input[type="text"] {
+            width: calc(100% - 20px);
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 16px;
+            color: #333;
+            background-color: #f9f9f9;
+        }
+        
+        .form-group select {
+            appearance: none; /* Remove default select arrow */
+            -webkit-appearance: none;
+            -moz-appearance: none;
+            background-image: url('data:image/svg+xml;utf8,<svg fill="%23555555" height="24" viewBox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg"><path d="M7 10l5 5 5-5z"/><path d="M0 0h24v24H0z" fill="none"/></svg>');
+            background-repeat: no-repeat;
+            background-position: right 10px center;
+            padding-right: 30px; /* Make space for the arrow */
+        }
+
+        .button-group {
+            display: flex;
+            gap: 10px; /* Space between buttons */
+            margin-top: 10px;
+        }
+
+        .reset-password-btn,
+        .complete-profile-btn {
+            padding: 12px 20px;
+            border: none;
+            border-radius: 5px;
+            flex: 1; /* Make buttons take equal width */
+            font-size: 16px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        .reset-password-btn {
+            background-color: #000;
+            color: #fff;
+        }
+
+        .reset-password-btn:hover {
+            background-color: #333;
+        }
+
+        .complete-profile-btn {
+            background-color: #007bff; /* A blue color */
+            color: #fff;
+        }
+
+        .complete-profile-btn:hover {
+            background-color: #0056b3;
+        }
+
+        /* Collapsible sections styling */
+        .collapsible-fields {
+            max-height: 0; /* Initially hidden */
+            overflow: hidden;
+            transition: max-height 0.5s ease-in-out, opacity 0.5s ease-in-out;
+            opacity: 0;
+            margin-top: 15px;
+            border-top: 1px dashed #eee;
+            padding-top: 15px;
+        }
+
+        .collapsible-fields.show {
+            max-height: 500px; /* A large enough value to accommodate content */
+            opacity: 1;
+        }
+        
+        /* Specific styling for password reset fields */
+        .password-reset-fields {
+            /* Inherits from .collapsible-fields */
+        }
+
+        .code-input-group {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .code-input-group input {
+            flex-grow: 1;
+            width: auto !important; /* Override the general input width */
+        }
+
+        .code-input-group button {
+            padding: 10px 15px;
+            border: 1px solid #007bff;
+            background-color: #007bff;
+            color: #fff;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 14px;
+            white-space: nowrap; /* Prevent text wrapping */
+            transition: background-color 0.3s ease, color 0.3s ease;
+        }
+
+        .code-input-group button:hover:not(:disabled) {
+            background-color: #0056b3;
+        }
+
+        .code-input-group button:disabled {
+            background-color: #cccccc;
+            color: #666;
+            border-color: #cccccc;
+            cursor: not-allowed;
+        }
+
+        .code-timer {
+            font-size: 12px;
+            color: #777;
+            text-align: right;
+            margin-top: 5px;
+        }
+
+        /* Action buttons within collapsible sections */
+        .action-button {
+            background-color: #28a745; /* Green color for next/complete */
+            color: #fff;
+            padding: 12px 20px;
+            border: none;
+            border-radius: 5px;
+            width: 100%;
+            font-size: 16px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+            margin-top: 20px;
+        }
+
+        .action-button:hover {
+            background-color: #218838;
+        }
+
+        /* Plan Details Section */
+        .plan-details .detail-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+            font-size: 15px;
+        }
+
+        .plan-details .premium-plan-title {
+            font-weight: bold;
+            font-size: 17px;
+            margin-bottom: 10px;
+        }
+
+        .plan-details .usage-bar-container {
+            background-color: #eee;
+            border-radius: 10px;
+            height: 8px;
+            margin-top: 10px;
+            overflow: hidden;
+        }
+
+        .plan-details .usage-bar {
+            width: 75%; /* Based on "75% of 100GB remaining" */
+            background-color: #4CAF50; /* A shade of green */
+            height: 100%;
+            border-radius: 10px;
+        }
+
+        .plan-details .usage-text {
+            font-size: 13px;
+            color: #777;
+            margin-top: 5px;
+        }
+
+        .plan-details .days-remaining {
+            display: flex;
+            align-items: center;
+            margin-top: 15px;
+            font-size: 15px;
+            color: #555;
+        }
+
+        .plan-details .days-remaining i {
+            margin-right: 8px;
+            color: #777;
+        }
+
+        /* Plan Features Section */
+        .plan-features .input-output-format {
+            margin-bottom: 15px;
+        }
+
+        .plan-features .format-label {
+            font-size: 14px;
+            color: #555;
+            margin-bottom: 10px;
+        }
+
+        .plan-features .format-options {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .plan-features .format-option {
+            background-color: #e0e0e0;
+            color: #555;
+            padding: 8px 15px;
+            border-radius: 20px;
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            cursor: pointer;
+            transition: background-color 0.3s ease, color 0.3s ease;
+        }
+
+        .plan-features .format-option.selected {
+            background-color: #28a745; /* Green for selected */
+            color: #fff;
+        }
+
+        .plan-features .format-option.selected i {
+            margin-right: 5px;
+            color: #fff;
+        }
+
+        .plan-features .format-option i {
+            margin-right: 5px;
+            color: #777;
+        }
+
+        /* Other Features Section */
+        .other-features .feature-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 8px 0;
+            border-bottom: 1px dashed #f0f0f0;
+        }
+
+        .other-features .feature-item:last-of-type {
+            border-bottom: none;
+        }
+
+        .other-features .feature-name {
+            font-size: 15px;
+            color: #333;
+        }
+
+        /* Basic switch styling */
+        .other-features .toggle-switch {
+            position: relative;
+            display: inline-block;
+            width: 34px;
+            height: 20px;
+        }
+
+        .other-features .toggle-switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .other-features .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #ccc;
+            -webkit-transition: .4s;
+            transition: .4s;
+            border-radius: 20px;
+        }
+
+        .other-features .slider:before {
+            position: absolute;
+            content: "";
+            height: 16px;
+            width: 16px;
+            left: 2px;
+            bottom: 2px;
+            background-color: white;
+            -webkit-transition: .4s;
+            transition: .4s;
+            border-radius: 50%;
+        }
+
+        .other-features input:checked + .slider {
+            background-color: #28a745;
+        }
+
+        .other-features input:focus + .slider {
+            box-shadow: 0 0 1px #28a745;
+        }
+
+        .other-features input:checked + .slider:before {
+            -webkit-transform: translateX(14px);
+            -ms-transform: translateX(14px);
+            transform: translateX(14px);
+        }
+
+        .upload-limit {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 15px;
+            color: #333;
+            padding-top: 10px;
+            margin-top: 20px;
+            padding-bottom: 5px;
+        }
+
+        .upload-limit i {
+            margin-right: 8px;
+            color: #555;
+        }
+
+        .upload-limit .limit-text {
+            display: flex;
+            align-items: center;
+            flex-grow: 1;
+        }
+
+        .upload-limit .limit-value {
+            font-weight: bold;
+            color: #007bff;
+        }
+
+        /* Bottom Navigation */
+        nav.bottom-nav {
+            display: flex;
+            justify-content: space-around;
+            padding: 10px 0;
+            border-top: 1px solid #eee;
+            background-color: #fff;
+            position: sticky;
+            bottom: 0;
+            width: 100%;
+            box-shadow: 0 -2px 5px rgba(0, 0, 0, 0.05);
+        }
+
+        nav.bottom-nav a {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-decoration: none;
+            color: #888;
+            font-size: 12px;
+            transition: color 0.3s ease;
+        }
+
+        nav.bottom-nav a.active {
+            color: #007bff;
+        }
+
+        nav.bottom-nav a i {
+            font-size: 20px;
+            margin-bottom: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <i class="fas fa-arrow-left back-arrow"></i>
+            <h1>Account Settings</h1>
+        </header>
+
+        <div class="content">
+            <section class="user-information">
+                <div class="section-title">User Information</div>
+                <div class="form-group">
+                    <label for="fullName">Full Name</label>
+                    <input type="text" id="fullName" value="John Smith">
+                </div>
+                <div class="form-group">
+                    <label for="mobileNumber">Mobile Number</label>
+                    <input type="text" id="mobileNumber" value="+1 (555) 123-4567">
+                </div>
+                <div class="form-group">
+                    <label for="email">Email</label>
+                    <input type="email" id="email" value="john.smith@example.com">
+                </div>
+                <div class="button-group">
+                    <button class="reset-password-btn" id="resetPasswordBtn">Reset Password</button>
+                    <button class="complete-profile-btn" id="completeProfileBtn">Complete Profile</button>
+                </div>
+
+                <div class="collapsible-fields password-reset-fields" id="passwordResetFields">
+                    <div class="form-group">
+                        <label for="verificationCode">Verification Code</label>
+                        <div class="code-input-group">
+                            <input type="text" id="verificationCode" placeholder="Enter code">
+                            <button id="sendCodeBtn">Send Code</button>
+                        </div>
+                        <div class="code-timer" id="codeTimer"></div>
+                    </div>
+                    <div class="form-group">
+                        <label for="newPassword">New Password</label>
+                        <input type="password" id="newPassword" placeholder="Enter new password">
+                    </div>
+                    <div class="form-group">
+                        <label for="confirmPassword">Confirm New Password</label>
+                        <input type="password" id="confirmPassword" placeholder="Confirm new password">
+                    </div>
+                    <button class="action-button" id="changePasswordSubmitBtn">Change Password</button>
+                </div>
+
+                <div class="collapsible-fields complete-profile-step1" id="completeProfileStep1Fields">
+                    <div class="form-group">
+                        <label for="profileName">Name</label>
+                        <input type="text" id="profileName" placeholder="Enter your name">
+                    </div>
+                    <div class="form-group">
+                        <label for="profileEmail">Email</label>
+                        <input type="email" id="profileEmail" placeholder="Enter your email">
+                    </div>
+                    <button class="action-button" id="nextStepBtn">Next Step</button>
+                </div>
+
+                <div class="collapsible-fields complete-profile-step2" id="completeProfileStep2Fields">
+                    <div class="form-group">
+                        <label for="emailVerificationCode">Email Verification Code</label>
+                        <div class="code-input-group">
+                            <input type="text" id="emailVerificationCode" placeholder="Enter email code">
+                            <button id="sendEmailCodeBtn">Send Code</button>
+                        </div>
+                        <div class="code-timer" id="emailCodeTimer"></div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="howDidYouHear">How did you hear about us?</label>
+                        <select id="howDidYouHear">
+                            <option value="">Please select</option>
+                            <option value="social_media">Social Media</option>
+                            <option value="friend">Friend/Referral</option>
+                            <option value="search_engine">Search Engine</option>
+                            <option value="advertisement">Advertisement</option>
+                            <option value="other">Other</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="otherQuestions">Any other questions/comments?</label>
+                        <textarea id="otherQuestions" rows="3" placeholder="Type here..."></textarea>
+                    </div>
+                    
+                    <button class="action-button" id="completeProfileSubmitBtn">Complete</button>
+                </div>
+            </section>
+
+            <section class="plan-details">
+                <div class="section-title">Plan Details</div>
+                <div class="premium-plan-title">Premium Plan</div>
+                <div class="detail-row">
+                    <span>Remaining Usage</span>
+                    <span>75GB left</span>
+                </div>
+                <div class="usage-bar-container">
+                    <div class="usage-bar"></div>
+                </div>
+                <div class="usage-text">75% of 100GB remaining</div>
+                <div class="days-remaining">
+                    <i class="far fa-calendar-alt"></i>
+                    <span>Days Remaining: 15 Days</span>
+                </div>
+            </section>
+
+            <section class="plan-features">
+                <div class="section-title">Plan Features</div>
+                <div class="input-output-format">
+                    <div class="format-label">Input Format</div>
+                    <div class="format-options">
+                        <div class="format-option selected">
+                            <i class="fas fa-check-circle"></i>Ogg
+                        </div>
+                        <div class="format-option selected">
+                            <i class="fas fa-check-circle"></i>Mp3
+                        </div>
+                        <div class="format-option">Acc</div>
+                        <div class="format-option">Wma</div>
+                        <div class="format-option">M4a</div>
+                        <div class="format-option selected">
+                            <i class="fas fa-check-circle"></i>Flac
+                        </div>
+                        <div class="format-option selected">
+                            <i class="fas fa-check-circle"></i>Wav
+                        </div>
+                    </div>
+                </div>
+                <div class="input-output-format">
+                    <div class="format-label">Output Format</div>
+                    <div class="format-options">
+                        <div class="format-option selected">
+                            <i class="fas fa-check-circle"></i>Mp3 128
+                        </div>
+                        <div class="format-option selected">
+                            <i class="fas fa-check-circle"></i>Mp3 320
+                        </div>
+                        <div class="format-option">M4a</div>
+                        <div class="format-option selected">
+                            <i class="fas fa-check-circle"></i>Flac
+                        </div>
+                        <div class="format-option selected">
+                            <i class="fas fa-check-circle"></i>Wav
+                        </div>
+                        <div class="format-option">Ogg</div>
+                    </div>
+                </div>
+            </section>
+
+            <section class="other-features">
+                <div class="section-title">Other Features</div>
+                <div class="feature-list">
+                    <div class="feature-item">
+                        <span class="feature-name">Vocal Remover</span>
+                        <label class="toggle-switch">
+                            <input type="checkbox" checked>
+                            <span class="slider"></span>
+                        </label>
+                    </div>
+                    <div class="feature-item">
+                        <span class="feature-name">Text to Speech</span>
+                        <label class="toggle-switch">
+                            <input type="checkbox">
+                            <span class="slider"></span>
+                        </label>
+                    </div>
+                    <div class="feature-item">
+                        <span class="feature-name">Clean Audio</span>
+                        <label class="toggle-switch">
+                            <input type="checkbox" checked>
+                            <span class="slider"></span>
+                        </label>
+                    </div>
+                    <div class="feature-item">
+                        <span class="feature-name">Auto Tune</span>
+                        <label class="toggle-switch">
+                            <input type="checkbox">
+                            <span class="slider"></span>
+                        </label>
+                    </div>
+                    <div class="feature-item">
+                        <span class="feature-name">Filter Radius</span>
+                        <label class="toggle-switch">
+                            <input type="checkbox">
+                            <span class="slider"></span>
+                        </label>
+                    </div>
+                    <div class="feature-item">
+                        <span class="feature-name">Index Rate</span>
+                        <label class="toggle-switch">
+                            <input type="checkbox" checked>
+                            <span class="slider"></span>
+                        </label>
+                    </div>
+                </div>
+                <div class="upload-limit">
+                    <div class="limit-text">
+                        <i class="fas fa-upload"></i>
+                        <span>Upload Limit:</span>
+                    </div>
+                    <span class="limit-value">2 minutes</span>
+                </div>
+            </section>
+        </div>
+
+        <nav class="bottom-nav">
+            <a href="#">
+                <i class="fas fa-home"></i>
+                <span>Home</span>
+            </a>
+            <a href="#">
+                <i class="fas fa-chart-bar"></i>
+                <span>Usage</span>
+            </a>
+            <a href="#" class="active">
+                <i class="fas fa-user"></i>
+                <span>Account</span>
+            </a>
+            <a href="#">
+                <i class="fas fa-cog"></i>
+                <span>Settings</span>
+            </a>
+        </nav>
+    </div>
+
+    <script>
+        // --- Password Reset Logic ---
+        const resetPasswordBtn = document.getElementById('resetPasswordBtn');
+        const passwordResetFields = document.getElementById('passwordResetFields');
+        const sendCodeBtn = document.getElementById('sendCodeBtn');
+        const codeTimerDisplay = document.getElementById('codeTimer');
+        const changePasswordSubmitBtn = document.getElementById('changePasswordSubmitBtn');
+
+        let passwordResetTimerInterval;
+        let passwordResetTimeLeft = 120; // 2 minutes in seconds
+
+        function updatePasswordResetTimer() {
+            const minutes = Math.floor(passwordResetTimeLeft / 60);
+            const seconds = passwordResetTimeLeft % 60;
+            codeTimerDisplay.textContent = `Resend in: ${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+
+            if (passwordResetTimeLeft <= 0) {
+                clearInterval(passwordResetTimerInterval);
+                sendCodeBtn.textContent = 'Resend Code';
+                sendCodeBtn.disabled = false;
+                codeTimerDisplay.textContent = '';
+            } else {
+                passwordResetTimeLeft--;
+            }
+        }
+
+        resetPasswordBtn.addEventListener('click', () => {
+            // Hide other collapsible sections if open
+            completeProfileStep1Fields.classList.remove('show');
+            completeProfileStep2Fields.classList.remove('show');
+            clearInterval(emailCodeTimerInterval); // Stop email timer if active
+
+            passwordResetFields.classList.toggle('show');
+            if (!passwordResetFields.classList.contains('show')) {
+                clearInterval(passwordResetTimerInterval);
+                sendCodeBtn.textContent = 'Send Code';
+                sendCodeBtn.disabled = false;
+                codeTimerDisplay.textContent = '';
+                passwordResetTimeLeft = 120;
+            }
+        });
+
+        sendCodeBtn.addEventListener('click', () => {
+            sendCodeBtn.disabled = true;
+            sendCodeBtn.textContent = 'Sending...';
+            passwordResetTimeLeft = 120;
+            updatePasswordResetTimer();
+            passwordResetTimerInterval = setInterval(updatePasswordResetTimer, 1000);
+
+            setTimeout(() => {
+                sendCodeBtn.textContent = 'Resend Code';
+            }, 1000);
+        });
+
+        changePasswordSubmitBtn.addEventListener('click', () => {
+            const verificationCode = document.getElementById('verificationCode').value;
+            const newPassword = document.getElementById('newPassword').value;
+            const confirmPassword = document.getElementById('confirmPassword').value;
+
+            if (!verificationCode || !newPassword || !confirmPassword) {
+                alert('Please fill in all password reset fields.');
+                return;
+            }
+            if (newPassword !== confirmPassword) {
+                alert('New password and confirm password do not match.');
+                return;
+            }
+
+            alert('Password change initiated (simulated).');
+            // In a real app: send data to backend, handle response
+            // On success:
+            // passwordResetFields.classList.remove('show');
+            // clearInterval(passwordResetTimerInterval);
+            // sendCodeBtn.textContent = 'Send Code';
+            // sendCodeBtn.disabled = false;
+            // codeTimerDisplay.textContent = '';
+            // passwordResetTimeLeft = 120;
+        });
+
+        // --- Complete Profile Logic ---
+        const completeProfileBtn = document.getElementById('completeProfileBtn');
+        const completeProfileStep1Fields = document.getElementById('completeProfileStep1Fields');
+        const nextStepBtn = document.getElementById('nextStepBtn');
+        const completeProfileStep2Fields = document.getElementById('completeProfileStep2Fields');
+        const sendEmailCodeBtn = document.getElementById('sendEmailCodeBtn');
+        const emailCodeTimerDisplay = document.getElementById('emailCodeTimer');
+        const completeProfileSubmitBtn = document.getElementById('completeProfileSubmitBtn');
+
+        let emailCodeTimerInterval;
+        let emailCodeTimeLeft = 120; // 2 minutes in seconds
+
+        function updateEmailCodeTimer() {
+            const minutes = Math.floor(emailCodeTimeLeft / 60);
+            const seconds = emailCodeTimeLeft % 60;
+            emailCodeTimerDisplay.textContent = `Resend in: ${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+
+            if (emailCodeTimeLeft <= 0) {
+                clearInterval(emailCodeTimerInterval);
+                sendEmailCodeBtn.textContent = 'Resend Code';
+                sendEmailCodeBtn.disabled = false;
+                emailCodeTimerDisplay.textContent = '';
+            } else {
+                emailCodeTimeLeft--;
+            }
+        }
+
+        completeProfileBtn.addEventListener('click', () => {
+            // Hide other collapsible sections if open
+            passwordResetFields.classList.remove('show');
+            clearInterval(passwordResetTimerInterval); // Stop password timer if active
+
+            completeProfileStep2Fields.classList.remove('show'); // Ensure step 2 is hidden initially
+            clearInterval(emailCodeTimerInterval); // Stop email timer if active for previous attempt
+
+            completeProfileStep1Fields.classList.toggle('show');
+            if (!completeProfileStep1Fields.classList.contains('show')) {
+                // If closing step 1, also close step 2 and reset its timer
+                completeProfileStep2Fields.classList.remove('show');
+                clearInterval(emailCodeTimerInterval);
+                sendEmailCodeBtn.textContent = 'Send Code';
+                sendEmailCodeBtn.disabled = false;
+                emailCodeTimerDisplay.textContent = '';
+                emailCodeTimeLeft = 120;
+            }
+        });
+
+        nextStepBtn.addEventListener('click', () => {
+            const profileName = document.getElementById('profileName').value;
+            const profileEmail = document.getElementById('profileEmail').value;
+
+            if (!profileName || !profileEmail) {
+                alert('Please enter your name and email.');
+                return;
+            }
+            // Basic email validation (can be more robust with regex)
+            if (!profileEmail.includes('@') || !profileEmail.includes('.')) {
+                alert('Please enter a valid email address.');
+                return;
+            }
+
+            completeProfileStep1Fields.classList.remove('show'); // Hide step 1
+            completeProfileStep2Fields.classList.add('show');    // Show step 2
+        });
+
+        sendEmailCodeBtn.addEventListener('click', () => {
+            sendEmailCodeBtn.disabled = true;
+            sendEmailCodeBtn.textContent = 'Sending...';
+            emailCodeTimeLeft = 120; // Reset for 2 minutes
+            updateEmailCodeTimer();
+            emailCodeTimerInterval = setInterval(updateEmailCodeTimer, 1000);
+
+            setTimeout(() => {
+                sendEmailCodeBtn.textContent = 'Resend Code';
+            }, 1000);
+            // In a real app, send email verification code to profileEmail
+        });
+
+        completeProfileSubmitBtn.addEventListener('click', () => {
+            const emailVerificationCode = document.getElementById('emailVerificationCode').value;
+            const howDidYouHear = document.getElementById('howDidYouHear').value;
+            const otherQuestions = document.getElementById('otherQuestions').value;
+
+            if (!emailVerificationCode) {
+                alert('Please enter the email verification code.');
+                return;
+            }
+            if (howDidYouHear === '') {
+                alert('Please select how you heard about us.');
+                return;
+            }
+
+            alert('Profile completion initiated (simulated). Email Code: ' + emailVerificationCode + ', Heard via: ' + howDidYouHear + ', Comments: ' + otherQuestions);
+
+            // In a real app: send all profile data to backend, handle response
+            // On success:
+            // completeProfileStep2Fields.classList.remove('show');
+            // completeProfileStep1Fields.classList.remove('show'); // Ensure both are closed
+            // clearInterval(emailCodeTimerInterval);
+            // sendEmailCodeBtn.textContent = 'Send Code';
+            // sendEmailCodeBtn.disabled = false;
+            // emailCodeTimerDisplay.textContent = '';
+            // emailCodeTimeLeft = 120;
+        });
+
+    </script>
+</body>
+</html>

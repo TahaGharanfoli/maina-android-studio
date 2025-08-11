@@ -1,0 +1,29 @@
+pluginManagement {
+    repositories {
+        maven { url "https://mirrors.cloud.tencent.com/nexus/repository/maven-public/" }
+        maven { url "https://mirrors.cloud.tencent.com/AndroidSDK/repository" }
+        maven { url "https://maven.aliyun.com/repository/google" }
+        maven { url "https://maven.aliyun.com/repository/central" }
+        maven { url "https://mirrors.ustc.edu.cn/maven-central/" }
+        google()
+        mavenCentral()
+        gradlePluginPortal()
+    }
+}
+
+dependencyResolutionManagement {
+    repositoriesMode.set(RepositoriesMode.PREFER_PROJECT)
+    repositories {
+        maven { url "https://mirrors.cloud.tencent.com/nexus/repository/maven-public/" }
+        maven { url "https://mirrors.cloud.tencent.com/AndroidSDK/repository" }
+        maven { url "https://maven.aliyun.com/repository/google" }
+        maven { url "https://maven.aliyun.com/repository/central" }
+        maven { url "https://mirrors.ustc.edu.cn/maven-central/" }
+        google()
+        mavenCentral()
+    }
+}
+
+include ':app'
+include ':capacitor'
+project(':capacitor').projectDir = new File('./capacitor')

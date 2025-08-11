@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">mayna</string>
+    <string name="title_activity_main">mayna</string>
+    <string name="package_name">com.mayna.maynasound</string>
+    <string name="custom_url_scheme">com.mayna.maynasound</string>
+</resources>

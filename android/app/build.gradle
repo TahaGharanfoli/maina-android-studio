@@ -1,0 +1,58 @@
+plugins {
+    id 'com.android.application'
+}
+
+android {
+    namespace 'com.mayna.maynasound'
+    compileSdk 35
+
+    defaultConfig {
+        applicationId "com.mayna.maynasound"
+        minSdk 23
+        targetSdk 35
+        versionCode 1
+        versionName "1.0"
+
+        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+            signingConfig signingConfigs.debug
+        }
+    }
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_17
+        targetCompatibility JavaVersion.VERSION_17
+    }
+    buildToolsVersion '34.0.0'
+}
+
+repositories {
+    // Google Maven mirrors for your region
+    maven { url "https://mirrors.cloud.tencent.com/nexus/repository/maven-public/" }
+    maven { url "https://mirrors.cloud.tencent.com/AndroidSDK/repository" }
+    maven { url "https://maven.aliyun.com/repository/google" }
+    maven { url "https://developer.huawei.com/repo/" }
+    
+    // Maven Central mirrors
+    maven { url "https://mirrors.cloud.tencent.com/maven" }
+    maven { url "https://maven.aliyun.com/repository/central" }
+    maven { url "https://mirrors.ustc.edu.cn/maven-central/" }
+    
+    // Keep original repositories as fallback
+    google()
+    mavenCentral()
+}
+
+dependencies {
+    implementation project(':capacitor')
+    implementation 'androidx.core:core-ktx:1.7.0'
+    implementation 'androidx.appcompat:appcompat:1.4.1'
+    implementation 'com.google.android.material:material:1.5.0'
+    testImplementation 'junit:junit:4.13.2'
+    androidTestImplementation 'androidx.test.ext:junit:1.1.3'
+    androidTestImplementation 'androidx.test.espresso:espresso-core:3.4.0'
+}

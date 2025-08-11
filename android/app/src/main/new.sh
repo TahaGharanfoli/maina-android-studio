@@ -1,0 +1,1 @@
+    gradlew cleanBuildCache    **On macOS / Linux:**    ./gradlew cleanBuildCache3.  After the command finishes successfully, try syncing your project again 
