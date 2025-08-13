@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mayna Sound - Loading...</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f7f6;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+        
+        .loading-container {
+            text-align: center;
+            background: white;
+            padding: 40px;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        
+        .logo {
+            font-size: 24px;
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 20px;
+        }
+        
+        .spinner {
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #007bff;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 20px;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .loading-text {
+            color: #666;
+            font-size: 14px;
+        }
+    </style>
+</head>
+<body>
+    <div class="loading-container">
+        <div class="logo">Mayna Sound</div>
+        <div class="spinner"></div>
+        <div class="loading-text">Checking authentication...</div>
+    </div>
+
+    <!-- Load token manager -->
+    <script src="js/token-manager.js"></script>
+    
+    <script>
+        // Enhanced launcher with better error handling
+        (function() {
+            console.log('🚀 Launcher starting...');
+            
+            function handleError(error) {
+                console.error('❌ Launcher error:', error);
+                // Fallback to auth page on any error
+                setTimeout(() => {
+                    try {
+                        window.location.href = 'auth.html';
+                    } catch (e) {
+                        console.error('❌ Failed to redirect:', e);
+                    }
+                }, 1000);
+            }
+            
+            function checkAndRedirect() {
+                try {
+                    // Check if token manager is available
+                    if (window.tokenManager) {
+                        const tokenManager = window.tokenManager;
+                        
+                        console.log('🔐 Checking authentication status...');
+                        console.log('📍 Has access token:', !!tokenManager.getAccessToken());
+                        console.log('📍 Has refresh token:', !!tokenManager.refreshToken);
+                        console.log('📍 Is authenticated:', tokenManager.isAuthenticated());
+                        
+                        // Small delay to show loading screen
+                        setTimeout(() => {
+                            try {
+                                if (tokenManager.isAuthenticated()) {
+                                    console.log('✅ User authenticated, redirecting to main app');
+                                    window.location.href = 'index.html';
+                                } else {
+                                    console.log('❌ User not authenticated, redirecting to auth');
+                                    window.location.href = 'auth.html';
+                                }
+                            } catch (e) {
+                                handleError(e);
+                            }
+                        }, 1000);
+                    } else {
+                        console.error('❌ Token manager not available');
+                        // Fallback to auth page
+                        setTimeout(() => {
+                            window.location.href = 'auth.html';
+                        }, 1000);
+                    }
+                } catch (e) {
+                    handleError(e);
+                }
+            }
+            
+            // Wait for DOM to be ready
+            if (document.readyState === 'loading') {
+                document.addEventListener('DOMContentLoaded', checkAndRedirect);
+            } else {
+                checkAndRedirect();
+            }
+            
+            // Global error handler
+            window.addEventListener('error', function(e) {
+                console.error('❌ Global error:', e.error);
+                handleError(e.error);
+            });
+            
+            // Unhandled promise rejection handler
+            window.addEventListener('unhandledrejection', function(e) {
+                console.error('❌ Unhandled promise rejection:', e.reason);
+                handleError(e.reason);
+            });
+            
+        })();
+    </script>
+</body>
+</html>

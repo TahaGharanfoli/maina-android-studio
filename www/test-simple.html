@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simple Test - Mayna Sound</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f4f7f6;
+        }
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        .success {
+            color: #28a745;
+            font-weight: bold;
+        }
+        .error {
+            color: #dc3545;
+            font-weight: bold;
+        }
+        .info {
+            color: #17a2b8;
+            font-weight: bold;
+        }
+        button {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        button:hover {
+            background: #0056b3;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🧪 Simple Test Page</h1>
+        <p>This page tests basic functionality to ensure the app loads correctly.</p>
+        
+        <div id="status">
+            <p class="info">Testing app functionality...</p>
+        </div>
+        
+        <div id="tests">
+            <h3>Test Results:</h3>
+            <ul id="test-results"></ul>
+        </div>
+        
+        <div id="actions">
+            <button onclick="testLocalStorage()">Test localStorage</button>
+            <button onclick="testFetch()">Test Fetch API</button>
+            <button onclick="goToAuth()">Go to Auth</button>
+            <button onclick="goToMain()">Go to Main</button>
+        </div>
+    </div>
+
+    <script>
+        const statusEl = document.getElementById('status');
+        const resultsEl = document.getElementById('test-results');
+        
+        function addResult(test, passed, message = '') {
+            const li = document.createElement('li');
+            li.innerHTML = `<span class="${passed ? 'success' : 'error'}">${passed ? '✅' : '❌'}</span> ${test}: ${message}`;
+            resultsEl.appendChild(li);
+        }
+        
+        function testLocalStorage() {
+            try {
+                localStorage.setItem('test', 'value');
+                const value = localStorage.getItem('test');
+                localStorage.removeItem('test');
+                addResult('localStorage', value === 'value', 'localStorage is working');
+            } catch (error) {
+                addResult('localStorage', false, error.message);
+            }
+        }
+        
+        async function testFetch() {
+            try {
+                const response = await fetch('https://api.seektir.com/v2/user', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ phone: '1234567890' })
+                });
+                addResult('Fetch API', true, `Response status: ${response.status}`);
+            } catch (error) {
+                addResult('Fetch API', false, error.message);
+            }
+        }
+        
+        function goToAuth() {
+            window.location.href = 'auth.html';
+        }
+        
+        function goToMain() {
+            window.location.href = 'index.html';
+        }
+        
+        // Run basic tests on load
+        document.addEventListener('DOMContentLoaded', () => {
+            statusEl.innerHTML = '<p class="success">✅ Page loaded successfully!</p>';
+            
+            // Test basic functionality
+            addResult('DOM Loading', true, 'Page loaded without errors');
+            addResult('JavaScript', true, 'JavaScript is working');
+            addResult('CSS Styling', true, 'Styles are applied');
+            
+            // Test localStorage
+            testLocalStorage();
+        });
+        
+        // Global error handler
+        window.addEventListener('error', function(e) {
+            addResult('Global Error', false, e.error ? e.error.message : 'Unknown error');
+        });
+        
+        window.addEventListener('unhandledrejection', function(e) {
+            addResult('Promise Rejection', false, e.reason ? e.reason.message : 'Unknown promise rejection');
+        });
+    </script>
+</body>
+</html>

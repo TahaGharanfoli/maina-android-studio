@@ -19,3 +19,25 @@
 # If you keep the line number information, uncomment this to
 # hide the original source file name.
 #-renamesourcefileattribute SourceFile
+
+# Keep Capacitor and WebView classes
+-keep class com.getcapacitor.** { *; }
+-keep class com.mayna.maynasound.** { *; }
+-keepclassmembers class com.mayna.maynasound.** { *; }
+
+# Keep WebView related classes
+-keep class android.webkit.** { *; }
+-keepclassmembers class android.webkit.** { *; }
+
+# Keep JavaScript interface classes
+-keepclassmembers class * {
+    @android.webkit.JavascriptInterface <methods>;
+}
+
+# Keep native methods
+-keepclasseswithmembernames class * {
+    native <methods>;
+}
+
+# Keep JavaScript bridge
+-keep class * implements android.webkit.JavascriptInterface { *; }

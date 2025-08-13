@@ -1,0 +1,730 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Authentication</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f7f6;
+            color: #333;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+
+        .container {
+            max-width: 500px;
+            margin: 0 auto;
+            background-color: #fff;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        header {
+            display: flex;
+            align-items: center;
+            padding: 15px;
+            border-bottom: 1px solid #eee;
+            background-color: #fff;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+
+        header .back-arrow {
+            font-size: 24px;
+            color: #555;
+            margin-right: 15px;
+            cursor: pointer;
+        }
+
+        header h1 {
+            font-size: 18px;
+            font-weight: bold;
+            color: #333;
+            flex-grow: 1;
+            text-align: center;
+            margin-right: 40px;
+        }
+
+        .content {
+            padding: 20px;
+            flex-grow: 1;
+        }
+
+        .auth-section {
+            margin-bottom: 25px;
+            padding: 15px;
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+        }
+
+        .section-title {
+            font-size: 16px;
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 15px;
+            padding-bottom: 5px;
+            border-bottom: 1px solid #f0f0f0;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-group label {
+            display: block;
+            font-size: 14px;
+            color: #555;
+            margin-bottom: 5px;
+        }
+
+        .form-group input[type="text"],
+        .form-group input[type="password"],
+        .form-group input[type="tel"] {
+            width: calc(100% - 20px);
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 16px;
+            color: #333;
+            background-color: #f9f9f9;
+        }
+
+        .action-button {
+            background-color: #007bff;
+            color: #fff;
+            padding: 12px 20px;
+            border: none;
+            border-radius: 5px;
+            width: 100%;
+            font-size: 16px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+            margin-top: 20px;
+        }
+
+        .action-button:hover {
+            background-color: #0056b3;
+        }
+
+        .action-button:disabled {
+            background-color: #cccccc;
+            color: #666;
+            cursor: not-allowed;
+        }
+
+        .code-input-group {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .code-input-group input {
+            flex-grow: 1;
+            width: auto !important;
+        }
+
+        .code-input-group button {
+            padding: 10px 15px;
+            border: 1px solid #007bff;
+            background-color: #007bff;
+            color: #fff;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 14px;
+            white-space: nowrap;
+            transition: background-color 0.3s ease, color 0.3s ease;
+        }
+
+        .code-input-group button:hover:not(:disabled) {
+            background-color: #0056b3;
+        }
+
+        .code-input-group button:disabled {
+            background-color: #cccccc;
+            color: #666;
+            border-color: #cccccc;
+            cursor: not-allowed;
+        }
+
+        .code-timer {
+            font-size: 12px;
+            color: #777;
+            text-align: right;
+            margin-top: 5px;
+        }
+
+        .auth-step {
+            display: none;
+        }
+
+        .auth-step.active {
+            display: block;
+        }
+
+        .loading {
+            display: none;
+            text-align: center;
+            padding: 20px;
+        }
+
+        .loading.show {
+            display: block;
+        }
+
+        .spinner {
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #007bff;
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 10px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .error-message {
+            background-color: #f8d7da;
+            color: #721c24;
+            padding: 10px;
+            border-radius: 5px;
+            margin-bottom: 15px;
+            display: none;
+        }
+
+        .success-message {
+            background-color: #d4edda;
+            color: #155724;
+            padding: 10px;
+            border-radius: 5px;
+            margin-bottom: 15px;
+            display: none;
+        }
+
+        .logo-section {
+            text-align: center;
+            padding: 40px 20px 20px;
+        }
+
+        .logo-section h2 {
+            font-size: 24px;
+            color: #333;
+            margin-bottom: 10px;
+        }
+
+        .logo-section p {
+            color: #666;
+            font-size: 14px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <i class="fas fa-arrow-left back-arrow" id="backArrow"></i>
+            <h1 id="pageTitle">Welcome</h1>
+        </header>
+
+        <div class="content">
+            <!-- Logo and Welcome Section -->
+            <div class="logo-section">
+                <h2>Mayna Sound</h2>
+                <p>Your audio processing companion</p>
+            </div>
+
+            <!-- Loading Section -->
+            <div class="loading" id="loadingSection">
+                <div class="spinner"></div>
+                <p>Processing...</p>
+            </div>
+
+            <!-- Error Message -->
+            <div class="error-message" id="errorMessage"></div>
+
+            <!-- Success Message -->
+            <div class="success-message" id="successMessage"></div>
+
+            <!-- Step 1: Phone Number Input -->
+            <div class="auth-step active" id="phoneStep">
+                <div class="auth-section">
+                    <div class="section-title">Enter Your Phone Number</div>
+                    <div class="form-group">
+                        <label for="phoneNumber">Phone Number</label>
+                        <input type="tel" id="phoneNumber" placeholder="Enter your phone number" value="09393070813">
+                    </div>
+                    <button class="action-button" id="checkPhoneBtn">Continue</button>
+                </div>
+            </div>
+
+            <!-- Step 2: Login -->
+            <div class="auth-step" id="loginStep">
+                <div class="auth-section">
+                    <div class="section-title">Login</div>
+                    <div class="form-group">
+                        <label for="loginPhone">Phone Number</label>
+                        <input type="tel" id="loginPhone" readonly>
+                    </div>
+                    <div class="form-group">
+                        <label for="loginPassword">Password</label>
+                        <input type="password" id="loginPassword" placeholder="Enter your password">
+                    </div>
+                    <button class="action-button" id="loginBtn">Login</button>
+                </div>
+            </div>
+
+            <!-- Step 3: Registration -->
+            <div class="auth-step" id="registerStep">
+                <div class="auth-section">
+                    <div class="section-title">Create Account</div>
+                    <div class="form-group">
+                        <label for="registerPhone">Phone Number</label>
+                        <input type="tel" id="registerPhone" readonly>
+                    </div>
+                    <div class="form-group">
+                        <label for="registerPassword">Password</label>
+                        <input type="password" id="registerPassword" placeholder="Create a password">
+                    </div>
+                    <div class="form-group">
+                        <label for="confirmPassword">Confirm Password</label>
+                        <input type="password" id="confirmPassword" placeholder="Confirm your password">
+                    </div>
+                    <button class="action-button" id="sendCodeBtn">Send Verification Code</button>
+                </div>
+            </div>
+
+            <!-- Step 4: Verification Code -->
+            <div class="auth-step" id="verificationStep">
+                <div class="auth-section">
+                    <div class="section-title">Verify Your Phone</div>
+                    <div class="form-group">
+                        <label for="verificationCode">Verification Code</label>
+                        <div class="code-input-group">
+                            <input type="text" id="verificationCode" placeholder="Enter verification code">
+                            <button id="resendCodeBtn">Resend</button>
+                        </div>
+                        <div class="code-timer" id="codeTimer"></div>
+                    </div>
+                    <button class="action-button" id="verifyAndRegisterBtn">Complete Registration</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Load token manager first -->
+    <script src="js/token-manager.js"></script>
+    <script src="js/app-init.js"></script>
+    
+    <script>
+        class AuthService {
+            constructor() {
+                this.baseURL = 'https://api.seektir.com/v2';
+                this.accessToken = localStorage.getItem('accessToken');
+                this.refreshToken = localStorage.getItem('refreshToken');
+            }
+
+            async makeRequest(endpoint, data = null, method = 'POST') {
+                const url = `${this.baseURL}${endpoint}`;
+                const config = {
+                    method: method,
+                    headers: {
+                        'Content-Type': 'application/json',
+                        ...(this.accessToken && { 'Authorization': `Bearer ${this.accessToken}` })
+                    }
+                };
+
+                if (data) {
+                    config.body = JSON.stringify(data);
+                }
+
+                console.log('🌐 Making API request:', {
+                    url: url,
+                    method: method,
+                    data: data,
+                    config: config
+                });
+
+                try {
+                    const response = await fetch(url, config);
+                    console.log('📡 Response status:', response.status);
+                    console.log('📡 Response headers:', response.headers);
+                    
+                    const result = await response.json();
+                    console.log('📡 Response data:', result);
+                    
+                    if (!response.ok) {
+                        throw new Error(result.message || `HTTP ${response.status}: Request failed`);
+                    }
+                    
+                    return result;
+                } catch (error) {
+                    console.error('❌ API Error Details:', {
+                        message: error.message,
+                        stack: error.stack,
+                        url: url,
+                        method: method,
+                        data: data
+                    });
+                    
+                    // Provide more specific error messages
+                    if (error.name === 'TypeError' && error.message.includes('fetch')) {
+                        throw new Error('CORS Error: Unable to make request due to browser security restrictions. Please try: 1) Install CORS browser extension, 2) Use Chrome with --disable-web-security, or 3) Open test-direct-api.html to test API first.');
+                    }
+                    
+                    throw error;
+                }
+            }
+
+            async checkUser(phoneNumber) {
+                return this.makeRequest('/user', { phone_number: phoneNumber });
+            }
+
+            async login(phoneNumber, password) {
+                return this.makeRequest('/login', { phone_number: phoneNumber, password: password });
+            }
+
+            async sendCode(phoneNumber) {
+                return this.makeRequest('/send-code', { phone_number: phoneNumber });
+            }
+
+            async register(phoneNumber, password, code) {
+                return this.makeRequest('/register', { phone_number: phoneNumber, password: password, code: code });
+            }
+
+            saveTokens(accessToken, refreshToken) {
+                // Use the global token manager
+                window.tokenManager.saveTokens(accessToken, refreshToken);
+            }
+
+            clearTokens() {
+                this.accessToken = null;
+                this.refreshToken = null;
+                localStorage.removeItem('accessToken');
+                localStorage.removeItem('refreshToken');
+            }
+        }
+
+        class AuthUI {
+            constructor() {
+                this.authService = new AuthService();
+                this.currentStep = 'phone';
+                this.phoneNumber = '';
+                this.verificationTimer = null;
+                this.verificationTimeLeft = 120;
+                
+                this.initializeElements();
+                this.bindEvents();
+            }
+
+            initializeElements() {
+                // Steps
+                this.phoneStep = document.getElementById('phoneStep');
+                this.loginStep = document.getElementById('loginStep');
+                this.registerStep = document.getElementById('registerStep');
+                this.verificationStep = document.getElementById('verificationStep');
+                
+                // Inputs
+                this.phoneNumberInput = document.getElementById('phoneNumber');
+                this.loginPhoneInput = document.getElementById('loginPhone');
+                this.loginPasswordInput = document.getElementById('loginPassword');
+                this.registerPhoneInput = document.getElementById('registerPhone');
+                this.registerPasswordInput = document.getElementById('registerPassword');
+                this.confirmPasswordInput = document.getElementById('confirmPassword');
+                this.verificationCodeInput = document.getElementById('verificationCode');
+                
+                // Buttons
+                this.checkPhoneBtn = document.getElementById('checkPhoneBtn');
+                this.loginBtn = document.getElementById('loginBtn');
+                this.sendCodeBtn = document.getElementById('sendCodeBtn');
+                this.resendCodeBtn = document.getElementById('resendCodeBtn');
+                this.verifyAndRegisterBtn = document.getElementById('verifyAndRegisterBtn');
+                this.backArrow = document.getElementById('backArrow');
+                
+                // UI Elements
+                this.loadingSection = document.getElementById('loadingSection');
+                this.errorMessage = document.getElementById('errorMessage');
+                this.successMessage = document.getElementById('successMessage');
+                this.pageTitle = document.getElementById('pageTitle');
+                this.codeTimer = document.getElementById('codeTimer');
+            }
+
+            bindEvents() {
+                this.checkPhoneBtn.addEventListener('click', () => this.checkPhone());
+                this.loginBtn.addEventListener('click', () => this.login());
+                this.sendCodeBtn.addEventListener('click', () => this.sendCode());
+                this.resendCodeBtn.addEventListener('click', () => this.sendCode());
+                this.verifyAndRegisterBtn.addEventListener('click', () => this.verifyAndRegister());
+                this.backArrow.addEventListener('click', () => this.goBack());
+            }
+
+            showStep(step) {
+                // Hide all steps
+                this.phoneStep.classList.remove('active');
+                this.loginStep.classList.remove('active');
+                this.registerStep.classList.remove('active');
+                this.verificationStep.classList.remove('active');
+
+                // Show target step
+                switch(step) {
+                    case 'phone':
+                        this.phoneStep.classList.add('active');
+                        this.pageTitle.textContent = 'Welcome';
+                        break;
+                    case 'login':
+                        this.loginStep.classList.add('active');
+                        this.pageTitle.textContent = 'Login';
+                        break;
+                    case 'register':
+                        this.registerStep.classList.add('active');
+                        this.pageTitle.textContent = 'Create Account';
+                        break;
+                    case 'verification':
+                        this.verificationStep.classList.add('active');
+                        this.pageTitle.textContent = 'Verify Phone';
+                        break;
+                }
+                this.currentStep = step;
+            }
+
+            showLoading(show = true) {
+                if (show) {
+                    this.loadingSection.classList.add('show');
+                } else {
+                    this.loadingSection.classList.remove('show');
+                }
+            }
+
+            showError(message) {
+                this.errorMessage.textContent = message;
+                this.errorMessage.style.display = 'block';
+                this.successMessage.style.display = 'none';
+                setTimeout(() => {
+                    this.errorMessage.style.display = 'none';
+                }, 5000);
+            }
+
+            showSuccess(message) {
+                this.successMessage.textContent = message;
+                this.successMessage.style.display = 'block';
+                this.errorMessage.style.display = 'none';
+                setTimeout(() => {
+                    this.successMessage.style.display = 'none';
+                }, 3000);
+            }
+
+            goBack() {
+                switch(this.currentStep) {
+                    case 'login':
+                    case 'register':
+                        this.showStep('phone');
+                        break;
+                    case 'verification':
+                        this.showStep('register');
+                        break;
+                }
+            }
+
+            async checkPhone() {
+                const phoneNumber = this.phoneNumberInput.value.trim();
+                
+                if (!phoneNumber) {
+                    this.showError('Please enter your phone number');
+                    return;
+                }
+
+                this.showLoading(true);
+                this.phoneNumber = phoneNumber;
+
+                try {
+                    const response = await this.authService.checkUser(phoneNumber);
+                    
+                    if (response.data.user_exist) {
+                        // User exists, show login
+                        this.loginPhoneInput.value = phoneNumber;
+                        this.showStep('login');
+                    } else {
+                        // User doesn't exist, show registration
+                        this.registerPhoneInput.value = phoneNumber;
+                        this.showStep('register');
+                    }
+                } catch (error) {
+                    this.showError(error.message || 'Failed to check user');
+                } finally {
+                    this.showLoading(false);
+                }
+            }
+
+            async login() {
+                const password = this.loginPasswordInput.value.trim();
+                
+                if (!password) {
+                    this.showError('Please enter your password');
+                    return;
+                }
+
+                this.showLoading(true);
+
+                try {
+                    const response = await this.authService.login(this.phoneNumber, password);
+                    
+                                         // Save tokens and handle success
+                     this.authService.saveTokens(
+                         response.data.access_token,
+                         response.data.refresh_token
+                     );
+                     
+                     this.showSuccess('Login successful!');
+                     
+                     // Use app handler for redirect
+                     if (window.app) {
+                         window.app.handleAuthSuccess(
+                             response.data.access_token,
+                             response.data.refresh_token,
+                             response.data.expires_in
+                         );
+                     } else {
+                         // Fallback redirect
+                         setTimeout(() => {
+                             window.location.href = 'index.html';
+                         }, 1500);
+                     }
+                    
+                } catch (error) {
+                    this.showError(error.message || 'Login failed');
+                } finally {
+                    this.showLoading(false);
+                }
+            }
+
+            async sendCode() {
+                if (this.currentStep === 'register') {
+                    const password = this.registerPasswordInput.value.trim();
+                    const confirmPassword = this.confirmPasswordInput.value.trim();
+                    
+                    if (!password) {
+                        this.showError('Please enter a password');
+                        return;
+                    }
+                    
+                    if (password !== confirmPassword) {
+                        this.showError('Passwords do not match');
+                        return;
+                    }
+                    
+                    if (password.length < 6) {
+                        this.showError('Password must be at least 6 characters');
+                        return;
+                    }
+                }
+
+                this.showLoading(true);
+
+                try {
+                    await this.authService.sendCode(this.phoneNumber);
+                    this.showSuccess('Verification code sent successfully');
+                    this.showStep('verification');
+                    this.startVerificationTimer();
+                } catch (error) {
+                    this.showError(error.message || 'Failed to send verification code');
+                } finally {
+                    this.showLoading(false);
+                }
+            }
+
+            async verifyAndRegister() {
+                const code = this.verificationCodeInput.value.trim();
+                const password = this.registerPasswordInput.value.trim();
+                
+                if (!code) {
+                    this.showError('Please enter the verification code');
+                    return;
+                }
+
+                this.showLoading(true);
+
+                try {
+                    const response = await this.authService.register(this.phoneNumber, password, code);
+                    
+                                         // Save tokens and handle success
+                     this.authService.saveTokens(
+                         response.data.access_token,
+                         response.data.refresh_token
+                     );
+                     
+                     this.showSuccess('Registration successful!');
+                     
+                     // Use app handler for redirect
+                     if (window.app) {
+                         window.app.handleAuthSuccess(
+                             response.data.access_token,
+                             response.data.refresh_token,
+                             response.data.expires_in
+                         );
+                     } else {
+                         // Fallback redirect
+                         setTimeout(() => {
+                             window.location.href = 'index.html';
+                         }, 1500);
+                     }
+                    
+                } catch (error) {
+                    this.showError(error.message || 'Registration failed');
+                } finally {
+                    this.showLoading(false);
+                }
+            }
+
+            startVerificationTimer() {
+                this.verificationTimeLeft = 120;
+                this.updateVerificationTimer();
+                this.verificationTimer = setInterval(() => {
+                    this.updateVerificationTimer();
+                }, 1000);
+            }
+
+            updateVerificationTimer() {
+                const minutes = Math.floor(this.verificationTimeLeft / 60);
+                const seconds = this.verificationTimeLeft % 60;
+                this.codeTimer.textContent = `Resend in: ${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+
+                if (this.verificationTimeLeft <= 0) {
+                    clearInterval(this.verificationTimer);
+                    this.resendCodeBtn.textContent = 'Resend Code';
+                    this.resendCodeBtn.disabled = false;
+                    this.codeTimer.textContent = '';
+                } else {
+                    this.verificationTimeLeft--;
+                }
+            }
+
+            stopVerificationTimer() {
+                if (this.verificationTimer) {
+                    clearInterval(this.verificationTimer);
+                    this.verificationTimer = null;
+                }
+            }
+        }
+
+        // Initialize the authentication UI when the page loads
+        document.addEventListener('DOMContentLoaded', () => {
+            // Wait for token manager to be available
+            if (window.tokenManager) {
+                new AuthUI();
+            } else {
+                console.error('Token manager not available');
+            }
+        });
+    </script>
+</body>
+</html>

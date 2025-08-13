@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>API Test</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f4f7f6;
+        }
+        .test-section {
+            background: white;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        button {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        button:hover {
+            background: #0056b3;
+        }
+        .result {
+            background: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 5px;
+            padding: 15px;
+            margin: 10px 0;
+            white-space: pre-wrap;
+            font-family: monospace;
+        }
+        .error {
+            background: #f8d7da;
+            border-color: #f5c6cb;
+            color: #721c24;
+        }
+        .success {
+            background: #d4edda;
+            border-color: #c3e6cb;
+            color: #155724;
+        }
+        input {
+            padding: 8px;
+            margin: 5px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            width: 200px;
+        }
+    </style>
+</head>
+<body>
+    <h1>🔧 API Connection Test</h1>
+    
+    <div class="test-section">
+        <h2>Test 1: Check User Exists</h2>
+        <input type="text" id="phoneNumber" placeholder="Enter phone number" value="09393070813">
+        <button onclick="testCheckUser()">Test Check User</button>
+        <div id="checkUserResult" class="result"></div>
+    </div>
+
+    <div class="test-section">
+        <h2>Test 2: Send Verification Code</h2>
+        <input type="text" id="phoneForCode" placeholder="Enter phone number" value="09120906471">
+        <button onclick="testSendCode()">Test Send Code</button>
+        <div id="sendCodeResult" class="result"></div>
+    </div>
+
+    <div class="test-section">
+        <h2>Test 3: Login</h2>
+        <input type="text" id="loginPhone" placeholder="Phone number" value="09393070813">
+        <input type="password" id="loginPassword" placeholder="Password" value="taha7928">
+        <button onclick="testLogin()">Test Login</button>
+        <div id="loginResult" class="result"></div>
+    </div>
+
+    <div class="test-section">
+        <h2>Test 4: Register</h2>
+        <input type="text" id="registerPhone" placeholder="Phone number" value="09120906471">
+        <input type="password" id="registerPassword" placeholder="Password" value="taha7928">
+        <input type="text" id="verificationCode" placeholder="Verification code" value="2864">
+        <button onclick="testRegister()">Test Register</button>
+        <div id="registerResult" class="result"></div>
+    </div>
+
+    <script>
+        const API_BASE = 'https://api.seektir.com/v2';
+
+        function showResult(elementId, data, isError = false) {
+            const element = document.getElementById(elementId);
+            element.textContent = JSON.stringify(data, null, 2);
+            element.className = `result ${isError ? 'error' : 'success'}`;
+        }
+
+        async function makeRequest(endpoint, data = null, method = 'POST') {
+            const url = `${API_BASE}${endpoint}`;
+            const config = {
+                method: method,
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            };
+
+            if (data) {
+                config.body = JSON.stringify(data);
+            }
+
+            console.log('🌐 Making request:', { url, method, data });
+
+            try {
+                const response = await fetch(url, config);
+                console.log('📡 Response:', response.status, response.statusText);
+                
+                const result = await response.json();
+                console.log('📡 Data:', result);
+                
+                return { success: response.ok, status: response.status, data: result };
+            } catch (error) {
+                console.error('❌ Error:', error);
+                return { success: false, error: error.message };
+            }
+        }
+
+        async function testCheckUser() {
+            const phoneNumber = document.getElementById('phoneNumber').value;
+            const result = await makeRequest('/user', { phone_number: phoneNumber });
+            showResult('checkUserResult', result, !result.success);
+        }
+
+        async function testSendCode() {
+            const phoneNumber = document.getElementById('phoneForCode').value;
+            const result = await makeRequest('/send-code', { phone_number: phoneNumber });
+            showResult('sendCodeResult', result, !result.success);
+        }
+
+        async function testLogin() {
+            const phoneNumber = document.getElementById('loginPhone').value;
+            const password = document.getElementById('loginPassword').value;
+            const result = await makeRequest('/login', { phone_number: phoneNumber, password: password });
+            showResult('loginResult', result, !result.success);
+        }
+
+        async function testRegister() {
+            const phoneNumber = document.getElementById('registerPhone').value;
+            const password = document.getElementById('registerPassword').value;
+            const code = document.getElementById('verificationCode').value;
+            const result = await makeRequest('/register', { phone_number: phoneNumber, password: password, code: code });
+            showResult('registerResult', result, !result.success);
+        }
+
+        // Auto-test on page load
+        window.addEventListener('load', () => {
+            console.log('🧪 API Test page loaded. Open browser console for detailed logs.');
+        });
+    </script>
+</body>
+</html>

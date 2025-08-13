@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mayna Sound - Fallback</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .container {
+            background: white;
+            padding: 40px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            text-align: center;
+            max-width: 400px;
+            width: 100%;
+        }
+        .logo {
+            font-size: 28px;
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 20px;
+        }
+        .status {
+            color: #28a745;
+            font-size: 18px;
+            margin-bottom: 20px;
+        }
+        .info {
+            color: #666;
+            line-height: 1.6;
+            margin-bottom: 30px;
+        }
+        .button {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-size: 16px;
+            cursor: pointer;
+            margin: 5px;
+            text-decoration: none;
+            display: inline-block;
+        }
+        .button:hover {
+            background: #0056b3;
+        }
+        .error {
+            color: #dc3545;
+            background: #f8d7da;
+            border: 1px solid #f5c6cb;
+            padding: 10px;
+            border-radius: 5px;
+            margin: 10px 0;
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="logo">🎵 Mayna Sound</div>
+        <div class="status">✅ App Loaded Successfully!</div>
+        <div class="info">
+            This is a fallback page to ensure the WebView is working correctly.
+            If you can see this page, the basic app functionality is working.
+        </div>
+        
+        <div id="error" class="error"></div>
+        
+        <div>
+            <a href="test-simple.html" class="button">Test Simple Page</a>
+            <a href="auth.html" class="button">Go to Auth</a>
+        </div>
+        
+        <div style="margin-top: 20px; font-size: 12px; color: #999;">
+            <p>WebView Test Page</p>
+            <p id="timestamp"></p>
+        </div>
+    </div>
+
+    <script>
+        // Simple script to show timestamp
+        document.getElementById('timestamp').textContent = new Date().toLocaleString();
+        
+        // Test basic JavaScript functionality
+        try {
+            console.log('✅ JavaScript is working');
+            
+            // Test localStorage
+            if (typeof(Storage) !== "undefined") {
+                localStorage.setItem('test', 'working');
+                const test = localStorage.getItem('test');
+                localStorage.removeItem('test');
+                console.log('✅ localStorage is working');
+            } else {
+                console.log('❌ localStorage not available');
+            }
+            
+        } catch (error) {
+            console.error('❌ JavaScript error:', error);
+            document.getElementById('error').style.display = 'block';
+            document.getElementById('error').textContent = 'JavaScript Error: ' + error.message;
+        }
+        
+        // Global error handler
+        window.addEventListener('error', function(e) {
+            console.error('❌ Global error:', e.error);
+            document.getElementById('error').style.display = 'block';
+            document.getElementById('error').textContent = 'Global Error: ' + (e.error ? e.error.message : 'Unknown error');
+        });
+    </script>
+</body>
+</html>
