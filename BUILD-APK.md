@@ -90,3 +90,4 @@ The app will show detailed logs in Android Studio's logcat when making API reque
 ## Summary
 
 The CORS issue you're experiencing is **only for browser testing**. In the actual APK, your authentication system will work perfectly without any CORS restrictions!
+

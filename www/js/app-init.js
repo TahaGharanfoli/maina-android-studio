@@ -152,3 +152,4 @@ document.addEventListener('visibilitychange', () => {
         window.app.init();
     }
 });
+

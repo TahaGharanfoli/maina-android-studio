@@ -106,3 +106,6 @@ Once the basic app is working:
 4. Build a release APK
 
 The crash issue has been **completely resolved**! The app should now open and work properly. 🎯
+
+
+

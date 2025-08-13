@@ -27,3 +27,4 @@ app.listen(PORT, () => {
     console.log(`🔐 Authentication page: http://localhost:${PORT}/auth.html`);
     console.log(`⚙️  Account settings: http://localhost:${PORT}/index.html`);
 });
+

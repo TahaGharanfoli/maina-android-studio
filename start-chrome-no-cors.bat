@@ -12,3 +12,4 @@ echo.
 echo Chrome started! Now open your auth.html file.
 echo.
 pause
+

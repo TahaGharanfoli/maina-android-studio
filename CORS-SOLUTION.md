@@ -52,3 +52,4 @@ Then open `http://localhost:3000`
 - Browsers block cross-origin requests for security
 - Local HTML files can't make requests to external APIs
 - This is a browser security feature, not an API issue
+
