@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sonic AI - تولیدکننده صدا</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link rel="stylesheet" href="css/sonic-ai-style-guide.css">
+    <style>
+        .generator-container {
+            max-width: 400px;
+            margin: 0 auto;
+            background: var(--gradient-dark);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            padding-bottom: 80px;
+        }
+        
+        .generator-header {
+            padding: var(--space-xl) var(--space-lg) var(--space-lg);
+            text-align: center;
+        }
+        
+        .generator-content {
+            flex: 1;
+            padding: 0 var(--space-lg);
+        }
+        
+        .coming-soon {
+            text-align: center;
+            padding: var(--space-5xl) var(--space-lg);
+        }
+        
+        .coming-soon-icon {
+            font-size: 64px;
+            color: var(--brand-primary);
+            margin-bottom: var(--space-lg);
+        }
+        
+        /* Footer (tabbar) spacing tweak */
+        .footer-nav { bottom: 16px; }
+    </style>
+</head>
+<body>
+    <div class="generator-container">
+        <div class="generator-header">
+            <h1 class="text-2xl font-bold text-white">تولیدکننده صدا</h1>
+            <p class="text-gray-400 m-md">صداهای شگفت‌انگیز هوش مصنوعی بسازید</p>
+        </div>
+
+        <div class="generator-content">
+            <div class="coming-soon">
+                <div class="coming-soon-icon">
+                    <i class="fas fa-microphone-alt"></i>
+                </div>
+                <h2 class="text-xl font-semibold text-white m-md">به زودی در دسترس</h2>
+                <p class="text-gray-400 m-lg">ویژگی‌های پیشرفته تولید صدا در حال توسعه است. منتظر به‌روزرسانی‌ها باشید!</p>
+                <button class="btn btn-primary btn-md" onclick="goBack()">
+                    <i class="fas fa-arrow-right mr-sm"></i>
+                    بازگشت به خانه
+                </button>
+            </div>
+        </div>
+
+        <!-- Footer Navigation -->
+        <div class="tabbar footer-nav">
+            <div class="tabbar-items">
+                <a href="home.html" class="tabbar-item" aria-label="خانه">
+                    <div class="tabbar-icon">
+                        <i class="fas fa-home"></i>
+                    </div>
+                </a>
+                <a href="generator.html" class="tabbar-item active" aria-label="تولید">
+                    <div class="tabbar-icon">
+                        <i class="fas fa-microphone"></i>
+                    </div>
+                </a>
+                <a href="account.html" class="tabbar-item" aria-label="حساب">
+                    <div class="tabbar-icon">
+                        <i class="fas fa-user"></i>
+                    </div>
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function goBack() {
+            window.location.href = 'home.html';
+        }
+    </script>
+</body>
+</html>

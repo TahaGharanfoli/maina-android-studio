@@ -157,7 +157,7 @@ class TokenManager {
     // Redirect to authentication page
     redirectToAuth() {
         try {
-            if (window.location.pathname !== '/auth.html' && !window.location.pathname.includes('auth.html')) {
+            if (!window.location.pathname.includes('auth.html')) {
                 window.location.href = 'auth.html';
             }
         } catch (error) {
@@ -169,7 +169,7 @@ class TokenManager {
     redirectToMain() {
         try {
             if (window.location.pathname.includes('auth.html')) {
-                window.location.href = 'index.html';
+                window.location.href = 'home.html';
             }
         } catch (error) {
             console.error('❌ Error redirecting to main:', error);

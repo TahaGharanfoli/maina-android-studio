@@ -9,8 +9,9 @@ class AppInitializer {
     getCurrentPage() {
         const path = window.location.pathname;
         if (path.includes('auth.html')) return 'auth';
-        if (path.includes('index.html') || path === '/' || path === '') return 'main';
-        return 'main'; // Default to main
+        if (path.includes('home.html')) return 'main';
+        // Default: if it isn't auth, treat as main only when on home.html
+        return 'auth';
     }
 
     // Initialize app routing

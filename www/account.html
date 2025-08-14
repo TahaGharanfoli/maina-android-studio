@@ -1,0 +1,578 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="mobile-web-app-capable" content="yes">
+    <title>Sonic AI - حساب کاربری</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link rel="stylesheet" href="css/sonic-ai-style-guide.css">
+    <style>
+        /* Container - dark theme using style guide */
+        .account-container { 
+            max-width: 400px; 
+            margin: 0 auto; 
+            background: var(--gradient-dark); 
+            min-height: 100vh; 
+            display: flex; 
+            flex-direction: column; 
+            padding-bottom: 96px;
+            font-family: 'Vazirmatn', 'Inter', sans-serif;
+            direction: rtl;
+        }
+        .header { display:flex; align-items:center; gap:12px; padding: var(--space-lg); border-bottom: 1px solid rgba(255,255,255,.1); background: rgba(0,0,0,.2); position: sticky; top:0; z-index: var(--z-sticky); }
+        .header-title { flex:1; text-align:center; color:#fff; font-weight:600; }
+        .back-btn { width:36px; height:36px; border-radius:12px; display:flex; align-items:center; justify-content:center; background: rgba(255,255,255,.06); color: var(--black-300); }
+
+        .content { padding: var(--space-lg); flex:1; }
+        section.card { background: rgba(255,255,255,.05); border: 1px solid rgba(255,255,255,.1); border-radius: var(--radius-lg); padding: var(--space-lg); margin-bottom: var(--space-lg); }
+        .section-title { color:#fff; font-weight:600; margin-bottom: var(--space-md); border-bottom: 1px solid rgba(255,255,255,.08); padding-bottom: var(--space-sm); }
+
+        /* Form */
+        .form-group { margin-bottom: var(--space-md); }
+        .form-label { color: var(--black-300); }
+        .form-input { width:100%; }
+
+        /* Inline button group */
+        .button-group { 
+            display: flex; 
+            gap: var(--space-sm); 
+            margin-top: var(--space-md);
+            margin-bottom: 0; /* Remove bottom margin to eliminate empty space */
+        }
+        .button-group .btn { 
+            flex: 1; 
+            text-align: center !important;
+            justify-content: center !important;
+            align-items: center !important;
+            display: flex !important;
+        }
+
+        /* Collapsible - improved style guide compliance */
+        .collapsible { 
+            max-height: 0; 
+            overflow: hidden; 
+            opacity: 0; 
+            transition: all var(--transition-normal); 
+            border-top: none; 
+            margin: 0; 
+            padding: 0; 
+        }
+        .collapsible.show { 
+            max-height: 1000px; 
+            opacity: 1; 
+            border-top: 1px solid rgba(255,255,255,0.1); 
+            margin-top: var(--space-lg); 
+            padding-top: var(--space-lg);
+        }
+        
+        /* Compact User Information section */
+        .user-info-compact {
+            padding: var(--space-md) var(--space-md) var(--space-sm) var(--space-md); /* Reduced bottom padding */
+        }
+        .user-info-compact .form-group {
+            margin-bottom: var(--space-md);
+        }
+        .user-info-compact .form-group:last-of-type {
+            margin-bottom: var(--space-sm); /* Reduce space before buttons */
+        }
+        .user-info-compact .button-group {
+            margin-top: var(--space-sm);
+            margin-bottom: 0; /* No bottom margin */
+        }
+        
+        /* Remove any space from collapsed sections when not shown */
+        .user-info-compact .collapsible:not(.show) {
+            display: none !important; /* Completely hide when not shown */
+        }
+
+        /* Plan details */
+        .detail-row { display:flex; justify-content: space-between; color:#fff; margin-bottom: 8px; }
+        .usage-bar-container { height:8px; border-radius: 10px; background: rgba(255,255,255,.08); overflow:hidden; }
+        .usage-bar { height:8px; background: var(--success-600); width: 0%; }
+        .usage-text { color: var(--black-400); font-size: 12px; margin-top: 6px; }
+        .days-remaining { display:flex; align-items:center; gap:8px; color: var(--black-300); margin-top: 10px; }
+
+        /* Chips */
+        .chips { display:flex; gap:8px; flex-wrap: wrap; }
+        .chip { background: rgba(255,255,255,.08); color: var(--black-300); padding: 8px 12px; border-radius: 999px; font-size: 12px; }
+        .chip.active { background: var(--brand-primary); color:#fff; }
+
+        /* Toggle list */
+        .feature-item { display:flex; justify-content: space-between; align-items:center; padding: 10px 0; border-bottom: 1px dashed rgba(255,255,255,.08); }
+        .feature-item:last-child { border-bottom: none; }
+        .feature-name { color:#fff; }
+        .toggle { width: 50px; height: 28px; background: var(--black-600); border-radius: 14px; position: relative; cursor:pointer; }
+        .toggle::after { content:''; position:absolute; top:2px; left:2px; width:24px; height:24px; background:#fff; border-radius:50%; transition: transform .25s; }
+        .toggle.active { background: var(--brand-primary); }
+        .toggle.active::after { transform: translateX(22px); }
+
+        /* Footer */
+        .footer-nav { bottom:16px; }
+    </style>
+</head>
+<body>
+    <div class="account-container">
+        <div class="header">
+            <a href="home.html" class="back-btn"><i class="fas fa-arrow-right"></i></a>
+            <div class="header-title">تنظیمات حساب کاربری</div>
+            <div style="width:36px"></div>
+        </div>
+
+        <div class="content">
+            <!-- User Information -->
+            <section class="card user-info-compact">
+                <div class="section-title">اطلاعات کاربری</div>
+                <div class="form-group">
+                    <label class="form-label" for="fullName">نام کامل</label>
+                    <input class="form-input" type="text" id="fullName" placeholder="نام شما" readonly>
+                </div>
+                <div class="form-group">
+                    <label class="form-label" for="mobileNumber">شماره موبایل</label>
+                    <input class="form-input" type="text" id="mobileNumber" placeholder="شماره موبایل" readonly>
+                </div>
+                <div class="form-group">
+                    <label class="form-label" for="email">ایمیل</label>
+                    <input class="form-input" type="email" id="email" placeholder="آدرس ایمیل" readonly>
+                </div>
+                <div class="button-group" id="userInfoButtonGroup">
+                    <button class="btn btn-secondary btn-md" id="resetPasswordBtn">تغییر رمز عبور</button>
+                    <button class="btn btn-primary btn-md" id="completeProfileBtn" style="display: none;">تکمیل پروفایل</button>
+                </div>
+
+                <!-- Password Reset -->
+                <div class="collapsible" id="passwordResetFields">
+                    <div class="form-group">
+                        <label class="form-label" for="verificationCode">کد تأیید</label>
+                        <div class="flex items-center gap-md">
+                            <input class="form-input" type="text" id="verificationCode" placeholder="کد را وارد کنید">
+                            <button class="btn btn-primary btn-sm" id="sendCodeBtn">ارسال کد</button>
+                        </div>
+                        <div class="text-right text-sm text-gray-400" id="codeTimer"></div>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label" for="newPassword">رمز عبور جدید</label>
+                        <input class="form-input" type="password" id="newPassword" placeholder="رمز عبور جدید را وارد کنید">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label" for="confirmPassword">تکرار رمز عبور جدید</label>
+                        <input class="form-input" type="password" id="confirmPassword" placeholder="رمز عبور جدید را مجدداً وارد کنید">
+                    </div>
+                    <button class="btn btn-secondary btn-md w-full" id="changePasswordSubmitBtn">تغییر رمز عبور</button>
+                </div>
+
+                <!-- Complete Profile Step 1 -->
+                <div class="collapsible" id="completeProfileStep1Fields">
+                    <div class="form-group">
+                        <label class="form-label" for="profileName">نام</label>
+                        <input class="form-input" type="text" id="profileName" placeholder="نام خود را وارد کنید">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label" for="profileEmail">ایمیل</label>
+                        <input class="form-input" type="email" id="profileEmail" placeholder="ایمیل خود را وارد کنید">
+                    </div>
+                    <button class="btn btn-primary btn-md w-full" id="nextStepBtn">مرحله بعد</button>
+                </div>
+
+                <!-- Complete Profile Step 2 -->
+                <div class="collapsible" id="completeProfileStep2Fields">
+                    <div class="form-group">
+                        <label class="form-label" for="emailVerificationCode">کد تأیید ایمیل</label>
+                        <div class="flex items-center gap-md">
+                            <input class="form-input" type="text" id="emailVerificationCode" placeholder="کد ایمیل را وارد کنید">
+                            <button class="btn btn-primary btn-sm" id="sendEmailCodeBtn">ارسال کد</button>
+                        </div>
+                        <div class="text-right text-sm text-gray-400" id="emailCodeTimer"></div>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label" for="howDidYouHear">چگونه با ما آشنا شدید؟</label>
+                        <select class="form-input" id="howDidYouHear">
+                            <option value="">لطفاً انتخاب کنید</option>
+                            <option value="شبکه‌های اجتماعی">شبکه‌های اجتماعی</option>
+                            <option value="معرفی دوستان">معرفی دوستان</option>
+                            <option value="جستجو در گوگل">جستجو در گوگل</option>
+                            <option value="تبلیغات">تبلیغات</option>
+                            <option value="سایر">سایر</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label" for="otherQuestions">حوزه کاری شما چیست؟</label>
+                        <textarea class="form-input" id="otherQuestions" rows="3" placeholder="حوزه کاری خود را بنویسید..."></textarea>
+                    </div>
+                    <button class="btn btn-secondary btn-md w-full" id="completeProfileSubmitBtn">تکمیل</button>
+                </div>
+            </section>
+
+            <!-- Plan Details -->
+            <section class="card" id="planDetails">
+                <div class="section-title">جزئیات پلن</div>
+                <div class="detail-row"><span>پلن</span><span id="planName">-</span></div>
+                <div class="detail-row"><span>زمان باقی‌مانده</span><span id="remainingTime">-</span></div>
+                <div class="usage-bar-container"><div class="usage-bar" id="usageBar"></div></div>
+                <div class="usage-text" id="usageText"></div>
+                <div class="days-remaining"><i class="far fa-calendar-alt"></i><span id="daysRemaining">روزهای باقی‌مانده: -</span></div>
+            </section>
+
+            <!-- Plan Features -->
+            <section class="card">
+                <div class="section-title">ویژگی‌های پلن</div>
+                <div class="form-group">
+                    <div class="text-gray-300 text-sm m-sm">فرمت ورودی</div>
+                    <div class="chips" id="inputFormats"></div>
+                </div>
+                <div class="form-group">
+                    <div class="text-gray-300 text-sm m-sm">فرمت خروجی</div>
+                    <div class="chips" id="outputFormats"></div>
+                </div>
+            </section>
+
+            <!-- Other Features -->
+            <section class="card">
+                <div class="section-title">سایر ویژگی‌ها</div>
+                <div id="featuresList"></div>
+                <div class="detail-row" style="margin-top:12px"><span class="text-gray-300">حداکثر آپلود</span><span id="uploadLimit" class="text-primary">-</span></div>
+            </section>
+        </div>
+
+        <!-- Footer Navigation -->
+        <div class="tabbar footer-nav">
+            <div class="tabbar-items">
+                <a href="home.html" class="tabbar-item" aria-label="خانه">
+                    <div class="tabbar-icon"><i class="fas fa-home"></i></div>
+                </a>
+                <a href="generator.html" class="tabbar-item" aria-label="تولید">
+                    <div class="tabbar-icon"><i class="fas fa-microphone"></i></div>
+                </a>
+                <a href="account.html" class="tabbar-item active" aria-label="حساب">
+                    <div class="tabbar-icon"><i class="fas fa-user"></i></div>
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/token-manager.js"></script>
+    <script src="js/user-data.js"></script>
+    
+    <!-- Simplified Authentication Check -->
+    <script>
+        // Simple auth check for account page
+        (function() {
+            console.log('👤 Account page loaded');
+            
+            // Only redirect if we definitely have no tokens at all
+            setTimeout(() => {
+                if (window.tokenManager && !window.tokenManager.getAccessToken() && !window.tokenManager.refreshToken) {
+                    console.log('❌ No tokens found, redirecting to auth');
+                    window.location.href = 'auth.html';
+                }
+            }, 1000);
+        })();
+    </script>
+    
+    <script>
+        // Populate account data
+        async function loadAccountData() {
+            try {
+                let d = (window.userData && window.userData.getCachedUserData && window.userData.getCachedUserData()) || null;
+                if (!d && window.userData) {
+                    d = await window.userData.fetchUserData();
+                }
+                if (!d) throw new Error('No user data available');
+                // Basic fields
+                const fullName = d.user_display || '';
+                const email = d.user_email || '';
+                const mobileNumber = d.user_phone || '';
+                
+                document.getElementById('fullName').value = fullName;
+                document.getElementById('mobileNumber').value = mobileNumber;
+                document.getElementById('email').value = email;
+                
+                // Check if profile is complete (has name and email)
+                const isProfileComplete = fullName.trim() !== '' && email.trim() !== '';
+                const completeProfileBtn = document.getElementById('completeProfileBtn');
+                const resetPasswordBtn = document.getElementById('resetPasswordBtn');
+                
+                if (isProfileComplete) {
+                    // Profile is complete - hide Complete Profile button, show only Reset Password
+                    completeProfileBtn.style.display = 'none';
+                    resetPasswordBtn.style.display = 'block';
+                    resetPasswordBtn.style.width = '100%'; // Make reset password button full width
+                } else {
+                    // Profile is incomplete - show Complete Profile button
+                    completeProfileBtn.style.display = 'block';
+                    resetPasswordBtn.style.display = 'block';
+                    resetPasswordBtn.style.width = ''; // Reset to flex width
+                }
+
+                // Plan & usage
+                document.getElementById('planName').textContent = d.plan_display || '-';
+                const usedPercent = d.plan_time ? Math.max(0, Math.min(100, 100 - (d.user_time / d.plan_time) * 100)) : 0;
+                document.getElementById('usageBar').style.width = `${usedPercent}%`;
+                document.getElementById('usageText').textContent = `${d.user_time}/${d.plan_time} دقیقه باقی‌مانده`;
+                document.getElementById('daysRemaining').textContent = `روزهای باقی‌مانده: ${d.user_days} روز`;
+                document.getElementById('uploadLimit').textContent = `${d.plan_limit} ثانیه`;
+
+                // Formats
+                renderChips('inputFormats', d.plan_input || []);
+                renderChips('outputFormats', d.plan_output || []);
+
+                // Feature toggles
+                const featureMap = [
+                    ['Vocal Remover', 'plan_separate'],
+                    ['Text to Speech', 'plan_tts'],
+                    ['Clean Audio', 'clean_audio'],
+                    ['Auto Tune', 'auto_tune'],
+                    ['Filter Radius', 'filter_radius'],
+                    ['Index Rate', 'index_rate']
+                ];
+                const list = document.getElementById('featuresList');
+                list.innerHTML = '';
+                featureMap.forEach(([label, key]) => {
+                    const row = document.createElement('div');
+                    row.className = 'feature-item';
+                    row.innerHTML = `<span class=\"feature-name\">${label}</span><div class=\"toggle ${d[key] ? 'active' : ''}\" data-key=\"${key}\"></div>`;
+                    list.appendChild(row);
+                });
+
+                // Toggle behavior
+                list.addEventListener('click', (e) => {
+                    const t = e.target.closest('.toggle');
+                    if (!t) return;
+                    t.classList.toggle('active');
+                    // TODO: send preference update to server if needed
+                });
+            } catch (err) {
+                console.error('Account load error:', err);
+            }
+        }
+
+        function renderChips(id, items) {
+            const el = document.getElementById(id);
+            el.innerHTML = '';
+            items.forEach(v => {
+                const c = document.createElement('div');
+                c.className = 'chip active';
+                c.textContent = v;
+                el.appendChild(c);
+            });
+        }
+
+        // Collapsible logic and timers
+        let passwordResetTimerInterval, passwordResetTimeLeft = 120;
+        let emailCodeTimerInterval, emailCodeTimeLeft = 120;
+
+        function updateTimer(displayEl, leftObj) {
+            const minutes = Math.floor(leftObj.value / 60);
+            const seconds = leftObj.value % 60;
+            displayEl.textContent = `Resend in: ${String(minutes).padStart(2,'0')}:${String(seconds).padStart(2,'0')}`;
+            if (leftObj.value <= 0) {
+                clearInterval(leftObj.timer);
+                displayEl.textContent = '';
+            } else {
+                leftObj.value--;
+            }
+        }
+
+        document.getElementById('resetPasswordBtn').addEventListener('click', () => {
+            document.getElementById('completeProfileStep1Fields').classList.remove('show');
+            document.getElementById('completeProfileStep2Fields').classList.remove('show');
+            const box = document.getElementById('passwordResetFields');
+            box.classList.toggle('show');
+        });
+
+        document.getElementById('sendCodeBtn').addEventListener('click', () => {
+            const btn = document.getElementById('sendCodeBtn');
+            const display = document.getElementById('codeTimer');
+            
+            // Disable button and change text
+            btn.disabled = true;
+            btn.textContent = 'Code Sent';
+            btn.classList.add('btn-disabled');
+            
+            // Set 15 minute timer (900 seconds)
+            passwordResetTimeLeft = 900;
+            const obj = { value: passwordResetTimeLeft, timer: passwordResetTimerInterval };
+            updateTimer(display, obj);
+            clearInterval(passwordResetTimerInterval);
+            passwordResetTimerInterval = setInterval(() => {
+                updateTimer(display, obj);
+                
+                // Re-enable button when timer expires
+                if (passwordResetTimeLeft <= 0) {
+                    btn.disabled = false;
+                    btn.textContent = 'Resend Code';
+                    btn.classList.remove('btn-disabled');
+                    clearInterval(passwordResetTimerInterval);
+                }
+            }, 1000);
+        });
+
+        document.getElementById('completeProfileBtn').addEventListener('click', () => {
+            document.getElementById('passwordResetFields').classList.remove('show');
+            document.getElementById('completeProfileStep2Fields').classList.remove('show');
+            document.getElementById('completeProfileStep1Fields').classList.toggle('show');
+        });
+
+        document.getElementById('nextStepBtn').addEventListener('click', async () => {
+            const email = document.getElementById('profileEmail').value.trim();
+            const name = document.getElementById('profileName').value.trim();
+            
+            if (!email || !name) {
+                alert('لطفاً نام و ایمیل خود را وارد کنید.');
+                return;
+            }
+            
+            // Validate email format
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            if (!emailRegex.test(email)) {
+                alert('لطفاً یک آدرس ایمیل معتبر وارد کنید.');
+                return;
+            }
+            
+            try {
+                const accessToken = window.tokenManager?.getAccessToken?.();
+                if (!accessToken) {
+                    alert('توکن احراز هویت یافت نشد. لطفاً مجدداً وارد شوید.');
+                    return;
+                }
+                
+                console.log('Sending email verification request for:', email);
+                const response = await fetch('https://api.seektir.com/v2/complete-profile', { 
+                    method: 'POST', 
+                    headers: { 
+                        'Content-Type': 'application/json', 
+                        'Authorization': `Bearer ${accessToken}` 
+                    }, 
+                    body: JSON.stringify({ email }) 
+                });
+                
+                const result = await response.json();
+                console.log('Complete profile response:', result);
+                
+                if (response.ok && result.success) {
+                    document.getElementById('completeProfileStep1Fields').classList.remove('show');
+                    document.getElementById('completeProfileStep2Fields').classList.add('show');
+                    alert('کد تأیید به ایمیل شما ارسال شد!');
+                } else {
+                    alert(result.message || 'ارسال کد تأیید ناموفق بود. لطفاً دوباره تلاش کنید.');
+                }
+            } catch(err){ 
+                console.error('Complete profile error:', err); 
+                alert('خطای شبکه. لطفاً اتصال خود را بررسی کرده و دوباره تلاش کنید.');
+            }
+        });
+
+        document.getElementById('sendEmailCodeBtn').addEventListener('click', () => {
+            const btn = document.getElementById('sendEmailCodeBtn');
+            const display = document.getElementById('emailCodeTimer');
+            
+            // Disable button and change text
+            btn.disabled = true;
+            btn.textContent = 'Code Sent';
+            btn.classList.add('btn-disabled');
+            
+            // Set 15 minute timer (900 seconds)
+            emailCodeTimeLeft = 900;
+            const obj = { value: emailCodeTimeLeft, timer: emailCodeTimerInterval };
+            updateTimer(display, obj);
+            clearInterval(emailCodeTimerInterval);
+            emailCodeTimerInterval = setInterval(() => {
+                updateTimer(display, obj);
+                
+                // Re-enable button when timer expires
+                if (emailCodeTimeLeft <= 0) {
+                    btn.disabled = false;
+                    btn.textContent = 'Resend Code';
+                    btn.classList.remove('btn-disabled');
+                    clearInterval(emailCodeTimerInterval);
+                }
+            }, 1000);
+        });
+
+        document.getElementById('completeProfileSubmitBtn').addEventListener('click', async () => {
+            const code = document.getElementById('emailVerificationCode').value.trim();
+            const name = document.getElementById('profileName').value.trim();
+            const email = document.getElementById('profileEmail').value.trim();
+            const referral = document.getElementById('howDidYouHear').value || 'جستجو در گوگل';
+            const workField = document.getElementById('otherQuestions').value || 'توسعه‌دهنده نرم‌افزار';
+            
+            // Validation
+            if (!code) {
+                alert('لطفاً کد تأیید ایمیل را وارد کنید.');
+                return;
+            }
+            if (!name || !email) {
+                alert('لطفاً مطمئن شوید که نام و ایمیل پر شده‌اند.');
+                return;
+            }
+            if (code.length !== 6) {
+                alert('کد تأیید باید ۶ رقم باشد.');
+                return;
+            }
+            
+            try {
+                const accessToken = window.tokenManager?.getAccessToken?.();
+                if (!accessToken) {
+                    alert('توکن احراز هویت یافت نشد. لطفاً مجدداً وارد شوید.');
+                    return;
+                }
+                
+                console.log('Submitting profile verification:', { email, code, name, work_field: workField, referral_method: referral });
+                
+                const res = await fetch('https://api.seektir.com/v2/verify-email', { 
+                    method: 'POST', 
+                    headers: { 
+                        'Content-Type': 'application/json', 
+                        'Authorization': `Bearer ${accessToken}` 
+                    }, 
+                    body: JSON.stringify({ 
+                        email, 
+                        code, 
+                        name, 
+                        work_field: workField, 
+                        referral_method: referral 
+                    }) 
+                });
+                
+                const j = await res.json();
+                console.log('Verification response:', j);
+                
+                if (res.ok && j.success) {
+                    // Profile completed successfully
+                    alert('پروفایل با موفقیت تکمیل شد!');
+                    
+                    // Hide complete profile sections
+                    document.getElementById('completeProfileStep1Fields').classList.remove('show');
+                    document.getElementById('completeProfileStep2Fields').classList.remove('show');
+                    
+                    // Clear cached user data and refresh
+                    try {
+                        localStorage.removeItem('sonicai.userData');
+                    } catch (e) {}
+                    
+                    // Fetch fresh user data and update UI
+                    if (window.userData && window.userData.fetchUserData) {
+                        await window.userData.fetchUserData();
+                        loadAccountData(); // This will update button visibility
+                    }
+                } else {
+                    alert(j.message || `تأیید ناموفق بود (${res.status})`);
+                }
+            } catch(err){ 
+                console.error('Verification error:', err); 
+                alert('خطا در ارسال تأیید. لطفاً دوباره تلاش کنید.');
+            }
+        });
+
+        // Load immediately, also refresh when global event fires
+        document.addEventListener('DOMContentLoaded', loadAccountData);
+        window.addEventListener('userData:loaded', (e)=>loadAccountData());
+    </script>
+</body>
+</html>
+

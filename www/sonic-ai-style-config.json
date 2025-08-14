@@ -1,0 +1,231 @@
+{
+  "styleGuide": {
+    "name": "Sonic AI Design System",
+    "version": "1.0.0",
+    "description": "Centralized style guide for Sonic AI Voice Generator App",
+    
+    "components": {
+      "buttons": {
+        "required": true,
+        "baseClass": "btn",
+        "variants": [
+          {
+            "name": "primary",
+            "class": "btn-primary",
+            "description": "Main action buttons with purple gradient",
+            "usage": "Primary actions, form submissions"
+          },
+          {
+            "name": "secondary", 
+            "class": "btn-secondary",
+            "description": "Secondary actions with glass effect",
+            "usage": "Secondary actions, cancel buttons"
+          },
+          {
+            "name": "ghost",
+            "class": "btn-ghost", 
+            "description": "Minimal transparent buttons",
+            "usage": "Tertiary actions, subtle interactions"
+          }
+        ],
+        "sizes": [
+          {
+            "name": "small",
+            "class": "btn-sm",
+            "description": "Compact buttons for tight spaces"
+          },
+          {
+            "name": "medium",
+            "class": "btn-md", 
+            "description": "Standard button size"
+          },
+          {
+            "name": "large",
+            "class": "btn-lg",
+            "description": "Prominent buttons for main actions"
+          }
+        ],
+        "example": "<button class=\"btn btn-primary btn-md\">Button Text</button>",
+        "deprecated": ["action-button", "submit-btn", "btn-blue"]
+      },
+      
+      "forms": {
+        "inputs": {
+          "required": true,
+          "class": "form-input",
+          "description": "Standard form input styling with glassmorphism",
+          "example": "<input type=\"text\" class=\"form-input\" placeholder=\"Enter text\">",
+          "deprecated": ["input-field", "text-input"]
+        },
+        "labels": {
+          "required": true,
+          "class": "form-label", 
+          "description": "Consistent label styling",
+          "example": "<label class=\"form-label\">Label Text</label>",
+          "deprecated": ["label", "input-label"]
+        },
+        "groups": {
+          "class": "form-group",
+          "description": "Container for form field pairs",
+          "example": "<div class=\"form-group\"><label class=\"form-label\">Name</label><input class=\"form-input\" type=\"text\"></div>"
+        }
+      },
+      
+      "cards": {
+        "required": true,
+        "baseClass": "card",
+        "structure": [
+          {
+            "name": "header",
+            "class": "card-header",
+            "optional": true,
+            "description": "Card header section"
+          },
+          {
+            "name": "body", 
+            "class": "card-body",
+            "required": true,
+            "description": "Main card content area"
+          },
+          {
+            "name": "footer",
+            "class": "card-footer", 
+            "optional": true,
+            "description": "Card footer section"
+          }
+        ],
+        "example": "<div class=\"card\"><div class=\"card-body\">Content</div></div>",
+        "deprecated": ["panel", "box", "container-box"]
+      },
+      
+      "typography": {
+        "headings": {
+          "sizes": [
+            {"class": "text-xs", "size": "12px", "usage": "Caption 2"},
+            {"class": "text-sm", "size": "13px", "usage": "Caption 1"}, 
+            {"class": "text-base", "size": "15px", "usage": "Footnote"},
+            {"class": "text-md", "size": "16px", "usage": "Subhead"},
+            {"class": "text-lg", "size": "17px", "usage": "Body"},
+            {"class": "text-xl", "size": "20px", "usage": "Headline"},
+            {"class": "text-2xl", "size": "22px", "usage": "Title 3"},
+            {"class": "text-3xl", "size": "28px", "usage": "Title 2"}, 
+            {"class": "text-4xl", "size": "34px", "usage": "Title 1"},
+            {"class": "text-5xl", "size": "41px", "usage": "Large Title"}
+          ]
+        },
+        "weights": [
+          {"class": "font-light", "weight": "300"},
+          {"class": "font-regular", "weight": "400"},
+          {"class": "font-medium", "weight": "500"},
+          {"class": "font-semibold", "weight": "600"},
+          {"class": "font-bold", "weight": "700"}
+        ]
+      },
+      
+      "notifications": {
+        "baseClass": "notification",
+        "variants": [
+          {"class": "notification-success", "color": "green", "usage": "Success messages"},
+          {"class": "notification-error", "color": "red", "usage": "Error messages"},
+          {"class": "notification-warning", "color": "yellow", "usage": "Warning messages"},
+          {"class": "notification-info", "color": "blue", "usage": "Info messages"}
+        ]
+      },
+      
+      "loading": {
+        "spinner": {
+          "class": "spinner",
+          "description": "Animated loading spinner",
+          "example": "<div class=\"loading show\"><div class=\"spinner\"></div><p>Loading...</p></div>"
+        }
+      }
+    },
+    
+    "colors": {
+      "brand": {
+        "primary": "#6366F1",
+        "secondary": "#8B5CF6", 
+        "accent": "#A855F7",
+        "light": "#C4B5FD",
+        "lighter": "#DDD6FE",
+        "lightest": "#EDE9FE"
+      },
+      "grayscale": {
+        "black-900": "#000000",
+        "black-800": "#1F2937", 
+        "black-700": "#374151",
+        "black-600": "#4B5563",
+        "black-500": "#6B7280",
+        "black-400": "#9CA3AF",
+        "black-300": "#D1D5DB",
+        "black-200": "#E5E7EB",
+        "black-100": "#F3F4F6",
+        "black-50": "#F9FAFB",
+        "white": "#FFFFFF"
+      },
+      "semantic": {
+        "success": "#22C55E",
+        "error": "#EF4444", 
+        "warning": "#F59E0B",
+        "info": "#3B82F6"
+      }
+    },
+    
+    "spacing": {
+      "xs": "4px",
+      "sm": "8px", 
+      "md": "16px",
+      "lg": "24px",
+      "xl": "32px",
+      "2xl": "48px",
+      "3xl": "64px",
+      "4xl": "80px",
+      "5xl": "96px"
+    },
+    
+    "utilities": {
+      "layout": [
+        {"class": "flex", "property": "display: flex"},
+        {"class": "grid", "property": "display: grid"},
+        {"class": "block", "property": "display: block"},
+        {"class": "hidden", "property": "display: none"}
+      ],
+      "flexbox": [
+        {"class": "items-center", "property": "align-items: center"},
+        {"class": "justify-center", "property": "justify-content: center"},
+        {"class": "justify-between", "property": "justify-content: space-between"}
+      ],
+      "spacing": [
+        {"class": "m-xs", "property": "margin: 4px"},
+        {"class": "m-sm", "property": "margin: 8px"},
+        {"class": "m-md", "property": "margin: 16px"},
+        {"class": "p-xs", "property": "padding: 4px"},
+        {"class": "p-sm", "property": "padding: 8px"},
+        {"class": "p-md", "property": "padding: 16px"}
+      ]
+    },
+    
+    "enforcement": {
+      "strict": true,
+      "autoFix": false,
+      "warnings": true,
+      "excludeSelectors": [
+        ".brand-logo",
+        ".legacy-component",
+        "[data-ignore-style-guide]"
+      ]
+    },
+    
+    "migration": {
+      "deprecated": {
+        "action-button": "btn btn-primary btn-lg",
+        "submit-btn": "btn btn-primary btn-md",
+        "cancel-btn": "btn btn-secondary btn-md",
+        "loading-container": "loading",
+        "input-field": "form-input",
+        "text-input": "form-input",
+        "label": "form-label"
+      }
+    }
+  }
+}

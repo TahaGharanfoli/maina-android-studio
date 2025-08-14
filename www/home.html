@@ -1,0 +1,676 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sonic AI - خانه</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link rel="stylesheet" href="css/sonic-ai-style-guide.css">
+    <style>
+        /* Home-specific styles */
+        .home-container {
+            max-width: 400px;
+            margin: 0 auto;
+            background: var(--gradient-dark);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+            padding-bottom: 80px; /* Space for footer */
+        }
+        
+        .header-section {
+            padding: var(--space-xl) var(--space-lg) var(--space-lg);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        
+        .user-greeting {
+            display: flex;
+            align-items: center;
+            gap: var(--space-md);
+        }
+        
+        .user-avatar {
+            width: 48px;
+            height: 48px;
+            border-radius: var(--radius-full);
+            background: var(--gradient-primary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--white);
+            font-size: var(--font-size-lg);
+            font-weight: var(--font-weight-bold);
+        }
+        
+        .greeting-text h1 {
+            font-size: var(--font-size-lg);
+            font-weight: var(--font-weight-semibold);
+            color: var(--white);
+            margin: 0;
+        }
+        
+        .notification-btn {
+            width: 40px;
+            height: 40px;
+            border-radius: var(--radius-md);
+            background: rgba(255, 255, 255, 0.1);
+            border: none;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--white);
+            font-size: var(--font-size-md);
+            cursor: pointer;
+            transition: all var(--transition-normal);
+        }
+        
+        .notification-btn:hover {
+            background: rgba(255, 255, 255, 0.15);
+        }
+        
+        .main-content {
+            flex: 1;
+            padding: 0 var(--space-lg);
+        }
+        
+        .hero-card {
+            background: linear-gradient(135deg, #6366F1 0%, #8B5CF6 50%, #A855F7 100%);
+            border-radius: var(--radius-xl);
+            padding: var(--space-xl);
+            margin-bottom: var(--space-xl);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .hero-card::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            right: -20%;
+            width: 150px;
+            height: 150px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: var(--radius-full);
+            transform: rotate(45deg);
+        }
+        
+        .hero-icon {
+            width: 48px;
+            height: 48px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: var(--radius-md);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--white);
+            font-size: var(--font-size-xl);
+            margin-bottom: var(--space-md);
+        }
+        
+        .hero-title {
+            font-size: var(--font-size-xl);
+            font-weight: var(--font-weight-bold);
+            color: var(--white);
+            margin-bottom: var(--space-sm);
+        }
+        
+        .hero-subtitle {
+            font-size: var(--font-size-sm);
+            color: rgba(255, 255, 255, 0.8);
+            margin-bottom: var(--space-lg);
+        }
+        
+        .hero-button {
+            background: rgba(0, 0, 0, 0.3);
+            color: var(--white);
+            border: none;
+            padding: var(--space-md) var(--space-xl);
+            border-radius: var(--radius-md);
+            font-weight: var(--font-weight-semibold);
+            font-size: var(--font-size-md);
+            width: 100%;
+            cursor: pointer;
+            transition: all var(--transition-normal);
+        }
+        
+        .hero-button:hover {
+            background: rgba(0, 0, 0, 0.4);
+        }
+        
+        .features-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: var(--space-md);
+            margin-bottom: var(--space-xl);
+        }
+        
+        .feature-card {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: var(--radius-lg);
+            padding: var(--space-lg);
+            text-align: center;
+            cursor: pointer;
+            transition: all var(--transition-normal);
+            backdrop-filter: var(--backdrop-blur-md);
+        }
+        
+        .feature-card:hover {
+            background: rgba(255, 255, 255, 0.08);
+            transform: translateY(-2px);
+        }
+        
+        .feature-icon {
+            width: 48px;
+            height: 48px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: var(--radius-md);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto var(--space-md);
+            font-size: var(--font-size-lg);
+            color: var(--brand-light);
+        }
+        
+        .feature-title {
+            font-size: var(--font-size-md);
+            font-weight: var(--font-weight-semibold);
+            color: var(--white);
+            margin-bottom: var(--space-sm);
+        }
+        
+        .feature-subtitle {
+            font-size: var(--font-size-xs);
+            color: var(--black-400);
+            line-height: var(--line-height-relaxed);
+        }
+        
+        .feature-action {
+            margin-top: var(--space-md);
+        }
+        
+        .feature-action .btn {
+            width: 100%;
+            font-size: var(--font-size-sm);
+            padding: var(--space-sm) var(--space-md);
+        }
+        
+        .section-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: var(--space-lg);
+        }
+        
+        .section-title {
+            font-size: var(--font-size-lg);
+            font-weight: var(--font-weight-semibold);
+            color: var(--white);
+        }
+        
+        .see-all-btn {
+            color: var(--brand-light);
+            font-size: var(--font-size-sm);
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: var(--space-xs);
+            transition: color var(--transition-normal);
+        }
+        
+        .see-all-btn:hover {
+            color: var(--brand-primary);
+        }
+        
+        .voice-list {
+            display: flex;
+            flex-direction: column;
+            gap: var(--space-md);
+        }
+        
+        .voice-item {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: var(--radius-md);
+            padding: var(--space-md);
+            display: flex;
+            align-items: center;
+            gap: var(--space-md);
+            cursor: pointer;
+            transition: all var(--transition-normal);
+        }
+        
+        .voice-item:hover {
+            background: rgba(255, 255, 255, 0.08);
+        }
+        
+        .voice-avatar {
+            width: 48px;
+            height: 48px;
+            border-radius: var(--radius-md);
+            background: var(--gradient-secondary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--white);
+            font-size: var(--font-size-lg);
+            font-weight: var(--font-weight-bold);
+        }
+        
+        .voice-info {
+            flex: 1;
+        }
+        
+        .voice-name {
+            font-size: var(--font-size-md);
+            font-weight: var(--font-weight-medium);
+            color: var(--white);
+            margin-bottom: var(--space-xs);
+        }
+        
+        .voice-language {
+            font-size: var(--font-size-sm);
+            color: var(--black-400);
+        }
+        
+        .voice-controls {
+            display: flex;
+            align-items: center;
+            gap: var(--space-sm);
+        }
+        
+        .voice-duration {
+            font-size: var(--font-size-sm);
+            color: var(--black-400);
+            min-width: 40px;
+        }
+        
+        .play-btn {
+            width: 32px;
+            height: 32px;
+            border-radius: var(--radius-full);
+            background: var(--brand-primary);
+            border: none;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--white);
+            cursor: pointer;
+            transition: all var(--transition-normal);
+        }
+        
+        .play-btn:hover {
+            background: var(--brand-secondary);
+            transform: scale(1.05);
+        }
+        
+        .play-btn.playing {
+            background: var(--brand-accent);
+        }
+        
+        .waveform {
+            display: flex;
+            align-items: center;
+            gap: 2px;
+            padding: 0 var(--space-sm);
+        }
+        
+        .waveform-bar {
+            width: 2px;
+            background: var(--brand-primary);
+            border-radius: 1px;
+            animation: waveform 1.5s ease-in-out infinite;
+        }
+        
+        .waveform-bar:nth-child(1) { height: 8px; animation-delay: 0s; }
+        .waveform-bar:nth-child(2) { height: 16px; animation-delay: 0.1s; }
+        .waveform-bar:nth-child(3) { height: 12px; animation-delay: 0.2s; }
+        .waveform-bar:nth-child(4) { height: 20px; animation-delay: 0.3s; }
+        .waveform-bar:nth-child(5) { height: 6px; animation-delay: 0.4s; }
+        .waveform-bar:nth-child(6) { height: 14px; animation-delay: 0.5s; }
+        .waveform-bar:nth-child(7) { height: 10px; animation-delay: 0.6s; }
+        
+        @keyframes waveform {
+            0%, 100% { transform: scaleY(1); }
+            50% { transform: scaleY(0.3); }
+        }
+        
+        /* Footer Navigation (uses style guide tabbar) */
+        .footer-nav { bottom: 16px; }
+        
+        /* Mobile responsiveness */
+        @media (max-width: 480px) {
+            .home-container {
+                max-width: 100%;
+            }
+            
+            .header-section {
+                padding: var(--space-lg);
+            }
+            
+            .features-grid {
+                grid-template-columns: 1fr;
+                gap: var(--space-sm);
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="home-container">
+        <!-- Header Section -->
+        <div class="header-section">
+            <div class="user-greeting">
+                <div class="user-avatar">
+                    <i class="fas fa-user"></i>
+                </div>
+                <div class="greeting-text">
+                    <h1>خوش برگشتید!</h1>
+                </div>
+            </div>
+            <button class="notification-btn" onclick="toggleNotifications()">
+                <i class="fas fa-bell"></i>
+            </button>
+        </div>
+
+        <!-- Main Content -->
+        <div class="main-content">
+            <!-- Hero Card - Script to Speech -->
+            <div class="hero-card" onclick="openScriptToSpeech()">
+                <div class="hero-icon">
+                    <i class="fas fa-microphone-alt"></i>
+                </div>
+                <div class="hero-title">متن به گفتار</div>
+                <div class="hero-subtitle">صدای خود را همان‌طور که می‌خواهید تغییر دهید</div>
+                <button class="hero-button">ایجاد</button>
+            </div>
+
+            <!-- Feature Cards -->
+            <div class="features-grid">
+                <div class="feature-card" onclick="openVoiceGenerator()">
+                    <div class="feature-icon">
+                        <i class="fas fa-brain"></i>
+                    </div>
+                    <div class="feature-title">تولیدکننده صدای هوش مصنوعی</div>
+                    <div class="feature-subtitle">بیایید ببینیم چه کاری می‌توانم برای شما انجام دهم؟</div>
+                    <div class="feature-action">
+                        <button class="btn btn-secondary btn-sm">ضبط</button>
+                    </div>
+                </div>
+
+                <div class="feature-card" onclick="openVoiceChanger()">
+                    <div class="feature-icon">
+                        <i class="fas fa-exchange-alt"></i>
+                    </div>
+                    <div class="feature-title">تغییردهنده صدای هوش مصنوعی</div>
+                    <div class="feature-subtitle">بیایید ببینیم چه کاری می‌توانم برای شما انجام دهم؟</div>
+                    <div class="feature-action">
+                        <button class="btn btn-secondary btn-sm">ایجاد جدید</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Popular Voice Section -->
+            <div class="section-header">
+                <h2 class="section-title">صداهای محبوب</h2>
+                <a href="#" class="see-all-btn" onclick="showAllVoices()">
+                    مشاهده همه <i class="fas fa-chevron-left"></i>
+                </a>
+            </div>
+
+            <div class="voice-list">
+                <div class="voice-item" data-voice="gladys">
+                    <div class="voice-avatar">G</div>
+                    <div class="voice-info">
+                        <div class="voice-name">Gladys</div>
+                        <div class="voice-language">Hindi</div>
+                    </div>
+                    <div class="voice-controls">
+                        <div class="voice-duration">0:05</div>
+                        <button class="play-btn" onclick="playVoice('gladys', this)">
+                            <i class="fas fa-play"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="voice-item" data-voice="francisco">
+                    <div class="voice-avatar">F</div>
+                    <div class="voice-info">
+                        <div class="voice-name">Francisco</div>
+                        <div class="voice-language">English</div>
+                    </div>
+                    <div class="voice-controls">
+                        <div class="waveform" style="display: none;">
+                            <div class="waveform-bar"></div>
+                            <div class="waveform-bar"></div>
+                            <div class="waveform-bar"></div>
+                            <div class="waveform-bar"></div>
+                            <div class="waveform-bar"></div>
+                            <div class="waveform-bar"></div>
+                            <div class="waveform-bar"></div>
+                        </div>
+                        <button class="play-btn playing" onclick="playVoice('francisco', this)">
+                            <i class="fas fa-pause"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="voice-item" data-voice="colleen">
+                    <div class="voice-avatar">C</div>
+                    <div class="voice-info">
+                        <div class="voice-name">Colleen</div>
+                        <div class="voice-language">Chinese</div>
+                    </div>
+                    <div class="voice-controls">
+                        <div class="voice-duration">0:05</div>
+                        <button class="play-btn" onclick="playVoice('colleen', this)">
+                            <i class="fas fa-play"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Footer Navigation -->
+        <div class="tabbar footer-nav">
+            <div class="tabbar-items">
+                <a href="home.html" class="tabbar-item active" aria-label="خانه">
+                    <div class="tabbar-icon">
+                        <i class="fas fa-home"></i>
+                    </div>
+                </a>
+                <a href="generator.html" class="tabbar-item" aria-label="تولید">
+                    <div class="tabbar-icon">
+                        <i class="fas fa-microphone"></i>
+                    </div>
+                </a>
+                <a href="account.html" class="tabbar-item" aria-label="حساب">
+                    <div class="tabbar-icon">
+                        <i class="fas fa-user"></i>
+                    </div>
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Data + Style Guide System -->
+    <script src="js/token-manager.js"></script>
+    <script src="js/user-data.js"></script>
+    <script src="js/style-guide-validator.js"></script>
+    <script src="js/style-guide-master.js"></script>
+    
+    <!-- Simplified Authentication Check -->
+    <script>
+        // Simple auth check for home page
+        (function() {
+            console.log('🏠 Home page loaded');
+            
+            // Only redirect if we definitely have no tokens at all
+            setTimeout(() => {
+                if (window.tokenManager && !window.tokenManager.getAccessToken() && !window.tokenManager.refreshToken) {
+                    console.log('❌ No tokens found, redirecting to auth');
+                    window.location.href = 'auth.html';
+                }
+            }, 1000);
+        })();
+    </script>
+
+    <script>
+        // Voice playback simulation
+        let currentPlaying = null;
+
+        function playVoice(voiceId, button) {
+            const voiceItem = button.closest('.voice-item');
+            const icon = button.querySelector('i');
+            const duration = voiceItem.querySelector('.voice-duration');
+            const waveform = voiceItem.querySelector('.waveform');
+            
+            // Stop current playing voice
+            if (currentPlaying && currentPlaying !== button) {
+                stopVoice(currentPlaying);
+            }
+            
+            if (button.classList.contains('playing')) {
+                // Stop playing
+                stopVoice(button);
+            } else {
+                // Start playing
+                button.classList.add('playing');
+                icon.className = 'fas fa-pause';
+                
+                if (waveform) {
+                    waveform.style.display = 'flex';
+                    if (duration) duration.style.display = 'none';
+                }
+                
+                currentPlaying = button;
+                
+                // Simulate voice duration
+                setTimeout(() => {
+                    if (currentPlaying === button) {
+                        stopVoice(button);
+                    }
+                }, 5000); // 5 seconds
+            }
+        }
+        
+        function stopVoice(button) {
+            const voiceItem = button.closest('.voice-item');
+            const icon = button.querySelector('i');
+            const duration = voiceItem.querySelector('.voice-duration');
+            const waveform = voiceItem.querySelector('.waveform');
+            
+            button.classList.remove('playing');
+            icon.className = 'fas fa-play';
+            
+            if (waveform) {
+                waveform.style.display = 'none';
+                if (duration) duration.style.display = 'block';
+            }
+            
+            if (currentPlaying === button) {
+                currentPlaying = null;
+            }
+        }
+        
+        // Navigation functions
+        function openScriptToSpeech() {
+            console.log('Opening Script to Speech feature');
+            // Navigate to script-to-speech page or show modal
+            showFeatureComingSoon('متن به گفتار');
+        }
+        
+        function openVoiceGenerator() {
+            console.log('Opening AI Voice Generator');
+            // Navigate to voice generator page
+            showFeatureComingSoon('تولیدکننده صدای هوش مصنوعی');
+        }
+        
+        function openVoiceChanger() {
+            console.log('Opening AI Voice Changer');
+            // Navigate to voice changer page
+            showFeatureComingSoon('تغییردهنده صدای هوش مصنوعی');
+        }
+        
+        function showAllVoices() {
+            console.log('Showing all voices');
+            // Navigate to voices library page
+            showFeatureComingSoon('کتابخانه صداها');
+        }
+        
+        function toggleNotifications() {
+            console.log('Toggling notifications');
+            // Show notifications panel
+            showFeatureComingSoon('اعلان‌ها');
+        }
+        
+        function openSettings() {
+            console.log('Opening settings');
+            // Navigate to settings page
+            showFeatureComingSoon('تنظیمات');
+        }
+        
+        function showFeatureComingSoon(featureName) {
+            // Create a simple modal or notification
+            const notification = document.createElement('div');
+            notification.className = 'notification notification-info';
+            notification.style.position = 'fixed';
+            notification.style.top = '20px';
+            notification.style.left = '50%';
+            notification.style.transform = 'translateX(-50%)';
+            notification.style.zIndex = '9999';
+            notification.innerHTML = `
+                <i class="fas fa-info-circle mr-sm"></i>
+                ویژگی ${featureName} به زودی در دسترس خواهد بود!
+            `;
+            
+            document.body.appendChild(notification);
+            
+            setTimeout(() => {
+                notification.remove();
+            }, 3000);
+        }
+        
+        // Initialize app
+        document.addEventListener('DOMContentLoaded', () => {
+            console.log('🏠 Sonic AI Home loaded');
+            // try fill quick user info if needed later
+            if (window.userData) {
+                const cached = window.userData.getCachedUserData();
+                if (!cached) {
+                    window.userData.fetchUserData().catch(e=>console.warn('User data fetch failed on home:', e.message));
+                }
+            }
+            
+            // Set Francisco as initially playing (as shown in the design)
+            const franciscoButton = document.querySelector('[data-voice="francisco"] .play-btn');
+            if (franciscoButton) {
+                const waveform = franciscoButton.closest('.voice-item').querySelector('.waveform');
+                if (waveform) {
+                    waveform.style.display = 'flex';
+                }
+            }
+        });
+        
+        // Update navigation active state
+        function updateNavigation() {
+            const navItems = document.querySelectorAll('.nav-item');
+            navItems.forEach(item => {
+                item.classList.remove('active');
+                if (item.getAttribute('href') === 'home.html') {
+                    item.classList.add('active');
+                }
+            });
+        }
+        
+        updateNavigation();
+    </script>
+</body>
+</html>

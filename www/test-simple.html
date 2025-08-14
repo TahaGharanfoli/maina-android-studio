@@ -64,6 +64,7 @@
             <button onclick="testFetch()">Test Fetch API</button>
             <button onclick="goToAuth()">Go to Auth</button>
             <button onclick="goToMain()">Go to Main</button>
+            <button onclick="clearCache()">Clear Cache/Tokens</button>
         </div>
     </div>
 
@@ -108,7 +109,33 @@
         }
         
         function goToMain() {
-            window.location.href = 'index.html';
+            window.location.href = 'home.html';
+        }
+
+        async function clearCache() {
+            try {
+                // Clear via tokenManager if available
+                if (window.tokenManager && typeof window.tokenManager.clearTokens === 'function') {
+                    window.tokenManager.clearTokens();
+                }
+
+                // Clear storage keys directly
+                localStorage.removeItem('accessToken');
+                localStorage.removeItem('refreshToken');
+                localStorage.removeItem('tokenExpiry');
+                sessionStorage.clear();
+
+                // Clear Cache Storage (if supported)
+                if (window.caches && typeof caches.keys === 'function') {
+                    const keys = await caches.keys();
+                    await Promise.all(keys.map(k => caches.delete(k)));
+                }
+
+                addResult('Clear Cache', true, 'Tokens and caches cleared. Reloading...');
+                setTimeout(() => location.reload(), 600);
+            } catch (error) {
+                addResult('Clear Cache', false, error.message);
+            }
         }
         
         // Run basic tests on load
@@ -135,6 +162,9 @@
     </script>
 </body>
 </html>
+
+
+
 
 
 

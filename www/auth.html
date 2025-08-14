@@ -1,165 +1,139 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="fa" dir="rtl">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Authentication</title>
+    <title>Sonic AI - احراز هویت</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/sonic-ai-style-guide.css">
     <style>
-        body {
-            font-family: Arial, sans-serif;
-            margin: 0;
-            padding: 0;
-            background-color: #f4f7f6;
-            color: #333;
-            -webkit-font-smoothing: antialiased;
-            -moz-osx-font-smoothing: grayscale;
-        }
-
-        .container {
-            max-width: 500px;
-            margin: 0 auto;
-            background-color: #fff;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-            min-height: 100vh;
-            display: flex;
-            flex-direction: column;
-        }
-
-        header {
+        /* Auth-specific overrides and custom styles */
+        .back-arrow {
+            font-size: 20px;
+            color: var(--black-300);
+            margin-left: var(--space-md);
+            cursor: pointer;
+            padding: var(--space-sm);
+            border-radius: var(--radius-sm);
+            transition: all 0.2s ease;
+            background: rgba(255, 255, 255, 0.05);
+            width: 36px;
+            height: 36px;
             display: flex;
             align-items: center;
-            padding: 15px;
-            border-bottom: 1px solid #eee;
-            background-color: #fff;
-            position: sticky;
-            top: 0;
-            z-index: 1000;
+            justify-content: center;
         }
 
-        header .back-arrow {
-            font-size: 24px;
-            color: #555;
-            margin-right: 15px;
-            cursor: pointer;
+        .back-arrow:hover {
+            background: rgba(255, 255, 255, 0.1);
+            color: #FFFFFF;
         }
 
-        header h1 {
+        .header h1 {
             font-size: 18px;
-            font-weight: bold;
-            color: #333;
+            font-weight: 600;
+            color: #FFFFFF;
             flex-grow: 1;
             text-align: center;
-            margin-right: 40px;
-        }
-
-        .content {
-            padding: 20px;
-            flex-grow: 1;
+            margin-left: 52px;
         }
 
         .auth-section {
-            margin-bottom: 25px;
-            padding: 15px;
-            background-color: #fff;
-            border-radius: 8px;
-            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+            margin-bottom: var(--space-xl);
+            padding: 0; /* no container padding box like reference */
+            background: transparent; /* remove card background */
+            border: none; /* remove border */
+            border-radius: 0;
+            backdrop-filter: none;
         }
 
         .section-title {
-            font-size: 16px;
-            font-weight: bold;
-            color: #333;
-            margin-bottom: 15px;
-            padding-bottom: 5px;
-            border-bottom: 1px solid #f0f0f0;
+            font-size: 24px;
+            font-weight: 600;
+            color: #FFFFFF;
+            margin-bottom: var(--space-md);
+            text-align: center;
         }
 
-        .form-group {
-            margin-bottom: 15px;
-        }
-
-        .form-group label {
-            display: block;
+        .auth-subtitle {
+            color: var(--black-300);
+            text-align: center;
+            margin-top: 6px;
+            margin-bottom: var(--space-xl);
             font-size: 14px;
-            color: #555;
-            margin-bottom: 5px;
+            font-weight: 500;
         }
 
-        .form-group input[type="text"],
-        .form-group input[type="password"],
-        .form-group input[type="tel"] {
-            width: calc(100% - 20px);
-            padding: 10px;
-            border: 1px solid #ddd;
-            border-radius: 5px;
-            font-size: 16px;
-            color: #333;
-            background-color: #f9f9f9;
+        .input-group { position: relative; }
+        .input-group .input-icon {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--black-400);
         }
+[dir="ltr"] .input-group .input-icon { left: 14px; }
+[dir="rtl"] .input-group .input-icon { right: 14px; }
+        .input-group .form-input { padding-inline-start: 44px; }
+[dir="ltr"] .input-group .form-input { padding-left: 44px; padding-right: var(--space-md); }
+[dir="rtl"] .input-group .form-input { padding-right: 44px; padding-left: var(--space-md); }
 
-        .action-button {
-            background-color: #007bff;
-            color: #fff;
-            padding: 12px 20px;
-            border: none;
-            border-radius: 5px;
-            width: 100%;
-            font-size: 16px;
-            cursor: pointer;
-            transition: background-color 0.3s ease;
-            margin-top: 20px;
-        }
+        /* Auth form sizing to match mockup */
+        .auth-section .form-group { margin-bottom: var(--space-md); }
+        .auth-section .form-input { height: 52px; border-radius: var(--radius-lg); }
+        #signinBtn, #signupBtn { width: 100%; height: 52px; border-radius: var(--radius-lg); }
 
-        .action-button:hover {
-            background-color: #0056b3;
-        }
+        /* Remove outer container visuals to match reference */
+        .container { background: transparent; border: none; }
+        .container::before { display: none; }
+        .header { border-bottom: none; background: transparent; }
+        .header h1 { display: none; }
+        .logo-section { display: none; }
 
-        .action-button:disabled {
-            background-color: #cccccc;
-            color: #666;
-            cursor: not-allowed;
+        .form-group.error .form-input { border-color: var(--error-500); }
+        .field-error {
+            display: none;
+            margin-top: 6px;
+            font-size: 12px;
+            color: var(--error-500);
         }
+        .form-group.error .field-error { display: block; }
+
+        .action-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: var(--space-sm);
+            margin-bottom: var(--space-md);
+            font-size: 12px;
+            color: var(--black-400);
+        }
+        .link { color: var(--brand-light); cursor: pointer; }
+        .link:hover { color: var(--brand-primary); }
+
+
 
         .code-input-group {
             display: flex;
             align-items: center;
-            gap: 10px;
+            gap: var(--space-md);
         }
 
         .code-input-group input {
             flex-grow: 1;
-            width: auto !important;
         }
 
-        .code-input-group button {
-            padding: 10px 15px;
-            border: 1px solid #007bff;
-            background-color: #007bff;
-            color: #fff;
-            border-radius: 5px;
-            cursor: pointer;
-            font-size: 14px;
-            white-space: nowrap;
-            transition: background-color 0.3s ease, color 0.3s ease;
-        }
 
-        .code-input-group button:hover:not(:disabled) {
-            background-color: #0056b3;
-        }
-
-        .code-input-group button:disabled {
-            background-color: #cccccc;
-            color: #666;
-            border-color: #cccccc;
-            cursor: not-allowed;
-        }
 
         .code-timer {
             font-size: 12px;
-            color: #777;
+            color: var(--black-400);
             text-align: right;
-            margin-top: 5px;
+            margin-top: var(--space-sm);
+            font-weight: 500;
         }
 
         .auth-step {
@@ -168,86 +142,78 @@
 
         .auth-step.active {
             display: block;
-        }
-
-        .loading {
-            display: none;
-            text-align: center;
-            padding: 20px;
-        }
-
-        .loading.show {
-            display: block;
-        }
-
-        .spinner {
-            border: 3px solid #f3f3f3;
-            border-top: 3px solid #007bff;
-            border-radius: 50%;
-            width: 30px;
-            height: 30px;
-            animation: spin 1s linear infinite;
-            margin: 0 auto 10px;
-        }
-
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
-
-        .error-message {
-            background-color: #f8d7da;
-            color: #721c24;
-            padding: 10px;
-            border-radius: 5px;
-            margin-bottom: 15px;
-            display: none;
-        }
-
-        .success-message {
-            background-color: #d4edda;
-            color: #155724;
-            padding: 10px;
-            border-radius: 5px;
-            margin-bottom: 15px;
-            display: none;
+            animation: fadeInUp 0.4s ease-out;
         }
 
         .logo-section {
             text-align: center;
-            padding: 40px 20px 20px;
+            padding: var(--space-2xl) var(--space-lg) var(--space-xl);
         }
 
         .logo-section h2 {
-            font-size: 24px;
-            color: #333;
-            margin-bottom: 10px;
+            font-size: 32px;
+            font-weight: 700;
+            background: var(--gradient-text);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: var(--space-md);
         }
 
         .logo-section p {
-            color: #666;
-            font-size: 14px;
+            color: var(--black-300);
+            font-size: 16px;
+            font-weight: 500;
+        }
+
+        .error-message {
+            background: rgba(239, 68, 68, 0.1);
+            border: 1px solid rgba(239, 68, 68, 0.3);
+            color: #FCA5A5;
+            padding: var(--space-md);
+            border-radius: var(--radius-md);
+            margin-bottom: var(--space-lg);
+            display: none;
+            font-weight: 500;
+        }
+
+        .success-message {
+            background: rgba(34, 197, 94, 0.1);
+            border: 1px solid rgba(34, 197, 94, 0.3);
+            color: #86EFAC;
+            padding: var(--space-md);
+            border-radius: var(--radius-md);
+            margin-bottom: var(--space-lg);
+            display: none;
+            font-weight: 500;
+        }
+
+        /* Mobile Responsiveness */
+        @media (max-width: 480px) {
+            .auth-section {
+                padding: var(--space-lg);
+            }
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <header>
-            <i class="fas fa-arrow-left back-arrow" id="backArrow"></i>
-            <h1 id="pageTitle">Welcome</h1>
-        </header>
+        <div class="header">
+            <i class="fas fa-arrow-right back-arrow" id="backArrow"></i>
+            <h1 id="pageTitle">ورود</h1>
+        </div>
 
         <div class="content">
             <!-- Logo and Welcome Section -->
             <div class="logo-section">
-                <h2>Mayna Sound</h2>
-                <p>Your audio processing companion</p>
+                <h2>Sonic AI</h2>
+                <p>تولید صدا با هوش مصنوعی</p>
             </div>
 
             <!-- Loading Section -->
             <div class="loading" id="loadingSection">
                 <div class="spinner"></div>
-                <p>Processing...</p>
+                <p>در حال پردازش...</p>
             </div>
 
             <!-- Error Message -->
@@ -256,67 +222,94 @@
             <!-- Success Message -->
             <div class="success-message" id="successMessage"></div>
 
-            <!-- Step 1: Phone Number Input -->
+            <!-- مرحله ۱: شماره تلفن -->
             <div class="auth-step active" id="phoneStep">
                 <div class="auth-section">
-                    <div class="section-title">Enter Your Phone Number</div>
-                    <div class="form-group">
-                        <label for="phoneNumber">Phone Number</label>
-                        <input type="tel" id="phoneNumber" placeholder="Enter your phone number" value="09393070813">
-                    </div>
-                    <button class="action-button" id="checkPhoneBtn">Continue</button>
-                </div>
-            </div>
-
-            <!-- Step 2: Login -->
-            <div class="auth-step" id="loginStep">
-                <div class="auth-section">
-                    <div class="section-title">Login</div>
-                    <div class="form-group">
-                        <label for="loginPhone">Phone Number</label>
-                        <input type="tel" id="loginPhone" readonly>
-                    </div>
-                    <div class="form-group">
-                        <label for="loginPassword">Password</label>
-                        <input type="password" id="loginPassword" placeholder="Enter your password">
-                    </div>
-                    <button class="action-button" id="loginBtn">Login</button>
-                </div>
-            </div>
-
-            <!-- Step 3: Registration -->
-            <div class="auth-step" id="registerStep">
-                <div class="auth-section">
-                    <div class="section-title">Create Account</div>
-                    <div class="form-group">
-                        <label for="registerPhone">Phone Number</label>
-                        <input type="tel" id="registerPhone" readonly>
-                    </div>
-                    <div class="form-group">
-                        <label for="registerPassword">Password</label>
-                        <input type="password" id="registerPassword" placeholder="Create a password">
-                    </div>
-                    <div class="form-group">
-                        <label for="confirmPassword">Confirm Password</label>
-                        <input type="password" id="confirmPassword" placeholder="Confirm your password">
-                    </div>
-                    <button class="action-button" id="sendCodeBtn">Send Verification Code</button>
-                </div>
-            </div>
-
-            <!-- Step 4: Verification Code -->
-            <div class="auth-step" id="verificationStep">
-                <div class="auth-section">
-                    <div class="section-title">Verify Your Phone</div>
-                    <div class="form-group">
-                        <label for="verificationCode">Verification Code</label>
-                        <div class="code-input-group">
-                            <input type="text" id="verificationCode" placeholder="Enter verification code">
-                            <button id="resendCodeBtn">Resend</button>
+                    <div class="section-title">شماره تلفن خود را وارد کنید</div>
+                    <div class="auth-subtitle">ابتدا شماره شما بررسی می‌شود تا وضعیت حساب مشخص شود</div>
+                    <div class="form-group" id="phoneNumberGroup">
+                        <label for="phoneNumber" class="form-label">شماره تلفن</label>
+                        <div class="input-group">
+                            <i class="fas fa-phone input-icon"></i>
+                            <input type="tel" id="phoneNumber" class="form-input" placeholder="مثال: 09123456789">
                         </div>
-                        <div class="code-timer" id="codeTimer"></div>
+                        <div class="field-error">لطفاً شماره تلفن معتبر وارد کنید.</div>
                     </div>
-                    <button class="action-button" id="verifyAndRegisterBtn">Complete Registration</button>
+                    <button class="btn btn-primary btn-lg w-full" id="checkPhoneBtn">ادامه</button>
+                </div>
+            </div>
+
+            <!-- Sign In -->
+            <div class="auth-step" id="signinStep">
+                <div class="auth-section">
+                    <div class="section-title">خوش آمدید! 👋</div>
+                    <div class="auth-subtitle">خوشحالیم دوباره می   بینیمت!</div>
+
+                    <div class="form-group" id="signinPhoneGroup">
+                        <label for="signinPhone" class="form-label">شماره تلفن</label>
+                        <div class="input-group">
+                            <i class="fas fa-phone input-icon"></i>
+                            <input type="tel" id="signinPhone" class="form-input" placeholder="0912..." readonly>
+                        </div>
+                    </div>
+
+                    <div class="form-group" id="signinPasswordGroup">
+                        <label for="signinPassword" class="form-label">رمز عبور</label>
+                        <div class="input-group">
+                            <i class="fas fa-lock input-icon"></i>
+                            <input type="password" id="signinPassword" class="form-input" placeholder="••••••">
+                        </div>
+                    </div>
+
+                    <div class="action-row">
+                        <span></span>
+                        <span class="link" id="forgotPassword">فراموشی رمز عبور؟</span>
+                    </div>
+
+                    <button class="btn btn-primary btn-lg w-full" id="signinBtn">ورود</button>
+
+                    <div class="text-center m-sm">
+                        حساب کاربری ندارید؟ <span class="link" id="toSignup">ثبت‌نام</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Sign Up -->
+            <div class="auth-step" id="signupStep">
+                <div class="auth-section">
+                    <div class="section-title">ایجاد حساب کاربری 🔒</div>
+                    <div class="auth-subtitle">همین حالا عضو شوید و به ۱۰۰۰+ افکت صوتی دسترسی پیدا کنید</div>
+
+                    <div class="form-group" id="signupPhoneGroup">
+                        <label for="signupPhone" class="form-label">شماره تلفن</label>
+                        <div class="input-group">
+                            <i class="fas fa-phone input-icon"></i>
+                            <input type="tel" id="signupPhone" class="form-input" placeholder="0912..." readonly>
+                        </div>
+                    </div>
+
+                    <div class="form-group" id="signupPasswordGroup">
+                        <label for="signupPassword" class="form-label">رمز عبور</label>
+                        <div class="input-group">
+                            <i class="fas fa-lock input-icon"></i>
+                            <input type="password" id="signupPassword" class="form-input" placeholder="••••••">
+                        </div>
+                    </div>
+
+                    <div class="form-group" id="confirmPasswordGroup">
+                        <label for="confirmPassword" class="form-label">تأیید رمز عبور</label>
+                        <div class="input-group">
+                            <i class="fas fa-lock input-icon"></i>
+                            <input type="password" id="confirmPassword" class="form-input" placeholder="••••••">
+                        </div>
+                        <div class="field-error">رمز عبور مطابقت ندارد.</div>
+                    </div>
+
+                    <button class="btn btn-primary btn-lg w-full" id="signupBtn">ایجاد حساب</button>
+
+                    <div class="text-center m-sm">
+                        قبلاً ثبت‌نام کرده‌اید؟ <span class="link" id="toSignin">ورود</span>
+                    </div>
                 </div>
             </div>
         </div>
@@ -325,6 +318,10 @@
     <!-- Load token manager first -->
     <script src="js/token-manager.js"></script>
     <script src="js/app-init.js"></script>
+    
+    <!-- Style Guide System (Development Only) -->
+    <script src="js/style-guide-validator.js"></script>
+    <script src="js/style-guide-master.js"></script>
     
     <script>
         class AuthService {
@@ -386,20 +383,17 @@
                 }
             }
 
+            // Phone-based API as per backend
             async checkUser(phoneNumber) {
                 return this.makeRequest('/user', { phone_number: phoneNumber });
             }
 
             async login(phoneNumber, password) {
-                return this.makeRequest('/login', { phone_number: phoneNumber, password: password });
+                return this.makeRequest('/login', { phone_number: phoneNumber, password });
             }
 
-            async sendCode(phoneNumber) {
-                return this.makeRequest('/send-code', { phone_number: phoneNumber });
-            }
-
-            async register(phoneNumber, password, code) {
-                return this.makeRequest('/register', { phone_number: phoneNumber, password: password, code: code });
+            async register(phoneNumber, password) {
+                return this.makeRequest('/register', { phone_number: phoneNumber, password });
             }
 
             saveTokens(accessToken, refreshToken) {
@@ -420,8 +414,6 @@
                 this.authService = new AuthService();
                 this.currentStep = 'phone';
                 this.phoneNumber = '';
-                this.verificationTimer = null;
-                this.verificationTimeLeft = 120;
                 
                 this.initializeElements();
                 this.bindEvents();
@@ -430,69 +422,88 @@
             initializeElements() {
                 // Steps
                 this.phoneStep = document.getElementById('phoneStep');
-                this.loginStep = document.getElementById('loginStep');
-                this.registerStep = document.getElementById('registerStep');
-                this.verificationStep = document.getElementById('verificationStep');
-                
+                this.signinStep = document.getElementById('signinStep');
+                this.signupStep = document.getElementById('signupStep');
+
                 // Inputs
                 this.phoneNumberInput = document.getElementById('phoneNumber');
-                this.loginPhoneInput = document.getElementById('loginPhone');
-                this.loginPasswordInput = document.getElementById('loginPassword');
-                this.registerPhoneInput = document.getElementById('registerPhone');
-                this.registerPasswordInput = document.getElementById('registerPassword');
-                this.confirmPasswordInput = document.getElementById('confirmPassword');
-                this.verificationCodeInput = document.getElementById('verificationCode');
-                
-                // Buttons
+                this.signinPhone = document.getElementById('signinPhone');
+                this.signinPassword = document.getElementById('signinPassword');
+                this.signupPhone = document.getElementById('signupPhone');
+                this.signupPassword = document.getElementById('signupPassword');
+                this.confirmPassword = document.getElementById('confirmPassword');
+
+                // Buttons & links
                 this.checkPhoneBtn = document.getElementById('checkPhoneBtn');
-                this.loginBtn = document.getElementById('loginBtn');
-                this.sendCodeBtn = document.getElementById('sendCodeBtn');
-                this.resendCodeBtn = document.getElementById('resendCodeBtn');
-                this.verifyAndRegisterBtn = document.getElementById('verifyAndRegisterBtn');
+                this.signinBtn = document.getElementById('signinBtn');
+                this.signupBtn = document.getElementById('signupBtn');
+                this.toSignup = document.getElementById('toSignup');
+                this.toSignin = document.getElementById('toSignin');
+                this.forgotPassword = document.getElementById('forgotPassword');
                 this.backArrow = document.getElementById('backArrow');
-                
+
                 // UI Elements
                 this.loadingSection = document.getElementById('loadingSection');
                 this.errorMessage = document.getElementById('errorMessage');
                 this.successMessage = document.getElementById('successMessage');
                 this.pageTitle = document.getElementById('pageTitle');
-                this.codeTimer = document.getElementById('codeTimer');
             }
 
             bindEvents() {
                 this.checkPhoneBtn.addEventListener('click', () => this.checkPhone());
-                this.loginBtn.addEventListener('click', () => this.login());
-                this.sendCodeBtn.addEventListener('click', () => this.sendCode());
-                this.resendCodeBtn.addEventListener('click', () => this.sendCode());
-                this.verifyAndRegisterBtn.addEventListener('click', () => this.verifyAndRegister());
-                this.backArrow.addEventListener('click', () => this.goBack());
+                this.signinBtn.addEventListener('click', () => this.login());
+                this.signupBtn.addEventListener('click', () => this.register());
+                this.toSignup.addEventListener('click', () => this.showStep('signup'));
+                this.toSignin.addEventListener('click', () => this.showStep('signin'));
+                this.forgotPassword.addEventListener('click', () => this.showError('Reset password flow not implemented.'));
+                this.backArrow.addEventListener('click', () => {
+                    if (this.currentStep === 'signup') this.showStep('signin');
+                    else if (this.currentStep === 'signin') this.showStep('phone');
+                });
+            }
+
+            async checkPhone() {
+                const phone = this.phoneNumberInput.value.trim();
+                const group = document.getElementById('phoneNumberGroup');
+                group.classList.remove('error');
+                if (!/^09\d{9}$/.test(phone)) {
+                    group.classList.add('error');
+                    this.showError('شماره تلفن نامعتبر است');
+                    return;
+                }
+
+                this.showLoading(true);
+                try {
+                    const res = await this.authService.checkUser(phone);
+                    this.phoneNumber = phone;
+                    if (res.data && res.data.user_exist) {
+                        this.signinPhone.value = phone;
+                        this.showStep('signin');
+                    } else {
+                        this.signupPhone.value = phone;
+                        this.showStep('signup');
+                    }
+                } catch (e) {
+                    this.showError(e.message || 'خطا در بررسی شماره');
+                } finally {
+                    this.showLoading(false);
+                }
             }
 
             showStep(step) {
-                // Hide all steps
                 this.phoneStep.classList.remove('active');
-                this.loginStep.classList.remove('active');
-                this.registerStep.classList.remove('active');
-                this.verificationStep.classList.remove('active');
+                this.signinStep.classList.remove('active');
+                this.signupStep.classList.remove('active');
 
-                // Show target step
-                switch(step) {
-                    case 'phone':
-                        this.phoneStep.classList.add('active');
-                        this.pageTitle.textContent = 'Welcome';
-                        break;
-                    case 'login':
-                        this.loginStep.classList.add('active');
-                        this.pageTitle.textContent = 'Login';
-                        break;
-                    case 'register':
-                        this.registerStep.classList.add('active');
-                        this.pageTitle.textContent = 'Create Account';
-                        break;
-                    case 'verification':
-                        this.verificationStep.classList.add('active');
-                        this.pageTitle.textContent = 'Verify Phone';
-                        break;
+                if (step === 'phone') {
+                    this.phoneStep.classList.add('active');
+                    this.pageTitle.textContent = 'ورود';
+                } else if (step === 'signin') {
+                    this.signinStep.classList.add('active');
+                    this.pageTitle.textContent = 'ورود';
+                } else {
+                    this.signupStep.classList.add('active');
+                    this.pageTitle.textContent = 'ثبت‌نام';
                 }
                 this.currentStep = step;
             }
@@ -523,60 +534,24 @@
                 }, 3000);
             }
 
-            goBack() {
-                switch(this.currentStep) {
-                    case 'login':
-                    case 'register':
-                        this.showStep('phone');
-                        break;
-                    case 'verification':
-                        this.showStep('register');
-                        break;
-                }
-            }
-
-            async checkPhone() {
-                const phoneNumber = this.phoneNumberInput.value.trim();
-                
-                if (!phoneNumber) {
-                    this.showError('Please enter your phone number');
-                    return;
-                }
-
-                this.showLoading(true);
-                this.phoneNumber = phoneNumber;
-
-                try {
-                    const response = await this.authService.checkUser(phoneNumber);
-                    
-                    if (response.data.user_exist) {
-                        // User exists, show login
-                        this.loginPhoneInput.value = phoneNumber;
-                        this.showStep('login');
-                    } else {
-                        // User doesn't exist, show registration
-                        this.registerPhoneInput.value = phoneNumber;
-                        this.showStep('register');
-                    }
-                } catch (error) {
-                    this.showError(error.message || 'Failed to check user');
-                } finally {
-                    this.showLoading(false);
-                }
-            }
-
             async login() {
-                const password = this.loginPasswordInput.value.trim();
-                
-                if (!password) {
-                    this.showError('Please enter your password');
-                    return;
-                }
+                const phone = (this.signinPhone ? this.signinPhone.value.trim() : '');
+                const password = this.signinPassword.value.trim();
+
+                // reset field errors
+                const spg = document.getElementById('signinPhoneGroup');
+                if (spg) spg.classList.remove('error');
+                document.getElementById('signinPasswordGroup').classList.remove('error');
+
+                let valid = true;
+                if (!phone) { valid = false; if (spg) spg.classList.add('error'); }
+                if (!password) { valid = false; document.getElementById('signinPasswordGroup').classList.add('error'); }
+                if (!valid) { this.showError('لطفاً شماره و رمز عبور را وارد کنید.'); return; }
 
                 this.showLoading(true);
 
                 try {
-                    const response = await this.authService.login(this.phoneNumber, password);
+                    const response = await this.authService.login(phone || this.phoneNumber, password);
                     
                                          // Save tokens and handle success
                      this.authService.saveTokens(
@@ -584,7 +559,7 @@
                          response.data.refresh_token
                      );
                      
-                     this.showSuccess('Login successful!');
+                     this.showSuccess('ورود موفقیت‌آمیز بود!');
                      
                      // Use app handler for redirect
                      if (window.app) {
@@ -596,124 +571,62 @@
                      } else {
                          // Fallback redirect
                          setTimeout(() => {
-                             window.location.href = 'index.html';
+                             window.location.href = 'home.html';
                          }, 1500);
                      }
                     
                 } catch (error) {
-                    this.showError(error.message || 'Login failed');
+                    this.showError(error.message || 'اطلاعات نادرست است');
+                    if (spg) spg.classList.add('error');
                 } finally {
                     this.showLoading(false);
                 }
             }
 
-            async sendCode() {
-                if (this.currentStep === 'register') {
-                    const password = this.registerPasswordInput.value.trim();
-                    const confirmPassword = this.confirmPasswordInput.value.trim();
-                    
-                    if (!password) {
-                        this.showError('Please enter a password');
-                        return;
-                    }
-                    
-                    if (password !== confirmPassword) {
-                        this.showError('Passwords do not match');
-                        return;
-                    }
-                    
-                    if (password.length < 6) {
-                        this.showError('Password must be at least 6 characters');
-                        return;
-                    }
-                }
+            async register() {
+                const phone = (this.signupPhone ? this.signupPhone.value.trim() : '');
+                const password = this.signupPassword.value.trim();
+                const confirm = this.confirmPassword.value.trim();
+
+                // reset
+                const supg = document.getElementById('signupPhoneGroup');
+                if (supg) supg.classList.remove('error');
+                document.getElementById('signupPasswordGroup').classList.remove('error');
+                document.getElementById('confirmPasswordGroup').classList.remove('error');
+
+                let valid = true;
+                if (!phone) { valid = false; if (supg) supg.classList.add('error'); }
+                if (!password || password.length < 6) { valid = false; document.getElementById('signupPasswordGroup').classList.add('error'); }
+                if (password !== confirm) { valid = false; document.getElementById('confirmPasswordGroup').classList.add('error'); }
+                if (!valid) { this.showError('لطفاً خطاهای بالا را برطرف کنید.'); return; }
 
                 this.showLoading(true);
-
                 try {
-                    await this.authService.sendCode(this.phoneNumber);
-                    this.showSuccess('Verification code sent successfully');
-                    this.showStep('verification');
-                    this.startVerificationTimer();
+                    const response = await this.authService.register(phone || this.phoneNumber, password);
+                    this.authService.saveTokens(
+                        response.data.access_token,
+                        response.data.refresh_token
+                    );
+                    this.showSuccess('ثبت‌نام با موفقیت انجام شد!');
+                    if (window.app) {
+                        window.app.handleAuthSuccess(
+                            response.data.access_token,
+                            response.data.refresh_token,
+                            response.data.expires_in
+                        );
+                    } else {
+                        setTimeout(() => {
+                            window.location.href = 'home.html';
+                        }, 1500);
+                    }
                 } catch (error) {
-                    this.showError(error.message || 'Failed to send verification code');
+                    this.showError(error.message || 'ثبت‌نام ناموفق بود');
                 } finally {
                     this.showLoading(false);
                 }
             }
 
-            async verifyAndRegister() {
-                const code = this.verificationCodeInput.value.trim();
-                const password = this.registerPasswordInput.value.trim();
-                
-                if (!code) {
-                    this.showError('Please enter the verification code');
-                    return;
-                }
-
-                this.showLoading(true);
-
-                try {
-                    const response = await this.authService.register(this.phoneNumber, password, code);
-                    
-                                         // Save tokens and handle success
-                     this.authService.saveTokens(
-                         response.data.access_token,
-                         response.data.refresh_token
-                     );
-                     
-                     this.showSuccess('Registration successful!');
-                     
-                     // Use app handler for redirect
-                     if (window.app) {
-                         window.app.handleAuthSuccess(
-                             response.data.access_token,
-                             response.data.refresh_token,
-                             response.data.expires_in
-                         );
-                     } else {
-                         // Fallback redirect
-                         setTimeout(() => {
-                             window.location.href = 'index.html';
-                         }, 1500);
-                     }
-                    
-                } catch (error) {
-                    this.showError(error.message || 'Registration failed');
-                } finally {
-                    this.showLoading(false);
-                }
-            }
-
-            startVerificationTimer() {
-                this.verificationTimeLeft = 120;
-                this.updateVerificationTimer();
-                this.verificationTimer = setInterval(() => {
-                    this.updateVerificationTimer();
-                }, 1000);
-            }
-
-            updateVerificationTimer() {
-                const minutes = Math.floor(this.verificationTimeLeft / 60);
-                const seconds = this.verificationTimeLeft % 60;
-                this.codeTimer.textContent = `Resend in: ${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
-
-                if (this.verificationTimeLeft <= 0) {
-                    clearInterval(this.verificationTimer);
-                    this.resendCodeBtn.textContent = 'Resend Code';
-                    this.resendCodeBtn.disabled = false;
-                    this.codeTimer.textContent = '';
-                } else {
-                    this.verificationTimeLeft--;
-                }
-            }
-
-            stopVerificationTimer() {
-                if (this.verificationTimer) {
-                    clearInterval(this.verificationTimer);
-                    this.verificationTimer = null;
-                }
-            }
+            // timers removed (no SMS flow in email UI)
         }
 
         // Initialize the authentication UI when the page loads
