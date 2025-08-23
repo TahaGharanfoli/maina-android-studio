@@ -399,9 +399,9 @@
                         <i class="fas fa-brain"></i>
                     </div>
                     <div class="feature-title">تولیدکننده صدای هوش مصنوعی</div>
-                    <div class="feature-subtitle">بیایید ببینیم چه کاری می‌توانم برای شما انجام دهم؟</div>
+                    <div class="feature-subtitle">انتخاب مدل صدا و تولید محتوای صوتی</div>
                     <div class="feature-action">
-                        <button class="btn btn-secondary btn-sm">ضبط</button>
+                        <button class="btn btn-secondary btn-sm">انتخاب مدل</button>
                     </div>
                 </div>
 
@@ -502,23 +502,40 @@
 
     <!-- Data + Style Guide System -->
     <script src="js/token-manager.js"></script>
+    <script src="js/auth-service.js"></script>
     <script src="js/user-data.js"></script>
+    <script src="js/model-service.js"></script>
+    <script src="js/model-ui-controller.js"></script>
     <script src="js/style-guide-validator.js"></script>
     <script src="js/style-guide-master.js"></script>
     
-    <!-- Simplified Authentication Check -->
+    <!-- Authentication Check -->
     <script>
-        // Simple auth check for home page
+        // Auth check for home page
         (function() {
             console.log('🏠 Home page loaded');
             
-            // Only redirect if we definitely have no tokens at all
-            setTimeout(() => {
-                if (window.tokenManager && !window.tokenManager.getAccessToken() && !window.tokenManager.refreshToken) {
-                    console.log('❌ No tokens found, redirecting to auth');
-                    window.location.href = 'auth.html';
+            // Wait for token manager to be available
+            const checkAuth = () => {
+                if (window.tokenManager) {
+                    console.log('🔑 Token manager found');
+                    
+                    // Check if user is authenticated
+                    if (window.tokenManager.isAuthenticated()) {
+                        console.log('✅ User is authenticated');
+                        // User is authenticated, continue loading
+                    } else {
+                        console.log('❌ User not authenticated, redirecting to auth');
+                        window.location.href = 'auth.html';
+                    }
+                } else {
+                    console.log('⏳ Token manager not ready, retrying...');
+                    setTimeout(checkAuth, 500);
                 }
-            }, 1000);
+            };
+            
+            // Start checking after a short delay
+            setTimeout(checkAuth, 100);
         })();
     </script>
 
@@ -589,8 +606,8 @@
         
         function openVoiceGenerator() {
             console.log('Opening AI Voice Generator');
-            // Navigate to voice generator page
-            showFeatureComingSoon('تولیدکننده صدای هوش مصنوعی');
+            // Show voice model selection interface
+            showVoiceModelSelection();
         }
         
         function openVoiceChanger() {
@@ -637,10 +654,736 @@
                 notification.remove();
             }, 3000);
         }
+
+        // Voice Model Selection Interface
+        function showVoiceModelSelection() {
+            // Hide main content
+            const mainContent = document.querySelector('.main-content');
+            mainContent.style.display = 'none';
+            
+            // Create and show model selection interface
+            const modelInterface = createVoiceModelInterface();
+            document.querySelector('.home-container').appendChild(modelInterface);
+            
+            // Initialize the model UI controller
+            initializeModelSelection();
+        }
+
+        function createVoiceModelInterface() {
+            const container = document.createElement('div');
+            container.className = 'voice-model-interface';
+            container.innerHTML = `
+                <div class="model-header">
+                    <button class="back-btn" onclick="hideVoiceModelSelection()">
+                        <i class="fas fa-arrow-left"></i>
+                    </button>
+                    <h2>انتخاب مدل صدا</h2>
+                </div>
+                
+                <div class="model-tabs">
+                    <button class="model-tab active" onclick="switchModelTab(this, 'free')">مدل‌های رایگان</button>
+                    <button class="model-tab" onclick="switchModelTab(this, 'paid')">مدل‌های خریداری شده</button>
+                    <button class="model-tab" onclick="switchModelTab(this, 'shop')">فروشگاه</button>
+                </div>
+                
+                <div class="model-search">
+                    <div class="search-input-container">
+                        <i class="fas fa-search search-icon"></i>
+                        <input type="text" class="search-input" placeholder="جستجو در مدل‌ها..." oninput="searchModels(this.value)">
+                    </div>
+                    
+                    <!-- Debug Panel -->
+                    <div class="debug-panel" id="debugPanel">
+                        <button class="debug-btn" onclick="toggleDebugPanel()">
+                            <i class="fas fa-bug"></i> Debug
+                        </button>
+                        <div class="debug-content" id="debugContent">
+                            <div class="debug-section">
+                                <h4>Authentication Status</h4>
+                                <div id="authStatus">Checking...</div>
+                            </div>
+                            <div class="debug-section">
+                                <h4>API Endpoints</h4>
+                                <div id="endpointStatus">Known: /free, /paid, /shop</div>
+                                <button onclick="testAllEndpoints()" class="debug-action-btn">
+                                    Test All APIs
+                                </button>
+                            </div>
+                            <div class="debug-section">
+                                <h4>Token Info</h4>
+                                <div id="tokenInfo">Loading...</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="models-grid" id="modelsGrid">
+                    <div class="loading-message">در حال بارگذاری مدل‌ها...</div>
+                </div>
+                
+                <div class="model-actions">
+                    <button class="use-model-btn" id="useModelBtn" style="display: none;" onclick="useSelectedModel()">
+                        استفاده از این مدل
+                    </button>
+                </div>
+            `;
+            
+            // Add styles
+            addModelSelectionStyles();
+            
+            return container;
+        }
+
+        function initializeModelSelection() {
+            // Initialize the model UI controller
+            if (window.ModelUIController) {
+                window.homeModelUIController = new window.ModelUIController();
+                window.homeModelUIController.init();
+            } else {
+                console.error('ModelUIController not available');
+                // Fallback to basic functionality
+                loadModels('free');
+            }
+        }
+
+        function hideVoiceModelSelection() {
+            // Remove model interface
+            const modelInterface = document.querySelector('.voice-model-interface');
+            if (modelInterface) {
+                modelInterface.remove();
+            }
+            
+            // Show main content again
+            const mainContent = document.querySelector('.main-content');
+            mainContent.style.display = 'block';
+        }
+
+        function switchModelTab(clickedTab, tabType) {
+            // Update active tab
+            document.querySelectorAll('.model-tab').forEach(tab => tab.classList.remove('active'));
+            clickedTab.classList.add('active');
+            
+            // Load models for selected tab using the controller if available
+            if (window.homeModelUIController) {
+                window.homeModelUIController.loadModels(tabType);
+            } else {
+                loadModels(tabType);
+            }
+        }
+
+        function searchModels(searchTerm) {
+            // Implement search functionality using the controller if available
+            if (window.homeModelUIController) {
+                window.homeModelUIController.searchModels(searchTerm);
+            } else {
+                console.log('Searching for:', searchTerm);
+                // Basic search implementation
+                const modelCards = document.querySelectorAll('.model-card');
+                modelCards.forEach(card => {
+                    const modelName = card.querySelector('.model-name').textContent.toLowerCase();
+                    const shouldShow = modelName.includes(searchTerm.toLowerCase());
+                    card.style.display = shouldShow ? 'block' : 'none';
+                });
+            }
+        }
+
+        async function loadModels(tabType) {
+            const modelsGrid = document.getElementById('modelsGrid');
+            if (!modelsGrid) return;
+            
+            modelsGrid.innerHTML = '<div class="loading-message">در حال بارگذاری مدل‌ها...</div>';
+            
+            try {
+                // Check if we have the model service available
+                if (window.ModelService && window.tokenManager && window.tokenManager.isAuthenticated()) {
+                    const modelService = new window.ModelService();
+                    let response;
+                    
+                    switch(tabType) {
+                        case 'free':
+                            response = await modelService.getFreeModels();
+                            break;
+                        case 'paid':
+                            response = await modelService.getPaidModels();
+                            break;
+                        case 'shop':
+                            response = await modelService.getShopModels();
+                            break;
+                        default:
+                            response = await modelService.getFreeModels();
+                    }
+                    
+                    const models = response.data?.data || [];
+                    renderModels(models);
+                } else {
+                    // Fallback to mock data if service not available
+                    console.log('Model service not available, using mock data');
+                    const mockModels = getMockModels(tabType);
+                    renderModels(mockModels);
+                }
+            } catch (error) {
+                console.error('Failed to load models:', error);
+                modelsGrid.innerHTML = `
+                    <div class="error-message" style="grid-column: 1 / -1; text-align: center; color: var(--error-500); padding: var(--space-xl);">
+                        خطا در بارگذاری مدل‌ها: ${error.message}
+                        <br><br>
+                        <button onclick="loadModels('${tabType}')" style="background: var(--gradient-primary); color: white; border: none; padding: 0.5rem 1rem; border-radius: 0.5rem; cursor: pointer;">
+                            تلاش مجدد
+                        </button>
+                    </div>
+                `;
+            }
+        }
+
+        function getMockModels(tabType) {
+            const mockData = {
+                free: [
+                    { id: 1, name: 'احسان علیخانی', category1: 'مرد', category2: 'سلبریتی', category3: 'فارسی', epoch: 300, image: 'https://mynaa.ir/assets/images/orderpic.jpg' },
+                    { id: 2, name: 'آرینا', category1: 'زن', category2: 'خواننده', category3: 'فارسی', epoch: 250, image: 'https://mynaa.ir/assets/images/orderpic.jpg' }
+                ],
+                paid: [
+                    { id: 3, name: 'محمد رضا', category1: 'مرد', category2: 'گوینده', category3: 'فارسی', epoch: 400, image: 'https://mynaa.ir/assets/images/orderpic.jpg' }
+                ],
+                shop: [
+                    { id: 4, name: 'ترویس اسکات', category1: 'مرد', category2: 'خواننده', category3: 'انگلیسی', epoch: 1500, image: 'https://mynaa.ir/assets/images/orderpic.jpg' }
+                ]
+            };
+            
+            return mockData[tabType] || [];
+        }
+
+        function renderModels(models) {
+            const modelsGrid = document.getElementById('modelsGrid');
+            if (!modelsGrid) return;
+            
+            if (!models || models.length === 0) {
+                modelsGrid.innerHTML = '<div class="no-models">هیچ مدلی یافت نشد</div>';
+                return;
+            }
+            
+            modelsGrid.innerHTML = models.map(model => `
+                <div class="model-card" onclick="selectModel(${model.id})" data-model-id="${model.id}">
+                    <div class="model-epoch">${model.epoch || 0}</div>
+                    <div class="model-play-btn" onclick="playModelSample(event, '${model.sample1 || ''}')">
+                        <i class="fas fa-play"></i>
+                    </div>
+                    <img src="${model.image_file || model.image || 'https://mynaa.ir/assets/images/orderpic.jpg'}" 
+                         alt="${model.display || model.name}" 
+                         class="model-avatar"
+                         onerror="this.src='https://mynaa.ir/assets/images/orderpic.jpg'">
+                    <div class="model-name">${model.display || model.name}</div>
+                    <div class="model-tags">
+                        <span class="model-tag">${model.category1 || ''}</span>
+                        <span class="model-tag">${model.category2 || ''}</span>
+                        <span class="model-tag">${model.category3 || ''}</span>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function selectModel(modelId) {
+            // Remove previous selection
+            document.querySelectorAll('.model-card').forEach(card => card.classList.remove('selected'));
+            
+            // Select current model
+            const selectedCard = document.querySelector(`[data-model-id="${modelId}"]`);
+            if (selectedCard) {
+                selectedCard.classList.add('selected');
+            }
+            
+            // Show use model button
+            const useModelBtn = document.getElementById('useModelBtn');
+            if (useModelBtn) {
+                useModelBtn.style.display = 'block';
+            }
+            
+            // Store selected model
+            window.selectedModelId = modelId;
+            
+            // Also notify the controller if available
+            if (window.homeModelUIController) {
+                window.homeModelUIController.selectModel(modelId);
+            }
+        }
+
+        function playModelSample(event, sampleUrl) {
+            event.stopPropagation(); // Prevent model selection when clicking play button
+            
+            if (!sampleUrl) {
+                console.log('No sample available for this model');
+                return;
+            }
+            
+            try {
+                const audio = new Audio(sampleUrl);
+                audio.play().catch(e => console.log('Audio play failed:', e));
+            } catch (error) {
+                console.error('Error playing sample:', error);
+            }
+        }
+
+        function useSelectedModel() {
+            if (window.selectedModelId) {
+                console.log('Using model:', window.selectedModelId);
+                
+                // Get the selected model data
+                const selectedCard = document.querySelector(`[data-model-id="${window.selectedModelId}"]`);
+                if (selectedCard) {
+                    const modelData = {
+                        id: window.selectedModelId,
+                        name: selectedCard.querySelector('.model-name').textContent,
+                        displayName: selectedCard.querySelector('.model-name').textContent
+                    };
+                    
+                    // Store selected model in localStorage
+                    localStorage.setItem('selectedModel', JSON.stringify(modelData));
+                    
+                    // Also notify the controller if available
+                    if (window.homeModelUIController) {
+                        window.homeModelUIController.useSelectedModel();
+                    }
+                    
+                    // Navigate to select-model to maintain proper flow
+                    const token = window.tokenManager ? window.tokenManager.getAccessToken() : null;
+                    if (token) {
+                        const url = `select-model.html?token=${encodeURIComponent(token)}&from=home`;
+                        window.location.href = url;
+                    } else {
+                        window.location.href = 'select-model.html?from=home';
+                    }
+                }
+            }
+        }
+
+        function addModelSelectionStyles() {
+            if (document.getElementById('model-selection-styles')) return;
+            
+            const style = document.createElement('style');
+            style.id = 'model-selection-styles';
+            style.textContent = `
+                /* Debug Panel Styles */
+                .debug-panel {
+                    position: relative;
+                    margin-left: var(--space-sm);
+                }
+
+                .debug-btn {
+                    background: rgba(255, 255, 255, 0.1);
+                    color: var(--black-300);
+                    border: 1px solid rgba(255, 255, 255, 0.2);
+                    padding: var(--space-md);
+                    border-radius: var(--radius-md);
+                    cursor: pointer;
+                    font-size: var(--font-size-sm);
+                    transition: all var(--transition-normal);
+                }
+
+                .debug-btn:hover {
+                    background: rgba(255, 255, 255, 0.15);
+                    color: var(--white);
+                }
+
+                .debug-content {
+                    position: absolute;
+                    top: calc(100% + 5px);
+                    right: 0;
+                    width: 300px;
+                    background: rgba(0, 0, 0, 0.9);
+                    border: 1px solid rgba(255, 255, 255, 0.2);
+                    border-radius: var(--radius-lg);
+                    padding: var(--space-md);
+                    z-index: 1000;
+                    display: none;
+                    backdrop-filter: var(--backdrop-blur-xl);
+                }
+
+                .debug-content.show {
+                    display: block;
+                }
+
+                .debug-section {
+                    margin-bottom: var(--space-md);
+                    padding-bottom: var(--space-sm);
+                    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+                }
+
+                .debug-section:last-child {
+                    border-bottom: none;
+                    margin-bottom: 0;
+                }
+
+                .debug-section h4 {
+                    color: var(--white);
+                    font-size: var(--font-size-sm);
+                    margin-bottom: var(--space-xs);
+                }
+
+                .debug-section div {
+                    color: var(--black-300);
+                    font-size: var(--font-size-xs);
+                    margin-bottom: var(--space-xs);
+                    word-break: break-all;
+                }
+
+                .debug-action-btn {
+                    background: var(--gradient-primary);
+                    color: var(--white);
+                    border: none;
+                    padding: 4px 8px;
+                    border-radius: var(--radius-sm);
+                    font-size: 10px;
+                    cursor: pointer;
+                    margin-top: var(--space-xs);
+                }
+
+                .debug-action-btn:hover {
+                    opacity: 0.9;
+                }
+                
+                .voice-model-interface {
+                .voice-model-interface {
+                    position: absolute;
+                    top: 0;
+                    left: 0;
+                    right: 0;
+                    bottom: 0;
+                    background: var(--gradient-dark);
+                    z-index: 1000;
+                    display: flex;
+                    flex-direction: column;
+                    padding: var(--space-lg);
+                }
+                
+                .model-header {
+                    display: flex;
+                    align-items: center;
+                    gap: var(--space-md);
+                    margin-bottom: var(--space-lg);
+                }
+                
+                .back-btn {
+                    background: rgba(255, 255, 255, 0.1);
+                    border: none;
+                    color: var(--white);
+                    width: 40px;
+                    height: 40px;
+                    border-radius: var(--radius-md);
+                    cursor: pointer;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                }
+                
+                .model-header h2 {
+                    color: var(--white);
+                    margin: 0;
+                    font-size: var(--font-size-lg);
+                }
+                
+                .model-tabs {
+                    display: flex;
+                    gap: var(--space-sm);
+                    margin-bottom: var(--space-lg);
+                }
+                
+                .model-tab {
+                    background: rgba(255, 255, 255, 0.1);
+                    border: none;
+                    color: var(--black-300);
+                    padding: var(--space-sm) var(--space-md);
+                    border-radius: var(--radius-md);
+                    cursor: pointer;
+                    flex: 1;
+                    transition: all var(--transition-normal);
+                }
+                
+                .model-tab.active {
+                    background: var(--gradient-primary);
+                    color: var(--white);
+                }
+                
+                .model-search {
+                    margin-bottom: var(--space-lg);
+                }
+                
+                .search-input-container {
+                    position: relative;
+                }
+                
+                .search-icon {
+                    position: absolute;
+                    right: var(--space-md);
+                    top: 50%;
+                    transform: translateY(-50%);
+                    color: var(--black-400);
+                }
+                
+                .search-input {
+                    width: 100%;
+                    padding: var(--space-md) var(--space-md) var(--space-md) 40px;
+                    border: 1px solid rgba(255, 255, 255, 0.2);
+                    border-radius: var(--radius-md);
+                    background: rgba(255, 255, 255, 0.05);
+                    color: var(--white);
+                    font-size: var(--font-size-md);
+                }
+                
+                .models-grid {
+                    display: grid;
+                    grid-template-columns: repeat(2, 1fr);
+                    gap: var(--space-md);
+                    flex: 1;
+                    overflow-y: auto;
+                    margin-bottom: var(--space-lg);
+                }
+                
+                .model-card {
+                    background: rgba(255, 255, 255, 0.05);
+                    border: 1px solid rgba(255, 255, 255, 0.1);
+                    border-radius: var(--radius-lg);
+                    padding: var(--space-md);
+                    text-align: center;
+                    cursor: pointer;
+                    transition: all var(--transition-normal);
+                    position: relative;
+                    padding-top: 40px;
+                }
+                
+                .model-card:hover {
+                    background: rgba(255, 255, 255, 0.08);
+                }
+                
+                .model-card.selected {
+                    border-color: var(--brand-primary);
+                    box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.3);
+                }
+                
+                .model-epoch {
+                    position: absolute;
+                    top: var(--space-sm);
+                    left: var(--space-sm);
+                    background: rgba(255, 255, 255, 0.1);
+                    color: var(--black-300);
+                    padding: 2px 6px;
+                    border-radius: var(--radius-sm);
+                    font-size: var(--font-size-xs);
+                }
+                
+                .model-play-btn {
+                    position: absolute;
+                    top: var(--space-sm);
+                    right: var(--space-sm);
+                    background: var(--black-900);
+                    color: var(--white);
+                    width: 30px;
+                    height: 30px;
+                    border-radius: var(--radius-full);
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    cursor: pointer;
+                }
+                
+                .model-avatar {
+                    width: 60px;
+                    height: 60px;
+                    border-radius: var(--radius-full);
+                    margin-bottom: var(--space-sm);
+                    border: 2px solid rgba(255, 255, 255, 0.1);
+                }
+                
+                .model-name {
+                    color: var(--white);
+                    font-size: var(--font-size-md);
+                    font-weight: var(--font-weight-medium);
+                    margin-bottom: var(--space-sm);
+                }
+                
+                .model-tags {
+                    display: flex;
+                    flex-direction: column;
+                    gap: 4px;
+                }
+                
+                .model-tag {
+                    background: rgba(255, 255, 255, 0.1);
+                    color: var(--black-300);
+                    padding: 2px 6px;
+                    border-radius: var(--radius-sm);
+                    font-size: var(--font-size-xs);
+                }
+                
+                .loading-message, .no-models {
+                    grid-column: 1 / -1;
+                    text-align: center;
+                    color: var(--black-400);
+                    padding: var(--space-xl);
+                }
+                
+                .model-actions {
+                    margin-top: auto;
+                }
+                
+                .use-model-btn {
+                    width: 100%;
+                    background: var(--gradient-primary);
+                    color: var(--white);
+                    border: none;
+                    padding: var(--space-md);
+                    border-radius: var(--radius-md);
+                    font-size: var(--font-size-md);
+                    font-weight: var(--font-weight-medium);
+                    cursor: pointer;
+                    transition: all var(--transition-normal);
+                }
+                
+                .use-model-btn:hover {
+                    transform: translateY(-2px);
+                    box-shadow: var(--shadow-glow-purple);
+                }
+                
+                .error-message {
+                    grid-column: 1 / -1;
+                    text-align: center;
+                    color: var(--error-500);
+                    padding: var(--space-xl);
+                }
+                
+                .error-message button {
+                    background: var(--gradient-primary);
+                    color: white;
+                    border: none;
+                    padding: 0.5rem 1rem;
+                    border-radius: 0.5rem;
+                    cursor: pointer;
+                    margin-top: var(--space-md);
+                }
+                
+                .error-message button:hover {
+                    opacity: 0.9;
+                }
+                
+                /* Loading animation */
+                .loading-message {
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    gap: var(--space-sm);
+                }
+                
+                .loading-message::before {
+                    content: '';
+                    width: 20px;
+                    height: 20px;
+                    border: 2px solid rgba(255, 255, 255, 0.1);
+                    border-top: 2px solid var(--brand-primary);
+                    border-radius: 50%;
+                    animation: spin 1s linear infinite;
+                }
+                
+                @keyframes spin {
+                    0% { transform: rotate(0deg); }
+                    100% { transform: rotate(360deg); }
+                }
+            `;
+            
+            document.head.appendChild(style);
+        }
         
+        // Debug Panel Functions
+        function toggleDebugPanel() {
+            const debugContent = document.getElementById('debugContent');
+            if (debugContent) {
+                debugContent.classList.toggle('show');
+                if (debugContent.classList.contains('show')) {
+                    updateDebugInfo();
+                }
+            }
+        }
+
+        async function testAllEndpoints() {
+            try {
+                if (window.homeModelUIController && window.homeModelUIController.modelService) {
+                    const availableEndpoints = await window.homeModelUIController.modelService.getAvailableEndpoints();
+                    alert(`Available endpoints: ${availableEndpoints.join(', ')}`);
+                    
+                    // Test each endpoint
+                    const results = [];
+                    for (const endpoint of ['/free', '/paid', '/shop']) {
+                        try {
+                            const response = await window.homeModelUIController.modelService.makeRequest(endpoint);
+                            results.push(`${endpoint}: ✅ Success`);
+                        } catch (error) {
+                            results.push(`${endpoint}: ❌ ${error.message}`);
+                        }
+                    }
+                    
+                    alert('API Test Results:\n' + results.join('\n'));
+                } else {
+                    alert('Model service not available');
+                }
+            } catch (error) {
+                console.error('API testing failed:', error);
+                alert('API testing failed: ' + error.message);
+            }
+        }
+
+        function updateDebugInfo() {
+            // Update authentication status
+            const authStatus = document.getElementById('authStatus');
+            if (authStatus && window.tokenManager) {
+                authStatus.innerHTML = window.tokenManager.isAuthenticated() ? 
+                    '✅ Authenticated' : '❌ Not Authenticated';
+            }
+            
+            // Update token info
+            const tokenInfo = document.getElementById('tokenInfo');
+            if (tokenInfo && window.tokenManager) {
+                const token = window.tokenManager.getAccessToken();
+                const expiry = window.tokenManager.tokenExpiry;
+                tokenInfo.innerHTML = `
+                    Access Token: ${token ? 'Present' : 'Missing'}<br>
+                    Expiry: ${expiry || 'Unknown'}
+                `;
+            }
+        }
+
         // Initialize app
-        document.addEventListener('DOMContentLoaded', () => {
+        document.addEventListener('DOMContentLoaded', async () => {
             console.log('🏠 Sonic AI Home loaded');
+            
+            // Perform authentication check
+            try {
+                console.log('🔐 Checking authentication for home page...');
+                
+                // Wait for auth service to be available
+                let attempts = 0;
+                while (!window.authService && attempts < 20) {
+                    await new Promise(resolve => setTimeout(resolve, 100));
+                    attempts++;
+                }
+                
+                if (window.authService) {
+                    const isAuthenticated = await window.authService.checkAuthenticationAndRedirect('home');
+                    
+                    if (!isAuthenticated) {
+                        console.log('❌ Authentication failed, user will be redirected');
+                        return; // Exit early if authentication failed
+                    }
+                    
+                    console.log('✅ Authentication successful, initializing home page');
+                } else {
+                    console.warn('⚠️ Auth service not available, proceeding without auth check');
+                }
+            } catch (error) {
+                console.error('❌ Authentication check failed:', error);
+                if (window.authService) {
+                    window.authService.redirectToAuth();
+                    return;
+                }
+            }
+            
+            // Continue with normal initialization
             // try fill quick user info if needed later
             if (window.userData) {
                 const cached = window.userData.getCachedUserData();

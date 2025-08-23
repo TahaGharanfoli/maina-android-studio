@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>HTTP Capacitor Test</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            line-height: 1.6;
+        }
+        .test-section {
+            margin: 20px 0;
+            padding: 15px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+        .success { background-color: #d4edda; border-color: #c3e6cb; }
+        .error { background-color: #f8d7da; border-color: #f5c6cb; }
+        .info { background-color: #d1ecf1; border-color: #bee5eb; }
+        button {
+            padding: 10px 15px;
+            margin: 5px;
+            border: none;
+            border-radius: 3px;
+            cursor: pointer;
+            background-color: #007bff;
+            color: white;
+        }
+        button:hover { background-color: #0056b3; }
+        #results {
+            margin-top: 20px;
+            white-space: pre-wrap;
+            font-family: monospace;
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 5px;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+    </style>
+</head>
+<body>
+    <h1>🧪 HTTP Capacitor Test</h1>
+    
+    <div class="test-section info">
+        <h3>📊 Environment Information</h3>
+        <div id="environment-info">Loading...</div>
+    </div>
+
+    <div class="test-section">
+        <h3>🔧 HTTP Utility Tests</h3>
+        <button onclick="testHttpUtil()">Test HttpUtil Availability</button>
+        <button onclick="testCapacitorPlugin()">Test Capacitor Plugin</button>
+        <button onclick="testHttpBinRequest()">Test HTTP Request (httpbin.org)</button>
+        <button onclick="testApiRequest()">Test API Request (SeekTir)</button>
+    </div>
+
+    <div class="test-section">
+        <h3>🔍 Model Service Tests</h3>
+        <button onclick="testModelServiceInit()">Test ModelService Init</button>
+        <button onclick="testFreeModelsAPI()">Test Free Models API</button>
+        <button onclick="clearResults()">Clear Results</button>
+    </div>
+
+    <div class="test-section">
+        <h3>📋 Test Results</h3>
+        <div id="results"></div>
+    </div>
+
+    <!-- Include required scripts -->
+    <script src="js/token-manager.js"></script>
+    <script src="js/http-util.js"></script>
+    <script src="js/auth-service.js"></script>
+    <script src="js/model-service.js"></script>
+
+    <script>
+        let results = '';
+
+        function log(message, type = 'info') {
+            const timestamp = new Date().toLocaleTimeString();
+            const icon = type === 'error' ? '❌' : type === 'success' ? '✅' : 'ℹ️';
+            results += `[${timestamp}] ${icon} ${message}\n`;
+            document.getElementById('results').textContent = results;
+        }
+
+        function clearResults() {
+            results = '';
+            document.getElementById('results').textContent = '';
+        }
+
+        // Initialize environment info
+        document.addEventListener('DOMContentLoaded', async function() {
+            await initializeEnvironmentInfo();
+        });
+
+        async function initializeEnvironmentInfo() {
+            const info = {
+                isCapacitor: window.Capacitor && window.Capacitor.isNativePlatform(),
+                platform: window.Capacitor ? window.Capacitor.getPlatform() : 'web',
+                capacitorVersion: window.Capacitor ? window.Capacitor.version : 'N/A',
+                httpUtilAvailable: !!window.httpUtil,
+                tokenManagerAvailable: !!window.tokenManager,
+                authServiceAvailable: !!window.authService,
+                modelServiceAvailable: !!window.ModelService,
+                userAgent: navigator.userAgent
+            };
+
+            document.getElementById('environment-info').innerHTML = `
+                <strong>Platform:</strong> ${info.platform} (Capacitor: ${info.isCapacitor})<br>
+                <strong>Capacitor Version:</strong> ${info.capacitorVersion}<br>
+                <strong>HttpUtil:</strong> ${info.httpUtilAvailable ? '✅ Available' : '❌ Not Available'}<br>
+                <strong>TokenManager:</strong> ${info.tokenManagerAvailable ? '✅ Available' : '❌ Not Available'}<br>
+                <strong>AuthService:</strong> ${info.authServiceAvailable ? '✅ Available' : '❌ Not Available'}<br>
+                <strong>ModelService:</strong> ${info.modelServiceAvailable ? '✅ Available' : '❌ Not Available'}
+            `;
+
+            log(`Environment initialized: ${info.platform}`, 'info');
+        }
+
+        async function testHttpUtil() {
+            try {
+                log('Testing HttpUtil availability...', 'info');
+                
+                if (!window.httpUtil) {
+                    throw new Error('HttpUtil not available');
+                }
+
+                const diagnostics = window.getHttpDiagnostics ? window.getHttpDiagnostics() : {};
+                log(`HttpUtil diagnostics: ${JSON.stringify(diagnostics, null, 2)}`, 'info');
+                
+                log('HttpUtil test passed', 'success');
+            } catch (error) {
+                log(`HttpUtil test failed: ${error.message}`, 'error');
+            }
+        }
+
+        async function testCapacitorPlugin() {
+            try {
+                log('Testing Capacitor HTTP plugin...', 'info');
+                
+                if (!window.httpUtil) {
+                    throw new Error('HttpUtil not available');
+                }
+
+                const pluginStatus = await window.forcePluginInit();
+                log(`Plugin init result: ${JSON.stringify(pluginStatus, null, 2)}`, 'info');
+                
+                if (pluginStatus.success) {
+                    log('Capacitor HTTP plugin test passed', 'success');
+                } else {
+                    log(`Capacitor HTTP plugin test failed: ${pluginStatus.reason}`, 'error');
+                }
+            } catch (error) {
+                log(`Capacitor plugin test failed: ${error.message}`, 'error');
+            }
+        }
+
+        async function testHttpBinRequest() {
+            try {
+                log('Testing HTTP request to httpbin.org...', 'info');
+                
+                if (!window.httpUtil) {
+                    throw new Error('HttpUtil not available');
+                }
+
+                const response = await window.httpUtil.get('https://httpbin.org/get');
+                const data = await response.json();
+                
+                log(`HTTP test successful: ${JSON.stringify(data.headers, null, 2)}`, 'success');
+            } catch (error) {
+                log(`HTTP test failed: ${error.message}`, 'error');
+            }
+        }
+
+        async function testApiRequest() {
+            try {
+                log('Testing API request to SeekTir...', 'info');
+                
+                if (!window.httpUtil) {
+                    throw new Error('HttpUtil not available');
+                }
+
+                // Try a simple GET request to the API
+                const response = await window.httpUtil.get('https://api.seektir.com/v2/free');
+                
+                if (response.status === 401) {
+                    log('API returned 401 - Authentication required (expected)', 'info');
+                } else if (response.ok) {
+                    const data = await response.json();
+                    log(`API test successful: ${JSON.stringify(data, null, 2)}`, 'success');
+                } else {
+                    log(`API returned status ${response.status}: ${response.statusText}`, 'info');
+                }
+            } catch (error) {
+                log(`API test failed: ${error.message}`, 'error');
+            }
+        }
+
+        async function testModelServiceInit() {
+            try {
+                log('Testing ModelService initialization...', 'info');
+                
+                const modelService = new ModelService();
+                await modelService.ensureServices();
+                
+                log('ModelService initialized successfully', 'success');
+            } catch (error) {
+                log(`ModelService init failed: ${error.message}`, 'error');
+            }
+        }
+
+        async function testFreeModelsAPI() {
+            try {
+                log('Testing Free Models API call...', 'info');
+                
+                // First check if we have a token
+                const token = localStorage.getItem('access_token');
+                if (!token) {
+                    log('No access token available - login required', 'error');
+                    return;
+                }
+
+                const modelService = new ModelService();
+                const models = await modelService.getFreeModels();
+                
+                log(`Free models retrieved: ${JSON.stringify(models, null, 2)}`, 'success');
+            } catch (error) {
+                log(`Free models test failed: ${error.message}`, 'error');
+            }
+        }
+    </script>
+
+    <!-- Initialize Capacitor if available -->
+    <script type="module">
+        if (window.Capacitor) {
+            console.log('🚀 Capacitor environment detected');
+        } else {
+            console.log('🌐 Web environment detected');
+        }
+    </script>
+</body>
+</html>

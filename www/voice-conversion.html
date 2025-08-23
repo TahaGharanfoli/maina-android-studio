@@ -1,0 +1,870 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="mobile-web-app-capable" content="yes">
+    <title>Voice Conversion - Sonic AI</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link rel="stylesheet" href="css/sonic-ai-style-guide.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
+            color: white;
+            min-height: 100vh;
+            overflow-x: hidden;
+            -webkit-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+            user-select: none;
+            -webkit-touch-callout: none;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        .container {
+            width: 100vw;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Header */
+        .header {
+            display: flex;
+            align-items: center;
+            padding: 12px 20px;
+            background: rgba(0, 0, 0, 0.3);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .back-btn {
+            background: none;
+            border: none;
+            color: white;
+            font-size: 18px;
+            cursor: pointer;
+            padding: 8px;
+            border-radius: 8px;
+            transition: background 0.2s;
+        }
+
+        .back-btn:hover {
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .header-title {
+            flex: 1;
+            text-align: center;
+            font-size: 17px;
+            font-weight: 600;
+        }
+
+        .header-info {
+            width: 34px;
+            height: 34px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            color: rgba(255, 255, 255, 0.6);
+            font-weight: 500;
+        }
+
+        /* Main Content */
+        .main-content {
+            flex: 1;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 24px;
+        }
+
+        /* Model Info Section */
+        .model-info {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 16px;
+            padding: 20px;
+            backdrop-filter: blur(10px);
+        }
+
+        .model-info h3 {
+            font-size: 16px;
+            margin-bottom: 12px;
+            color: #8B5CF6;
+        }
+
+        .model-details {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .model-avatar {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 2px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .model-name {
+            font-size: 14px;
+            font-weight: 600;
+        }
+
+        /* Audio Info Section */
+        .audio-info {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 16px;
+            padding: 20px;
+            backdrop-filter: blur(10px);
+        }
+
+        .audio-info h3 {
+            font-size: 16px;
+            margin-bottom: 12px;
+            color: #3B82F6;
+        }
+
+        .audio-details div {
+            font-size: 14px;
+            margin-bottom: 8px;
+            color: rgba(255, 255, 255, 0.8);
+        }
+
+        /* Settings Section */
+        .settings-section {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 16px;
+            padding: 20px;
+            backdrop-filter: blur(10px);
+        }
+
+        .settings-section h3 {
+            font-size: 16px;
+            margin-bottom: 20px;
+            color: white;
+        }
+
+        .setting-group {
+            margin-bottom: 20px;
+        }
+
+        .setting-label {
+            display: block;
+            font-size: 14px;
+            font-weight: 500;
+            margin-bottom: 8px;
+            color: rgba(255, 255, 255, 0.9);
+        }
+
+        .setting-input {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 8px;
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            font-size: 14px;
+            transition: all 0.2s ease;
+        }
+
+        .setting-input:focus {
+            outline: none;
+            border-color: #8B5CF6;
+            box-shadow: 0 0 0 2px rgba(139, 92, 246, 0.2);
+        }
+
+        .setting-select {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 8px;
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .setting-select:focus {
+            outline: none;
+            border-color: #8B5CF6;
+        }
+
+        .setting-select option {
+            background: #2d2d2d;
+            color: white;
+        }
+
+        .toggle-container {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .toggle-switch {
+            position: relative;
+            width: 50px;
+            height: 24px;
+        }
+
+        .toggle-switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .toggle-slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(255, 255, 255, 0.3);
+            transition: 0.4s;
+            border-radius: 24px;
+        }
+
+        .toggle-slider:before {
+            position: absolute;
+            content: "";
+            height: 18px;
+            width: 18px;
+            left: 3px;
+            bottom: 3px;
+            background-color: white;
+            transition: 0.4s;
+            border-radius: 50%;
+        }
+
+        input:checked + .toggle-slider {
+            background-color: #8B5CF6;
+        }
+
+        input:checked + .toggle-slider:before {
+            transform: translateX(26px);
+        }
+
+        /* Range Slider */
+        .range-container {
+            margin-top: 8px;
+        }
+
+        .range-slider {
+            width: 100%;
+            height: 6px;
+            border-radius: 3px;
+            background: rgba(255, 255, 255, 0.2);
+            outline: none;
+            -webkit-appearance: none;
+        }
+
+        .range-slider::-webkit-slider-thumb {
+            appearance: none;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: #8B5CF6;
+            cursor: pointer;
+        }
+
+        .range-slider::-moz-range-thumb {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: #8B5CF6;
+            cursor: pointer;
+            border: none;
+        }
+
+        .range-value {
+            font-size: 12px;
+            color: rgba(255, 255, 255, 0.7);
+            margin-top: 4px;
+        }
+
+        /* Convert Button */
+        .convert-btn {
+            background: linear-gradient(135deg, #8B5CF6, #3B82F6);
+            color: white;
+            border: none;
+            padding: 16px;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            margin-top: 20px;
+        }
+
+        .convert-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 32px rgba(139, 92, 246, 0.4);
+        }
+
+        .convert-btn:disabled {
+            background: rgba(255, 255, 255, 0.1);
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+        /* Progress Section */
+        .progress-section {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 16px;
+            padding: 20px;
+            backdrop-filter: blur(10px);
+            display: none;
+        }
+
+        .progress-section.show {
+            display: block;
+        }
+
+        .progress-title {
+            font-size: 16px;
+            margin-bottom: 12px;
+            text-align: center;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 4px;
+            overflow: hidden;
+            margin-bottom: 12px;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #8B5CF6, #3B82F6);
+            width: 0%;
+            transition: width 0.3s ease;
+        }
+
+        .progress-text {
+            text-align: center;
+            font-size: 14px;
+            color: rgba(255, 255, 255, 0.8);
+        }
+
+        /* Result Section */
+        .result-section {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 16px;
+            padding: 20px;
+            backdrop-filter: blur(10px);
+            display: none;
+        }
+
+        .result-section.show {
+            display: block;
+        }
+
+        .result-title {
+            font-size: 16px;
+            margin-bottom: 16px;
+            text-align: center;
+            color: #10B981;
+        }
+
+        .download-btn {
+            background: linear-gradient(135deg, #10B981, #059669);
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            width: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            transition: all 0.3s ease;
+        }
+
+        .download-btn:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 16px rgba(16, 185, 129, 0.4);
+        }
+
+        /* Loading Animation */
+        .spinner {
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            border-top: 2px solid white;
+            width: 20px;
+            height: 20px;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Mobile Responsiveness */
+        @media (max-width: 480px) {
+            .main-content {
+                padding: 16px;
+                gap: 20px;
+            }
+
+            .model-info, .audio-info, .settings-section {
+                padding: 16px;
+            }
+
+            .setting-input, .setting-select {
+                padding: 10px;
+            }
+
+            .convert-btn {
+                padding: 14px;
+                font-size: 15px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <div class="header">
+            <button class="back-btn" onclick="goBack()">
+                <i class="fas fa-chevron-left"></i>
+            </button>
+            <div class="header-title">Voice Conversion</div>
+            <div class="header-info" id="headerInfo"></div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="main-content">
+            <!-- Selected Model Info -->
+            <div class="model-info">
+                <h3><i class="fas fa-microphone"></i> Selected Model</h3>
+                <div class="model-details" id="modelDetails">
+                    <img src="" alt="Model" class="model-avatar" id="modelAvatar">
+                    <div class="model-name" id="modelName">Loading...</div>
+                </div>
+            </div>
+
+            <!-- Uploaded Audio Info -->
+            <div class="audio-info">
+                <h3><i class="fas fa-file-audio"></i> Uploaded Audio</h3>
+                <div class="audio-details" id="audioDetails">
+                    <div>Duration: <span id="audioDuration">Loading...</span></div>
+                    <div>Format: <span id="audioFormat">Loading...</span></div>
+                    <div>Voice ID: <span id="voiceId">Loading...</span></div>
+                </div>
+            </div>
+
+            <!-- Conversion Settings -->
+            <div class="settings-section">
+                <h3><i class="fas fa-cog"></i> Conversion Settings</h3>
+
+                <div class="setting-group">
+                    <label class="setting-label">Export Format</label>
+                    <select class="setting-select" id="exportFormat">
+                        <option value="wav">WAV</option>
+                        <option value="mp3">MP3</option>
+                        <option value="flac">FLAC</option>
+                    </select>
+                </div>
+
+                <div class="setting-group">
+                    <label class="setting-label">Pitch Adjustment (f0UpKey)</label>
+                    <input type="range" class="range-slider" id="f0UpKey" min="-12" max="12" value="0" step="1">
+                    <div class="range-value" id="f0UpKeyValue">0</div>
+                </div>
+
+                <div class="setting-group">
+                    <label class="setting-label">Filter Radius</label>
+                    <input type="range" class="range-slider" id="filterRadius" min="0" max="7" value="0" step="1">
+                    <div class="range-value" id="filterRadiusValue">0</div>
+                </div>
+
+                <div class="setting-group">
+                    <label class="setting-label">Index Rate</label>
+                    <input type="range" class="range-slider" id="indexRate" min="0" max="1" value="0" step="0.1">
+                    <div class="range-value" id="indexRateValue">0.0</div>
+                </div>
+
+                <div class="setting-group">
+                    <div class="toggle-container">
+                        <label class="setting-label">Auto-tune (f0Autotune)</label>
+                        <label class="toggle-switch">
+                            <input type="checkbox" id="f0Autotune">
+                            <span class="toggle-slider"></span>
+                        </label>
+                    </div>
+                </div>
+
+                <div class="setting-group">
+                    <div class="toggle-container">
+                        <label class="setting-label">Clean Audio</label>
+                        <label class="toggle-switch">
+                            <input type="checkbox" id="cleanAudio">
+                            <span class="toggle-slider"></span>
+                        </label>
+                    </div>
+                </div>
+
+                <button class="convert-btn" id="convertBtn" onclick="startConversion()">
+                    <i class="fas fa-magic"></i>
+                    Start Conversion
+                </button>
+            </div>
+
+            <!-- Progress Section -->
+            <div class="progress-section" id="progressSection">
+                <div class="progress-title">Converting Voice...</div>
+                <div class="progress-bar">
+                    <div class="progress-fill" id="progressFill"></div>
+                </div>
+                <div class="progress-text" id="progressText">Initializing...</div>
+            </div>
+
+            <!-- Result Section -->
+            <div class="result-section" id="resultSection">
+                <div class="result-title">
+                    <i class="fas fa-check-circle"></i>
+                    Conversion Complete!
+                </div>
+                <button class="download-btn" id="downloadBtn" onclick="downloadResult()">
+                    <i class="fas fa-download"></i>
+                    Download Converted Audio
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Load scripts -->
+    <script src="js/token-manager.js"></script>
+    <script src="js/auth-service.js"></script>
+    <script src="js/app-init.js"></script>
+
+    <script>
+        let selectedModel = null;
+        let uploadedAudio = null;
+        let conversionResult = null;
+
+        // Initialize page
+        document.addEventListener('DOMContentLoaded', async () => {
+            console.log('🎵 Voice Conversion page loaded');
+            
+            // Check authentication
+            try {
+                let attempts = 0;
+                while (!window.authService && attempts < 20) {
+                    await new Promise(resolve => setTimeout(resolve, 100));
+                    attempts++;
+                }
+                
+                if (window.authService) {
+                    const isAuthenticated = await window.authService.checkAuthenticationAndRedirect('voice-conversion');
+                    if (!isAuthenticated) {
+                        console.log('❌ Authentication failed');
+                        return;
+                    }
+                }
+            } catch (error) {
+                console.error('❌ Authentication check failed:', error);
+            }
+            
+            // Load data from localStorage and URL params
+            loadPageData();
+            setupEventListeners();
+        });
+
+        function loadPageData() {
+            // Load selected model
+            const modelData = localStorage.getItem('selectedModel');
+            if (modelData) {
+                selectedModel = JSON.parse(modelData);
+                displayModelInfo(selectedModel);
+            } else {
+                console.error('❌ No selected model found');
+                alert('No model selected. Please go back and select a model.');
+                goBack();
+                return;
+            }
+
+            // Load uploaded audio info from URL params or localStorage
+            const urlParams = new URLSearchParams(window.location.search);
+            const voiceId = urlParams.get('voice_id');
+            const duration = urlParams.get('duration');
+            const format = urlParams.get('format');
+
+            if (voiceId && duration && format) {
+                uploadedAudio = {
+                    voice_id: parseInt(voiceId),
+                    duration: parseInt(duration),
+                    format: format
+                };
+                displayAudioInfo(uploadedAudio);
+            } else {
+                // Try to get from localStorage as fallback
+                const audioData = localStorage.getItem('uploadedAudio');
+                if (audioData) {
+                    uploadedAudio = JSON.parse(audioData);
+                    displayAudioInfo(uploadedAudio);
+                } else {
+                    console.error('❌ No uploaded audio found');
+                    alert('No audio file found. Please go back and upload an audio file.');
+                    goBack();
+                    return;
+                }
+            }
+        }
+
+        function displayModelInfo(model) {
+            document.getElementById('modelName').textContent = model.displayName || model.name;
+            const avatar = document.getElementById('modelAvatar');
+            avatar.src = model.image || 'https://mynaa.ir/assets/images/orderpic.jpg';
+            avatar.onerror = () => avatar.src = 'https://mynaa.ir/assets/images/orderpic.jpg';
+        }
+
+        function displayAudioInfo(audio) {
+            document.getElementById('audioDuration').textContent = `${audio.duration} seconds`;
+            document.getElementById('audioFormat').textContent = audio.format.toUpperCase();
+            document.getElementById('voiceId').textContent = audio.voice_id;
+        }
+
+        function setupEventListeners() {
+            // Range sliders
+            const f0UpKey = document.getElementById('f0UpKey');
+            const filterRadius = document.getElementById('filterRadius');
+            const indexRate = document.getElementById('indexRate');
+
+            f0UpKey.addEventListener('input', () => {
+                document.getElementById('f0UpKeyValue').textContent = f0UpKey.value;
+            });
+
+            filterRadius.addEventListener('input', () => {
+                document.getElementById('filterRadiusValue').textContent = filterRadius.value;
+            });
+
+            indexRate.addEventListener('input', () => {
+                document.getElementById('indexRateValue').textContent = parseFloat(indexRate.value).toFixed(1);
+            });
+        }
+
+        async function startConversion() {
+            if (!selectedModel || !uploadedAudio) {
+                alert('Missing required data. Please go back and try again.');
+                return;
+            }
+
+            const convertBtn = document.getElementById('convertBtn');
+            const progressSection = document.getElementById('progressSection');
+            const resultSection = document.getElementById('resultSection');
+
+            // Disable button and show progress
+            convertBtn.disabled = true;
+            convertBtn.innerHTML = '<div class="spinner"></div> Converting...';
+            progressSection.classList.add('show');
+            resultSection.classList.remove('show');
+
+            // Gather conversion parameters
+            const conversionParams = {
+                voice_id: uploadedAudio.voice_id,
+                model_id: selectedModel.id,
+                export_format: document.getElementById('exportFormat').value,
+                f0UpKey: parseInt(document.getElementById('f0UpKey').value),
+                f0Autotune: document.getElementById('f0Autotune').checked,
+                clean_audio: document.getElementById('cleanAudio').checked,
+                filter_radius: parseInt(document.getElementById('filterRadius').value),
+                index_rate: parseFloat(document.getElementById('indexRate').value)
+            };
+
+            console.log('🔄 Starting conversion with params:', conversionParams);
+
+            try {
+                // Get access token
+                const token = window.tokenManager ? window.tokenManager.getAccessToken() : null;
+                if (!token) {
+                    throw new Error('No authentication token available');
+                }
+
+                // Start WebSocket connection for real-time conversion
+                const wsUrl = 'wss://api.seektir.com/v2/convert';
+                console.log('🔌 Connecting to WebSocket:', wsUrl);
+                
+                const ws = new WebSocket(wsUrl);
+                let conversionStarted = false;
+                
+                ws.onopen = () => {
+                    console.log('✅ WebSocket connected');
+                    
+                    // Send authentication and conversion data
+                    const wsData = {
+                        // Authentication
+                        token: token,
+                        // Conversion parameters
+                        ...conversionParams
+                    };
+                    
+                    console.log('📤 Sending conversion request:', wsData);
+                    ws.send(JSON.stringify(wsData));
+                    conversionStarted = true;
+                };
+                
+                ws.onmessage = (event) => {
+                    try {
+                        const data = JSON.parse(event.data);
+                        console.log('📨 WebSocket message received:', data);
+                        
+                        if (data.type === 'progress') {
+                            // Update progress
+                            updateProgress(data.progress || 0, data.message || 'Processing...');
+                        } else if (data.type === 'complete' || data.status === 'completed') {
+                            // Conversion completed
+                            console.log('✅ Conversion completed:', data);
+                            conversionResult = data.result || data;
+                            showConversionComplete();
+                            ws.close();
+                        } else if (data.type === 'error' || data.error) {
+                            // Handle error
+                            throw new Error(data.error || data.message || 'Conversion failed');
+                        } else if (data.type === 'started') {
+                            // Conversion started confirmation
+                            console.log('🚀 Conversion started successfully');
+                            updateProgress(5, 'Conversion started...');
+                        } else {
+                            // Handle other message types
+                            console.log('ℹ️ WebSocket info:', data);
+                            if (data.message) {
+                                updateProgress(data.progress || 10, data.message);
+                            }
+                        }
+                    } catch (parseError) {
+                        console.error('❌ Failed to parse WebSocket message:', parseError);
+                        console.log('Raw message:', event.data);
+                    }
+                };
+                
+                ws.onerror = (error) => {
+                    console.error('❌ WebSocket error:', error);
+                    throw new Error('WebSocket connection failed');
+                };
+                
+                ws.onclose = (event) => {
+                    console.log('🔌 WebSocket connection closed:', event.code, event.reason);
+                    
+                    if (!conversionStarted) {
+                        throw new Error('WebSocket connection closed before conversion started');
+                    }
+                    
+                    // If connection closed unexpectedly and conversion wasn't completed
+                    if (event.code !== 1000 && !conversionResult) {
+                        throw new Error(`WebSocket connection lost: ${event.reason || 'Unknown error'}`);
+                    }
+                };
+                
+                // Set timeout for WebSocket connection
+                setTimeout(() => {
+                    if (ws.readyState === WebSocket.CONNECTING) {
+                        ws.close();
+                        throw new Error('WebSocket connection timeout');
+                    }
+                }, 30000); // 30 second timeout
+
+            } catch (error) {
+                console.error('❌ Conversion failed:', error);
+                alert(`Conversion failed: ${error.message}`);
+                
+                // Reset button
+                convertBtn.disabled = false;
+                convertBtn.innerHTML = '<i class="fas fa-magic"></i> Start Conversion';
+                progressSection.classList.remove('show');
+            }
+        }
+
+        function updateProgress(progress, message) {
+            const progressFill = document.getElementById('progressFill');
+            const progressText = document.getElementById('progressText');
+            
+            if (progressFill) {
+                progressFill.style.width = Math.min(100, Math.max(0, progress)) + '%';
+            }
+            
+            if (progressText) {
+                progressText.textContent = message || 'Processing...';
+            }
+            
+            console.log(`📈 Progress: ${progress}% - ${message}`);
+        }
+
+        function showConversionComplete() {
+            const convertBtn = document.getElementById('convertBtn');
+            const progressSection = document.getElementById('progressSection');
+            const resultSection = document.getElementById('resultSection');
+
+            // Hide progress, show result
+            progressSection.classList.remove('show');
+            resultSection.classList.add('show');
+
+            // Reset button
+            convertBtn.disabled = false;
+            convertBtn.innerHTML = '<i class="fas fa-magic"></i> Start Conversion';
+        }
+
+        function downloadResult() {
+            if (!conversionResult) {
+                alert('No conversion result available');
+                return;
+            }
+
+            // Here you would implement the actual download logic
+            // For now, we'll show a placeholder
+            alert('Download functionality will be implemented when the API provides download URLs');
+        }
+
+        function goBack() {
+            // Check current navigation context
+            const urlParams = new URLSearchParams(window.location.search);
+            const from = urlParams.get('from');
+            
+            console.log('Going back from voice-conversion page, came from:', from);
+            
+            if (from === 'voice-studio') {
+                // Go back to voice studio
+                const token = window.tokenManager ? window.tokenManager.getAccessToken() : null;
+                if (token) {
+                    const url = `voice-studio.html?token=${encodeURIComponent(token)}&from=voice-conversion`;
+                    window.location.href = url;
+                } else {
+                    window.location.href = 'voice-studio.html?from=voice-conversion';
+                }
+            } else {
+                // Fallback to voice studio
+                window.location.href = 'voice-studio.html';
+            }
+        }
+    </script>
+</body>
+</html>

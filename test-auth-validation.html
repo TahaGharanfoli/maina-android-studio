@@ -1,0 +1,390 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Authentication Validation Test</title>
+    <style>
+        body { 
+            font-family: Arial, sans-serif; 
+            padding: 20px; 
+            background: #1a1a1a; 
+            color: white; 
+            max-width: 1200px; 
+            margin: 0 auto; 
+        }
+        .test-section { 
+            background: #2a2a2a; 
+            padding: 20px; 
+            margin: 15px 0; 
+            border-radius: 8px; 
+            border-left: 4px solid #4CAF50; 
+        }
+        .test-grid { 
+            display: grid; 
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); 
+            gap: 15px; 
+            margin: 20px 0; 
+        }
+        .page-test { 
+            background: #333; 
+            padding: 15px; 
+            border-radius: 6px; 
+            border: 1px solid #555; 
+        }
+        button { 
+            background: #4CAF50; 
+            color: white; 
+            padding: 10px 20px; 
+            border: none; 
+            border-radius: 4px; 
+            cursor: pointer; 
+            margin: 5px; 
+            transition: background 0.2s; 
+        }
+        button:hover { background: #45a049; }
+        button:disabled { background: #666; cursor: not-allowed; }
+        .error { color: #ff6b6b; }
+        .success { color: #51cf66; }
+        .warning { color: #ffd43b; }
+        .info { color: #74c0fc; }
+        pre { 
+            background: #1a1a1a; 
+            padding: 10px; 
+            border-radius: 4px; 
+            overflow-x: auto; 
+            font-size: 12px; 
+            max-height: 200px; 
+            overflow-y: auto; 
+        }
+        .status-indicator { 
+            display: inline-block; 
+            width: 12px; 
+            height: 12px; 
+            border-radius: 50%; 
+            margin-right: 8px; 
+        }
+        .status-pass { background: #51cf66; }
+        .status-fail { background: #ff6b6b; }
+        .status-warning { background: #ffd43b; }
+        .status-unknown { background: #666; }
+        h2, h3 { color: #74c0fc; }
+        .test-controls { 
+            background: #444; 
+            padding: 15px; 
+            border-radius: 6px; 
+            margin-bottom: 20px; 
+        }
+    </style>
+</head>
+<body>
+    <h1>🔐 Authentication Service Validation Test</h1>
+    
+    <div class="test-controls">
+        <h3>Test Controls</h3>
+        <button onclick="runFullAuthTest()">🧪 Run Full Authentication Test</button>
+        <button onclick="testAllPages()">📄 Test All Pages</button>
+        <button onclick="simulateTokenExpiry()">⏰ Simulate Token Expiry</button>
+        <button onclick="clearAllTokens()">🧹 Clear All Tokens</button>
+        <button onclick="refreshDisplay()">🔄 Refresh Display</button>
+    </div>
+    
+    <div class="test-section">
+        <h3>🏗️ Service Availability</h3>
+        <div id="serviceStatus">Loading...</div>
+    </div>
+    
+    <div class="test-section">
+        <h3>🔑 Current Authentication Status</h3>
+        <div id="authStatus">Loading...</div>
+    </div>
+    
+    <div class="test-section">
+        <h3>🌐 API Connectivity Test</h3>
+        <div id="apiStatus">Ready to test...</div>
+        <button onclick="testAPIEndpoints()">Test API Endpoints</button>
+        <button onclick="testTokenRefresh()">Test Token Refresh</button>
+    </div>
+    
+    <div class="test-section">
+        <h3>📱 Page Navigation Tests</h3>
+        <div class="test-grid" id="pageTests">
+            <!-- Will be populated dynamically -->
+        </div>
+    </div>
+    
+    <div class="test-section">
+        <h3>📊 Test Results Log</h3>
+        <div id="testLog"><pre></pre></div>
+        <button onclick="clearLog()">Clear Log</button>
+    </div>
+
+    <!-- Load all authentication dependencies -->
+    <script src="js/token-manager.js"></script>
+    <script src="js/auth-service.js"></script>
+    <script src="js/model-service.js"></script>
+    
+    <script>
+        let logContent = '';
+        const pages = [
+            { name: 'Launcher', path: 'launcher.html', expected: 'redirect' },
+            { name: 'Home', path: 'home.html', expected: 'auth_required' },
+            { name: 'Generator', path: 'generator.html', expected: 'auth_required' },
+            { name: 'Select Model', path: 'select-model.html', expected: 'auth_required' },
+            { name: 'Account', path: 'account.html', expected: 'auth_required' },
+            { name: 'Auth', path: 'auth.html', expected: 'no_auth_required' }
+        ];
+        
+        function log(message, type = 'info') {
+            const timestamp = new Date().toLocaleTimeString();
+            const className = type === 'error' ? 'error' : type === 'success' ? 'success' : type === 'warning' ? 'warning' : 'info';
+            logContent += `[${timestamp}] ${message}\n`;
+            document.querySelector('#testLog pre').innerHTML = logContent;
+            console.log(message);
+        }
+        
+        function clearLog() {
+            logContent = '';
+            document.querySelector('#testLog pre').innerHTML = '';
+        }
+        
+        function getStatusIndicator(status) {
+            const indicators = {
+                pass: '<span class="status-indicator status-pass"></span>',
+                fail: '<span class="status-indicator status-fail"></span>',
+                warning: '<span class="status-indicator status-warning"></span>',
+                unknown: '<span class="status-indicator status-unknown"></span>'
+            };
+            return indicators[status] || indicators.unknown;
+        }
+        
+        function updateServiceStatus() {
+            const serviceStatus = document.getElementById('serviceStatus');
+            let status = '';
+            
+            // Check TokenManager
+            const hasTokenManager = !!window.tokenManager;
+            status += `${getStatusIndicator(hasTokenManager ? 'pass' : 'fail')} Token Manager: ${hasTokenManager ? '✅ Available' : '❌ Not Available'}<br>`;
+            
+            // Check AuthService
+            const hasAuthService = !!window.authService;
+            status += `${getStatusIndicator(hasAuthService ? 'pass' : 'fail')} Auth Service: ${hasAuthService ? '✅ Available' : '❌ Not Available'}<br>`;
+            
+            // Check ModelService
+            const hasModelService = !!window.ModelService;
+            status += `${getStatusIndicator(hasModelService ? 'pass' : 'fail')} Model Service: ${hasModelService ? '✅ Available' : '❌ Not Available'}<br>`;
+            
+            serviceStatus.innerHTML = status;
+        }
+        
+        function updateAuthStatus() {
+            const authStatus = document.getElementById('authStatus');
+            let status = '';
+            
+            if (window.tokenManager) {
+                const isAuth = window.tokenManager.isAuthenticated();
+                const hasAccess = !!window.tokenManager.getAccessToken();
+                const hasRefresh = !!window.tokenManager.refreshToken;
+                const isExpired = window.tokenManager.isTokenExpired ? window.tokenManager.isTokenExpired() : 'Unknown';
+                
+                status += `${getStatusIndicator(isAuth ? 'pass' : 'fail')} Authenticated: ${isAuth ? '✅ Yes' : '❌ No'}<br>`;
+                status += `${getStatusIndicator(hasAccess ? 'pass' : 'fail')} Access Token: ${hasAccess ? '✅ Present' : '❌ Missing'}<br>`;
+                status += `${getStatusIndicator(hasRefresh ? 'pass' : 'fail')} Refresh Token: ${hasRefresh ? '✅ Present' : '❌ Missing'}<br>`;
+                status += `${getStatusIndicator(isExpired === false ? 'pass' : 'warning')} Token Expired: ${isExpired === false ? '✅ Valid' : isExpired === true ? '⚠️ Expired' : '❓ Unknown'}<br>`;
+                
+                if (window.authService) {
+                    const debugInfo = window.authService.getDebugInfo();
+                    status += `<br><strong>Auth Service Debug:</strong><br>`;
+                    status += `${getStatusIndicator(debugInfo.isInitialized ? 'pass' : 'warning')} Initialized: ${debugInfo.isInitialized}<br>`;
+                    status += `${getStatusIndicator(debugInfo.hasTokenManager ? 'pass' : 'fail')} Has Token Manager: ${debugInfo.hasTokenManager}<br>`;
+                }
+            } else {
+                status += `${getStatusIndicator('fail')} Token Manager not available`;
+            }
+            
+            authStatus.innerHTML = status;
+        }
+        
+        async function testAPIEndpoints() {
+            const apiStatus = document.getElementById('apiStatus');
+            apiStatus.innerHTML = '<div class="info">🧪 Testing API endpoints...</div>';
+            
+            try {
+                if (!window.ModelService) {
+                    throw new Error('ModelService not available');
+                }
+                
+                const modelService = new window.ModelService();
+                const endpoints = [
+                    { name: 'Free Models', method: 'getFreeModels' },
+                    { name: 'Shop Models', method: 'getShopModels' },
+                    { name: 'Paid Models', method: 'getPaidModels' }
+                ];
+                
+                let results = '<div class="info">API Test Results:</div>';
+                
+                for (const endpoint of endpoints) {
+                    try {
+                        log(`Testing ${endpoint.name}...`);
+                        const result = await modelService[endpoint.method]();
+                        results += `${getStatusIndicator('pass')} ${endpoint.name}: ✅ Success<br>`;
+                        log(`${endpoint.name} test passed`, 'success');
+                    } catch (error) {
+                        results += `${getStatusIndicator('fail')} ${endpoint.name}: ❌ ${error.message}<br>`;
+                        log(`${endpoint.name} test failed: ${error.message}`, 'error');
+                    }
+                }
+                
+                apiStatus.innerHTML = results;
+                
+            } catch (error) {
+                apiStatus.innerHTML = `<div class="error">❌ API test failed: ${error.message}</div>`;
+                log(`API test failed: ${error.message}`, 'error');
+            }
+        }
+        
+        async function testTokenRefresh() {
+            if (!window.authService) {
+                log('Auth service not available for token refresh test', 'error');
+                return;
+            }
+            
+            try {
+                log('Testing token refresh functionality...');
+                await window.authService.refreshToken();
+                log('Token refresh test passed', 'success');
+                updateAuthStatus();
+            } catch (error) {
+                log(`Token refresh test failed: ${error.message}`, 'error');
+            }
+        }
+        
+        function renderPageTests() {
+            const pageTestsContainer = document.getElementById('pageTests');
+            
+            pageTestsContainer.innerHTML = pages.map(page => `
+                <div class="page-test">
+                    <h4>${page.name}</h4>
+                    <div>Path: <code>${page.path}</code></div>
+                    <div>Expected: <code>${page.expected}</code></div>
+                    <div id="status-${page.name.toLowerCase().replace(' ', '-')}" class="status">
+                        ${getStatusIndicator('unknown')} Not tested
+                    </div>
+                    <button onclick="testPageAuth('${page.path}', '${page.name}', '${page.expected}')">
+                        Test Page
+                    </button>
+                    <button onclick="navigateToPage('${page.path}')">
+                        Navigate
+                    </button>
+                </div>
+            `).join('');
+        }
+        
+        async function testPageAuth(path, name, expected) {
+            const statusEl = document.getElementById(`status-${name.toLowerCase().replace(' ', '-')}`);
+            statusEl.innerHTML = `${getStatusIndicator('unknown')} Testing...`;
+            
+            try {
+                log(`Testing authentication for ${name} (${path})...`);
+                
+                // This is a simplified test - in reality, you'd need to load the page
+                // and check if the authentication logic works correctly
+                
+                if (window.authService) {
+                    const isAuth = await window.authService.checkAuthenticationAndRedirect(name.toLowerCase());
+                    
+                    if (expected === 'auth_required' && isAuth) {
+                        statusEl.innerHTML = `${getStatusIndicator('pass')} ✅ Authentication required and passed`;
+                        log(`${name} authentication test passed`, 'success');
+                    } else if (expected === 'no_auth_required') {
+                        statusEl.innerHTML = `${getStatusIndicator('pass')} ✅ No authentication required`;
+                        log(`${name} test passed (no auth required)`, 'success');
+                    } else {
+                        statusEl.innerHTML = `${getStatusIndicator('fail')} ❌ Authentication test failed`;
+                        log(`${name} authentication test failed`, 'error');
+                    }
+                } else {
+                    statusEl.innerHTML = `${getStatusIndicator('warning')} ⚠️ Auth service not available`;
+                    log(`${name} test skipped - auth service not available`, 'warning');
+                }
+                
+            } catch (error) {
+                statusEl.innerHTML = `${getStatusIndicator('fail')} ❌ Error: ${error.message}`;
+                log(`${name} test error: ${error.message}`, 'error');
+            }
+        }
+        
+        function navigateToPage(path) {
+            log(`Navigating to ${path}...`);
+            window.open(path, '_blank');
+        }
+        
+        async function testAllPages() {
+            log('Starting comprehensive page authentication tests...');
+            
+            for (const page of pages) {
+                await testPageAuth(page.path, page.name, page.expected);
+                // Small delay between tests
+                await new Promise(resolve => setTimeout(resolve, 500));
+            }
+            
+            log('All page tests completed', 'success');
+        }
+        
+        function simulateTokenExpiry() {
+            if (window.tokenManager) {
+                // Set token expiry to past date to simulate expiry
+                window.tokenManager.tokenExpiry = Date.now() - 1000;
+                log('Token expiry simulated', 'warning');
+                updateAuthStatus();
+            } else {
+                log('Cannot simulate token expiry - token manager not available', 'error');
+            }
+        }
+        
+        function clearAllTokens() {
+            if (window.tokenManager && window.tokenManager.clearTokens) {
+                window.tokenManager.clearTokens();
+                log('All tokens cleared', 'warning');
+                updateAuthStatus();
+            } else {
+                log('Cannot clear tokens - token manager not available', 'error');
+            }
+        }
+        
+        async function runFullAuthTest() {
+            log('🚀 Starting comprehensive authentication test...', 'info');
+            
+            // Update service status
+            updateServiceStatus();
+            updateAuthStatus();
+            
+            // Test API connectivity
+            await testAPIEndpoints();
+            
+            // Test all pages
+            await testAllPages();
+            
+            log('✅ Comprehensive authentication test completed', 'success');
+        }
+        
+        function refreshDisplay() {
+            updateServiceStatus();
+            updateAuthStatus();
+            log('Display refreshed');
+        }
+        
+        // Initialize on load
+        window.addEventListener('load', () => {
+            log('Authentication Validation Test loaded');
+            renderPageTests();
+            
+            setTimeout(() => {
+                updateServiceStatus();
+                updateAuthStatus();
+                log('Initial status check complete');
+            }, 1000);
+        });
+    </script>
+</body>
+</html>

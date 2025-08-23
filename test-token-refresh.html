@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Token Refresh Test</title>
+    <style>
+        body { font-family: Arial, sans-serif; padding: 20px; background: #1a1a1a; color: white; }
+        .test-section { background: #2a2a2a; padding: 15px; margin: 10px 0; border-radius: 8px; }
+        button { background: #4CAF50; color: white; padding: 10px 20px; border: none; border-radius: 4px; cursor: pointer; margin: 5px; }
+        button:hover { background: #45a049; }
+        .error { color: #ff6b6b; }
+        .success { color: #51cf66; }
+        .info { color: #74c0fc; }
+        pre { background: #1a1a1a; padding: 10px; border-radius: 4px; overflow-x: auto; }
+    </style>
+</head>
+<body>
+    <h1>Token Refresh Test Page</h1>
+    
+    <div class="test-section">
+        <h3>Authentication Status</h3>
+        <div id="authStatus">Loading...</div>
+        <button onclick="checkAuth()">Check Authentication</button>
+        <button onclick="refreshToken()">Force Token Refresh</button>
+    </div>
+    
+    <div class="test-section">
+        <h3>API Test</h3>
+        <div id="apiResult">Ready to test...</div>
+        <button onclick="testFreeModels()">Test Free Models API</button>
+        <button onclick="testShopModels()">Test Shop Models API</button>
+    </div>
+    
+    <div class="test-section">
+        <h3>Token Info</h3>
+        <div id="tokenInfo">Loading...</div>
+    </div>
+    
+    <div class="test-section">
+        <h3>Test Log</h3>
+        <div id="testLog"><pre></pre></div>
+    </div>
+
+    <!-- Load dependencies -->
+    <script src="js/token-manager.js"></script>
+    <script src="js/model-service.js"></script>
+    
+    <script>
+        let logContent = '';
+        
+        function log(message, type = 'info') {
+            const timestamp = new Date().toLocaleTimeString();
+            const className = type === 'error' ? 'error' : type === 'success' ? 'success' : 'info';
+            logContent += `[${timestamp}] ${message}\n`;
+            document.querySelector('#testLog pre').innerHTML = logContent;
+            console.log(message);
+        }
+        
+        function updateDisplay() {
+            // Update authentication status
+            const isAuth = window.tokenManager ? window.tokenManager.isAuthenticated() : false;
+            const authStatusEl = document.getElementById('authStatus');
+            authStatusEl.innerHTML = `
+                <div>Token Manager: ${window.tokenManager ? '✅ Available' : '❌ Not Available'}</div>
+                <div>Authenticated: ${isAuth ? '✅ Yes' : '❌ No'}</div>
+                <div>Token Expired: ${window.tokenManager && window.tokenManager.isTokenExpired ? (window.tokenManager.isTokenExpired() ? '❌ Yes' : '✅ No') : 'Unknown'}</div>
+            `;
+            
+            // Update token info
+            const tokenInfoEl = document.getElementById('tokenInfo');
+            if (window.tokenManager) {
+                const accessToken = window.tokenManager.getAccessToken();
+                const refreshToken = window.tokenManager.refreshToken;
+                tokenInfoEl.innerHTML = `
+                    <div>Access Token: ${accessToken ? `${accessToken.substring(0, 30)}...` : 'None'}</div>
+                    <div>Refresh Token: ${refreshToken ? `${refreshToken.substring(0, 30)}...` : 'None'}</div>
+                    <div>Token Expiry: ${window.tokenManager.tokenExpiry || 'None'}</div>
+                `;
+            } else {
+                tokenInfoEl.innerHTML = 'Token Manager not available';
+            }
+        }
+        
+        function checkAuth() {
+            log('Checking authentication status...');
+            updateDisplay();
+            log(window.tokenManager ? 'Token Manager is available' : 'Token Manager not available', 
+                window.tokenManager ? 'success' : 'error');
+        }
+        
+        async function refreshToken() {
+            if (!window.tokenManager) {
+                log('Token Manager not available', 'error');
+                return;
+            }
+            
+            try {
+                log('Attempting to refresh token...');
+                const newToken = await window.tokenManager.refreshAccessToken();
+                log('Token refresh successful!', 'success');
+                updateDisplay();
+            } catch (error) {
+                log(`Token refresh failed: ${error.message}`, 'error');
+            }
+        }
+        
+        async function testFreeModels() {
+            if (!window.ModelService) {
+                log('ModelService not available', 'error');
+                return;
+            }
+            
+            try {
+                log('Testing free models API...');
+                const modelService = new ModelService();
+                const result = await modelService.getFreeModels();
+                log('Free models API test successful!', 'success');
+                document.getElementById('apiResult').innerHTML = `
+                    <div class="success">✅ Success!</div>
+                    <pre>${JSON.stringify(result, null, 2)}</pre>
+                `;
+            } catch (error) {
+                log(`Free models API test failed: ${error.message}`, 'error');
+                document.getElementById('apiResult').innerHTML = `
+                    <div class="error">❌ Failed: ${error.message}</div>
+                `;
+            }
+        }
+        
+        async function testShopModels() {
+            if (!window.ModelService) {
+                log('ModelService not available', 'error');
+                return;
+            }
+            
+            try {
+                log('Testing shop models API...');
+                const modelService = new ModelService();
+                const result = await modelService.getShopModels();
+                log('Shop models API test successful!', 'success');
+                document.getElementById('apiResult').innerHTML = `
+                    <div class="success">✅ Success!</div>
+                    <pre>${JSON.stringify(result, null, 2)}</pre>
+                `;
+            } catch (error) {
+                log(`Shop models API test failed: ${error.message}`, 'error');
+                document.getElementById('apiResult').innerHTML = `
+                    <div class="error">❌ Failed: ${error.message}</div>
+                `;
+            }
+        }
+        
+        // Initialize on load
+        window.addEventListener('load', () => {
+            log('Test page loaded');
+            setTimeout(() => {
+                updateDisplay();
+                log('Initial status check complete');
+            }, 500);
+        });
+    </script>
+</body>
+</html>

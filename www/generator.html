@@ -6,9 +6,9 @@
     <title>Sonic AI - تولیدکننده صدا</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <link rel="stylesheet" href="css/sonic-ai-style-guide.css">
     <style>
         .generator-container {
@@ -24,22 +24,51 @@
         .generator-header {
             padding: var(--space-xl) var(--space-lg) var(--space-lg);
             text-align: center;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
         }
         
         .generator-content {
             flex: 1;
-            padding: 0 var(--space-lg);
-        }
-        
-        .coming-soon {
+            padding: var(--space-lg);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
             text-align: center;
-            padding: var(--space-5xl) var(--space-lg);
         }
         
-        .coming-soon-icon {
-            font-size: 64px;
-            color: var(--brand-primary);
+        .redirect-message {
+            color: var(--white);
             margin-bottom: var(--space-lg);
+        }
+        
+        .redirect-message h2 {
+            color: var(--white);
+            margin-bottom: var(--space-md);
+            font-size: var(--font-size-xl);
+        }
+        
+        .redirect-message p {
+            color: var(--black-300);
+            margin-bottom: var(--space-lg);
+        }
+        
+        .redirect-btn {
+            background: var(--gradient-primary);
+            color: var(--white);
+            border: none;
+            padding: var(--space-lg) var(--space-xl);
+            border-radius: var(--radius-md);
+            font-size: var(--font-size-lg);
+            font-weight: var(--font-weight-semibold);
+            cursor: pointer;
+            transition: all var(--transition-normal);
+            margin-top: var(--space-md);
+        }
+        
+        .redirect-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-glow-purple);
         }
         
         /* Footer (tabbar) spacing tweak */
@@ -54,15 +83,30 @@
         </div>
 
         <div class="generator-content">
-            <div class="coming-soon">
-                <div class="coming-soon-icon">
-                    <i class="fas fa-microphone-alt"></i>
-                </div>
-                <h2 class="text-xl font-semibold text-white m-md">به زودی در دسترس</h2>
-                <p class="text-gray-400 m-lg">ویژگی‌های پیشرفته تولید صدا در حال توسعه است. منتظر به‌روزرسانی‌ها باشید!</p>
-                <button class="btn btn-primary btn-md" onclick="goBack()">
-                    <i class="fas fa-arrow-right mr-sm"></i>
-                    بازگشت به خانه
+            <div class="redirect-message">
+                <h2>شروع کار</h2>
+                <p>برای تولید صدا، ابتدا یک مدل صدا انتخاب کنید</p>
+                <button class="redirect-btn" onclick="redirectToModelSelection()">
+                    <i class="fas fa-microphone mr-sm"></i>
+                    انتخاب مدل صدا
+                </button>
+                
+                <!-- Temporary Debug Button -->
+                <button class="debug-btn" onclick="openHttpDebug()" style="
+                    background: #ff6b6b;
+                    color: white;
+                    border: none;
+                    padding: var(--space-md) var(--space-lg);
+                    border-radius: var(--radius-md);
+                    font-size: var(--font-size-sm);
+                    font-weight: var(--font-weight-medium);
+                    cursor: pointer;
+                    transition: all var(--transition-normal);
+                    margin-top: var(--space-lg);
+                    opacity: 0.8;
+                ">
+                    <i class="fas fa-bug mr-sm"></i>
+                    🔧 HTTP Debug (Test)
                 </button>
             </div>
         </div>
@@ -89,9 +133,104 @@
         </div>
     </div>
 
+    <!-- Load required scripts -->
+    <script src="js/token-manager.js"></script>
+    <script src="js/auth-service.js"></script>
+    <script src="js/app-init.js"></script>
+    
     <script>
-        function goBack() {
-            window.location.href = 'home.html';
+        // Check authentication and redirect to model selection
+        document.addEventListener('DOMContentLoaded', async () => {
+            console.log('🎵 Generator page loaded - checking authentication...');
+            
+            // Perform authentication check using centralized service
+            try {
+                console.log('🔐 Checking authentication for generator page...');
+                
+                // Wait for auth service to be available
+                let attempts = 0;
+                while (!window.authService && attempts < 20) {
+                    await new Promise(resolve => setTimeout(resolve, 100));
+                    attempts++;
+                }
+                
+                if (window.authService) {
+                    const isAuthenticated = await window.authService.checkAuthenticationAndRedirect('generator');
+                    
+                    if (!isAuthenticated) {
+                        console.log('❌ Authentication failed, user will be redirected');
+                        return; // Exit early if authentication failed
+                    }
+                    
+                    console.log('✅ Authentication successful, generator page ready');
+                } else {
+                    console.warn('⚠️ Auth service not available, falling back to token manager');
+                    
+                    // Fallback to direct token manager check
+                    const checkAuth = () => {
+                        if (window.tokenManager) {
+                            console.log('🔑 Token manager found');
+                            
+                            if (!window.tokenManager.isAuthenticated()) {
+                                console.log('❌ User not authenticated, redirecting to auth');
+                                window.location.href = 'auth.html';
+                                return false;
+                            }
+                        } else {
+                            console.log('⏳ Token manager not ready, retrying...');
+                            setTimeout(checkAuth, 500);
+                            return false;
+                        }
+                        return true;
+                    };
+                    
+                    if (!checkAuth()) {
+                        return; // Exit if authentication failed
+                    }
+                }
+            } catch (error) {
+                console.error('❌ Authentication check failed:', error);
+                if (window.authService) {
+                    window.authService.redirectToAuth();
+                } else {
+                    window.location.href = 'auth.html';
+                }
+                return;
+            }
+        });
+        
+        function redirectToModelSelection() {
+            console.log('🔄 Redirecting to model selection...');
+            
+            // Get current token
+            const token = window.tokenManager ? window.tokenManager.getAccessToken() : null;
+            
+            if (token) {
+                // Redirect to select-model.html with token as URL parameter
+                const url = `select-model.html?token=${encodeURIComponent(token)}&from=generator`;
+                window.location.href = url;
+            } else {
+                console.error('❌ No token available for redirect');
+                // Redirect to auth page
+                window.location.href = 'auth.html';
+            }
+        }
+        
+        // Temporary debug function to open HTTP debug page
+        function openHttpDebug() {
+            console.log('🔧 Opening HTTP debug page...');
+            
+            // Get current token for debugging
+            const token = window.tokenManager ? window.tokenManager.getAccessToken() : null;
+            
+            if (token) {
+                // Open debug page with token for testing
+                const url = `test-http-debug.html?token=${encodeURIComponent(token)}&from=generator`;
+                window.location.href = url;
+            } else {
+                console.log('⚠️ No token available, opening debug page without token');
+                window.location.href = 'test-http-debug.html';
+            }
         }
     </script>
 </body>

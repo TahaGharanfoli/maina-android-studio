@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>Test Flow - Sonic AI</title>
+    <link rel="stylesheet" href="css/sonic-ai-style-guide.css">
+    <style>
+        .test-container {
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+            background: var(--gradient-dark);
+            min-height: 100vh;
+            color: white;
+        }
+        
+        .test-section {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        
+        .test-button {
+            background: var(--gradient-primary);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            margin: 10px 5px;
+            transition: all 0.3s ease;
+        }
+        
+        .test-button:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-glow-purple);
+        }
+        
+        .result {
+            margin-top: 15px;
+            padding: 15px;
+            border-radius: 8px;
+            font-family: monospace;
+            white-space: pre-wrap;
+            word-break: break-all;
+        }
+        
+        .success {
+            background: rgba(76, 175, 80, 0.2);
+            border: 1px solid rgba(76, 175, 80, 0.5);
+            color: #4CAF50;
+        }
+        
+        .error {
+            background: rgba(244, 67, 54, 0.2);
+            border: 1px solid rgba(244, 67, 54, 0.5);
+            color: #f44336;
+        }
+        
+        .info {
+            background: rgba(33, 150, 243, 0.2);
+            border: 1px solid rgba(33, 150, 243, 0.5);
+            color: #2196F3;
+        }
+    </style>
+</head>
+<body>
+    <div class="test-container">
+        <h1>🔧 Test Flow - Generator to Select Model</h1>
+        
+        <div class="test-section">
+            <h3>🔑 Token Status</h3>
+            <button onclick="checkTokenStatus()" class="test-button">Check Token Status</button>
+            <div id="tokenResult" class="result info"></div>
+        </div>
+        
+        <div class="test-section">
+            <h3>🔄 Test Redirect Flow</h3>
+            <button onclick="testRedirectFlow()" class="test-button">Test Redirect to Select Model</button>
+            <div id="redirectResult" class="result info"></div>
+        </div>
+        
+        <div class="test-section">
+            <h3>📱 Test APK Environment</h3>
+            <button onclick="testAPKEnvironment()" class="test-button">Test APK Detection</button>
+            <div id="apkResult" class="result info"></div>
+        </div>
+        
+        <div class="test-section">
+            <h3>🌐 Test API Connection</h3>
+            <button onclick="testAPIConnection()" class="test-button">Test API Connection</button>
+            <div id="apiResult" class="result info"></div>
+        </div>
+        
+        <div class="test-section">
+            <h3>🔍 Complete Test</h3>
+            <button onclick="runCompleteTest()" class="test-button">Run All Tests</button>
+            <div id="completeResult" class="result info"></div>
+        </div>
+    </div>
+
+    <!-- Load required scripts -->
+    <script src="js/token-manager.js"></script>
+    <script src="js/model-service.js"></script>
+    
+    <script>
+        // Check token status
+        function checkTokenStatus() {
+            const resultDiv = document.getElementById('tokenResult');
+            
+            if (window.tokenManager) {
+                const isAuth = window.tokenManager.isAuthenticated();
+                const hasToken = !!window.tokenManager.getAccessToken();
+                const isReady = window.tokenManager.isReady ? window.tokenManager.isReady() : 'Method not available';
+                
+                const result = `Token Manager Status:
+                
+✅ Token Manager: Available
+🔑 Is Authenticated: ${isAuth ? 'Yes' : 'No'}
+🔑 Has Access Token: ${hasToken ? 'Yes' : 'No'}
+🔑 Is Ready: ${isReady}
+🔑 Token Preview: ${hasToken ? window.tokenManager.getAccessToken().substring(0, 20) + '...' : 'None'}`;
+                
+                resultDiv.innerHTML = result;
+                resultDiv.className = 'result ' + (isAuth ? 'success' : 'error');
+            } else {
+                resultDiv.innerHTML = '❌ Token Manager not available';
+                resultDiv.className = 'result error';
+            }
+        }
+        
+        // Test redirect flow
+        function testRedirectFlow() {
+            const resultDiv = document.getElementById('redirectResult');
+            resultDiv.innerHTML = 'Testing redirect flow...';
+            resultDiv.className = 'result info';
+            
+            if (window.tokenManager && window.tokenManager.isAuthenticated()) {
+                const token = window.tokenManager.getAccessToken();
+                const url = `select-model.html?token=${encodeURIComponent(token)}&from=generator`;
+                
+                resultDiv.innerHTML = `✅ Redirect Flow Test PASSED
+                
+🔑 Token Available: Yes
+🔗 Generated URL: ${url}
+📱 Ready to redirect to select-model.html`;
+                resultDiv.className = 'result success';
+                
+                // Show the actual redirect button
+                resultDiv.innerHTML += `
+                
+<button onclick="window.location.href='${url}'" class="test-button" style="margin-top: 15px;">
+    🔄 Go to Select Model Page
+</button>`;
+            } else {
+                resultDiv.innerHTML = '❌ Redirect Flow Test FAILED\n\nNo authentication token available';
+                resultDiv.className = 'result error';
+            }
+        }
+        
+        // Test APK environment
+        function testAPKEnvironment() {
+            const resultDiv = document.getElementById('apkResult');
+            
+            const isAPK = !!(window.cordova || window.Capacitor || 
+                            (window.navigator.userAgent && window.navigator.userAgent.includes('CapacitorApp')));
+            
+            const isAndroid = /Android/i.test(navigator.userAgent);
+            const isStandalone = window.navigator.standalone || 
+                                (window.matchMedia && window.matchMedia('(display-mode: standalone)').matches);
+            
+            const result = `APK Environment Test:
+            
+📱 APK Environment: ${isAPK ? '✅ DETECTED' : '❌ Not Detected'}
+🤖 Android: ${isAndroid ? '✅ Yes' : '❌ No'}
+📱 Standalone: ${isStandalone ? '✅ Yes' : '❌ No'}
+🌐 Platform: ${navigator.platform}
+🔧 User Agent: ${navigator.userAgent.substring(0, 100)}...`;
+            
+            resultDiv.innerHTML = result;
+            resultDiv.className = 'result ' + (isAPK ? 'success' : 'info');
+        }
+        
+        // Test API connection
+        async function testAPIConnection() {
+            const resultDiv = document.getElementById('apiResult');
+            resultDiv.innerHTML = 'Testing API connection...';
+            resultDiv.className = 'result info';
+            
+            try {
+                if (window.modelService) {
+                    const isConnected = await window.modelService.testConnection();
+                    
+                    if (isConnected) {
+                        resultDiv.innerHTML = '✅ API Connection Test PASSED\n\nAPI is accessible and responding';
+                        resultDiv.className = 'result success';
+                    } else {
+                        resultDiv.innerHTML = '❌ API Connection Test FAILED\n\nAPI connection failed';
+                        resultDiv.className = 'result error';
+                    }
+                } else {
+                    resultDiv.innerHTML = '⚠️ API Connection Test SKIPPED\n\nModelService not available';
+                    resultDiv.className = 'result info';
+                }
+            } catch (error) {
+                resultDiv.innerHTML = `❌ API Connection Test FAILED\n\nError: ${error.message}`;
+                resultDiv.className = 'result error';
+            }
+        }
+        
+        // Run complete test
+        async function runCompleteTest() {
+            const resultDiv = document.getElementById('completeResult');
+            resultDiv.innerHTML = 'Running complete test...\n\nPlease wait...';
+            resultDiv.className = 'result info';
+            
+            // Run all tests
+            checkTokenStatus();
+            testRedirectFlow();
+            testAPKEnvironment();
+            await testAPIConnection();
+            
+            // Wait a bit for results
+            setTimeout(() => {
+                const tokenResult = document.getElementById('tokenResult').innerHTML;
+                const redirectResult = document.getElementById('redirectResult').innerHTML;
+                const apkResult = document.getElementById('apkResult').innerHTML;
+                const apiResult = document.getElementById('apiResult').innerHTML;
+                
+                const summary = `🔍 Complete Test Results:
+
+${tokenResult}
+
+${redirectResult}
+
+${apkResult}
+
+${apiResult}
+
+📋 Summary:
+• Check if all tests pass
+• Verify token flow works
+• Test the actual redirect to select-model.html
+• Monitor console for any errors`;
+                
+                resultDiv.innerHTML = summary;
+                resultDiv.className = 'result info';
+            }, 2000);
+        }
+        
+        // Auto-run token status check on load
+        window.onload = function() {
+            setTimeout(checkTokenStatus, 1000); // Wait for scripts to load
+        };
+    </script>
+</body>
+</html>

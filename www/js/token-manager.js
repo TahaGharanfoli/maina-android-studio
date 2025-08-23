@@ -5,6 +5,9 @@ class TokenManager {
             this.refreshToken = localStorage.getItem('refreshToken');
             this.tokenExpiry = localStorage.getItem('tokenExpiry');
             this.baseURL = 'https://api.seektir.com/v2';
+            
+            // Check if we're in Capacitor environment
+            this.isCapacitor = window.Capacitor && window.Capacitor.isNativePlatform();
         } catch (error) {
             console.error('❌ Error initializing TokenManager:', error);
             // Initialize with null values if localStorage fails
@@ -12,11 +15,24 @@ class TokenManager {
             this.refreshToken = null;
             this.tokenExpiry = null;
             this.baseURL = 'https://api.seektir.com/v2';
+            this.isCapacitor = false;
         }
     }
 
     // Check if user is authenticated
     isAuthenticated() {
+        // Check for temporary token first
+        try {
+            const tempToken = sessionStorage.getItem('tempAuthToken');
+            if (tempToken) {
+                console.log('🔑 Authenticated via temporary token');
+                return true;
+            }
+        } catch (error) {
+            console.log('⚠️ Could not access sessionStorage for temp token check');
+        }
+        
+        // Fall back to stored tokens
         return !!(this.accessToken && this.refreshToken);
     }
 
@@ -55,6 +71,9 @@ class TokenManager {
             localStorage.removeItem('accessToken');
             localStorage.removeItem('refreshToken');
             localStorage.removeItem('tokenExpiry');
+            
+            // Also clear temporary tokens
+            sessionStorage.removeItem('tempAuthToken');
         } catch (error) {
             console.error('❌ Error clearing tokens:', error);
             // Still clear the instance variables even if localStorage fails
@@ -63,9 +82,31 @@ class TokenManager {
             this.tokenExpiry = null;
         }
     }
+    
+    // Clear temporary tokens only (for cross-window auth cleanup)
+    clearTempTokens() {
+        try {
+            sessionStorage.removeItem('tempAuthToken');
+            console.log('🧹 Temporary tokens cleared');
+        } catch (error) {
+            console.error('❌ Error clearing temporary tokens:', error);
+        }
+    }
 
     // Get current access token
     getAccessToken() {
+        // First check for temporary token from sessionStorage (for cross-window auth)
+        try {
+            const tempToken = sessionStorage.getItem('tempAuthToken');
+            if (tempToken) {
+                console.log('🔑 Using temporary token from sessionStorage');
+                return tempToken;
+            }
+        } catch (error) {
+            console.log('⚠️ Could not access sessionStorage for temp token');
+        }
+        
+        // Fall back to stored token
         return this.accessToken;
     }
 
@@ -76,6 +117,7 @@ class TokenManager {
         }
 
         try {
+            // Use fetch for all environments (Capacitor will intercept when properly configured)
             const response = await fetch(`${this.baseURL}/refresh`, {
                 method: 'POST',
                 headers: {
@@ -114,6 +156,8 @@ class TokenManager {
         }
 
         const url = `${this.baseURL}${endpoint}`;
+        
+        // Use fetch for all environments (Capacitor will intercept when properly configured)
         const config = {
             method: method,
             headers: {
@@ -121,11 +165,11 @@ class TokenManager {
                 'Authorization': `Bearer ${this.getAccessToken()}`
             }
         };
-
+        
         if (data) {
             config.body = JSON.stringify(data);
         }
-
+        
         try {
             const response = await fetch(url, config);
             const result = await response.json();

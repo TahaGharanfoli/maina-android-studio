@@ -1,5 +1,42 @@
 {
   "appId": "com.mayna.maynasound",
   "appName": "Mayna Sound",
-  "webDir": "www"
+  "webDir": "www",
+  "bundledWebRuntime": false,
+  "plugins": {
+    "CapacitorHttp": {
+      "enabled": true
+    },
+    "HttpCommunity": {
+      "enabled": true
+    },
+    "SplashScreen": {
+      "launchShowDuration": 2000,
+      "launchAutoHide": true,
+      "backgroundColor": "#ffffffff",
+      "androidSplashResourceName": "splash",
+      "androidScaleType": "CENTER_CROP",
+      "showSpinner": false
+    }
+  },
+  "server": {
+    "allowNavigation": [
+      "https://api.seektir.com/*",
+      "https://*.seektir.com/*",
+      "wss://api.seektir.com/*",
+      "wss://*.seektir.com/*"
+    ],
+    "cleartext": false,
+    "androidScheme": "https",
+    "iosScheme": "capacitor"
+  },
+  "android": {
+    "allowMixedContent": true,
+    "captureInput": true,
+    "webContentsDebuggingEnabled": true,
+    "loggingBehavior": "debug",
+    "useLegacyBridge": false,
+    "requestTimeout": 30000,
+    "appendUserAgent": "MaynaSound-App"
+  }
 }

@@ -1,5 +1,3 @@
-import { CapacitorHttp } from '@capacitor/http';
-
 class ApiService {
     constructor() {
         this.baseURL = 'https://api.seektir.com/v2';
@@ -17,59 +15,32 @@ class ApiService {
             ...(this.accessToken && { 'Authorization': `Bearer ${this.accessToken}` })
         };
 
-        const options = {
-            url: url,
+        const config = {
             method: method,
-            headers: headers,
-            ...(data && { data: data })
+            headers: headers
         };
 
+        if (data) {
+            config.body = JSON.stringify(data);
+        }
+
         try {
-            let response;
+            // Use fetch for all environments (Capacitor should handle this through its HTTP plugin)
+            const response = await fetch(url, config);
+            const result = await response.json();
 
-            if (this.isCapacitor) {
-                // Use Capacitor HTTP for native apps
-                response = await CapacitorHttp.request(options);
-                const result = response.data;
-
-                if (response.status >= 400) {
-                    // Handle token expiration
-                    if (response.status === 401 && this.refreshToken) {
-                        const refreshed = await this.refreshAccessToken();
-                        if (refreshed) {
-                            return this.makeRequest(endpoint, data, method);
-                        }
+            if (!response.ok) {
+                // Handle token expiration
+                if (response.status === 401 && this.refreshToken) {
+                    const refreshed = await this.refreshAccessToken();
+                    if (refreshed) {
+                        return this.makeRequest(endpoint, data, method);
                     }
-                    throw new Error(result.message || 'Request failed');
                 }
-
-                return result;
-            } else {
-                // Use fetch for web/development
-                const config = {
-                    method: method,
-                    headers: headers
-                };
-
-                if (data) {
-                    config.body = JSON.stringify(data);
-                }
-
-                response = await fetch(url, config);
-                const result = await response.json();
-
-                if (!response.ok) {
-                    if (response.status === 401 && this.refreshToken) {
-                        const refreshed = await this.refreshAccessToken();
-                        if (refreshed) {
-                            return this.makeRequest(endpoint, data, method);
-                        }
-                    }
-                    throw new Error(result.message || 'Request failed');
-                }
-
-                return result;
+                throw new Error(result.message || 'Request failed');
             }
+
+            return result;
 
         } catch (error) {
             console.error('API Error:', error);
@@ -78,6 +49,7 @@ class ApiService {
     }
     async refreshAccessToken() {
         try {
+            // Use fetch for all environments (Capacitor should handle this through its HTTP plugin)
             const response = await fetch(`${this.baseURL}/refresh-token`, {
                 method: 'POST',
                 headers: {
@@ -172,6 +144,8 @@ class ApiService {
 if (typeof module !== 'undefined' && module.exports) {
     module.exports = ApiService;
 }
+
+
 
 
 

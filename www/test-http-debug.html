@@ -1,0 +1,357 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HTTP Debug Test</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .section {
+            margin: 20px 0;
+            padding: 15px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+        .success { border-color: #4CAF50; background: #f1f8e9; }
+        .error { border-color: #f44336; background: #ffebee; }
+        .warning { border-color: #ff9800; background: #fff3e0; }
+        .info { border-color: #2196F3; background: #e3f2fd; }
+        button {
+            background: #2196F3;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        button:hover { background: #1976D2; }
+        .log {
+            background: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 5px;
+            padding: 10px;
+            margin: 10px 0;
+            font-family: monospace;
+            white-space: pre-wrap;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔧 HTTP Debug Test</h1>
+        <p>This page helps debug HTTP functionality and Capacitor HTTP plugin issues.</p>
+        
+        <div class="section info">
+            <h3>📱 Environment Info</h3>
+            <div id="env-info">Loading...</div>
+        </div>
+        
+        <div class="section">
+            <h3>🧪 HTTP Tests</h3>
+            <button onclick="testHttpFunctionality()">Test HTTP Functionality</button>
+            <button onclick="testSimpleFetch()">Test Simple Fetch</button>
+            <button onclick="testCapacitorHttp()">Test Capacitor HTTP</button>
+            <button onclick="forcePluginInit()">Force Plugin Init</button>
+            <button onclick="testModelLoading()">Test Model Loading</button>
+            <button onclick="clearLogs()">Clear Logs</button>
+        </div>
+        
+        <div class="section">
+            <h3>📊 Test Results</h3>
+            <div id="test-results">No tests run yet</div>
+        </div>
+        
+        <div class="section">
+            <h3>📝 Console Logs</h3>
+            <div id="console-logs" class="log"></div>
+        </div>
+    </div>
+
+    <script>
+        // Capture console logs
+        const originalLog = console.log;
+        const originalWarn = console.warn;
+        const originalError = console.error;
+        
+        function addToLog(type, ...args) {
+            const logsDiv = document.getElementById('console-logs');
+            const timestamp = new Date().toLocaleTimeString();
+            const message = args.map(arg => 
+                typeof arg === 'object' ? JSON.stringify(arg, null, 2) : String(arg)
+            ).join(' ');
+            
+            logsDiv.textContent += `[${timestamp}] ${type.toUpperCase()}: ${message}\n`;
+            logsDiv.scrollTop = logsDiv.scrollHeight;
+        }
+        
+        console.log = (...args) => {
+            originalLog.apply(console, args);
+            addToLog('log', ...args);
+        };
+        
+        console.warn = (...args) => {
+            originalWarn.apply(console, args);
+            addToLog('warn', ...args);
+        };
+        
+        console.error = (...args) => {
+            originalError.apply(console, args);
+            addToLog('error', ...args);
+        };
+        
+        // Load required scripts
+        async function loadScripts() {
+            try {
+                // Load HttpUtil first
+                const httpUtilScript = document.createElement('script');
+                httpUtilScript.src = 'js/http-util.js';
+                document.head.appendChild(httpUtilScript);
+                
+                await new Promise((resolve, reject) => {
+                    httpUtilScript.onload = resolve;
+                    httpUtilScript.onerror = reject;
+                });
+                
+                // Load other scripts
+                const scripts = [
+                    'js/token-manager.js',
+                    'js/auth-service.js',
+                    'js/model-service.js'
+                ];
+                
+                for (const script of scripts) {
+                    const scriptElement = document.createElement('script');
+                    scriptElement.src = script;
+                    document.head.appendChild(scriptElement);
+                    
+                    await new Promise((resolve, reject) => {
+                        scriptElement.onload = resolve;
+                        scriptElement.onerror = reject;
+                    });
+                }
+                
+                console.log('✅ All scripts loaded successfully');
+                updateEnvironmentInfo();
+                
+            } catch (error) {
+                console.error('❌ Failed to load scripts:', error);
+            }
+        }
+        
+        function updateEnvironmentInfo() {
+            const envInfo = document.getElementById('env-info');
+            
+            if (window.getHttpDiagnostics) {
+                const diagnostics = window.getHttpDiagnostics();
+                envInfo.innerHTML = `
+                    <strong>Platform:</strong> ${diagnostics.platform}<br>
+                    <strong>Capacitor Available:</strong> ${diagnostics.capacitorObject}<br>
+                    <strong>Capacitor Plugins:</strong> ${diagnostics.capacitorPlugins}<br>
+                    <strong>HTTP Plugin Available:</strong> ${diagnostics.capacitorAvailable}<br>
+                    <strong>HTTP Plugin Loaded:</strong> ${diagnostics.capacitorHttp}<br>
+                    <strong>Plugin Type:</strong> ${diagnostics.pluginType}
+                `;
+            } else {
+                envInfo.innerHTML = '<span class="error">HttpUtil not loaded</span>';
+            }
+        }
+        
+        async function testHttpFunctionality() {
+            if (window.testHttpFunctionality) {
+                try {
+                    const results = await window.testHttpFunctionality();
+                    displayTestResults(results);
+                } catch (error) {
+                    console.error('Test failed:', error);
+                }
+            } else {
+                console.error('testHttpFunctionality not available');
+            }
+        }
+        
+        async function testSimpleFetch() {
+            try {
+                console.log('🧪 Testing simple fetch to httpbin.org...');
+                const response = await fetch('https://httpbin.org/get');
+                const data = await response.json();
+                console.log('✅ Simple fetch successful:', data);
+                displayTestResults({ fetchWorking: true, errors: [] });
+            } catch (error) {
+                console.error('❌ Simple fetch failed:', error);
+                displayTestResults({ fetchWorking: false, errors: [`Fetch: ${error.message}`] });
+            }
+        }
+        
+        async function testCapacitorHttp() {
+            if (window.httpUtil && window.httpUtil.isCapacitor) {
+                try {
+                    console.log('🧪 Testing Capacitor HTTP directly...');
+                    await window.httpUtil.initCapacitorHttp();
+                    
+                    if (window.httpUtil.capacitorHttp) {
+                        const response = await window.httpUtil.makeCapacitorRequest('https://httpbin.org/get', {});
+                        console.log('✅ Capacitor HTTP test successful:', response);
+                        displayTestResults({ capacitorWorking: true, errors: [] });
+                    } else {
+                        console.log('⚠️ Capacitor HTTP not available');
+                        displayTestResults({ capacitorWorking: false, errors: ['Capacitor HTTP not available'] });
+                    }
+                } catch (error) {
+                    console.error('❌ Capacitor HTTP test failed:', error);
+                    displayTestResults({ capacitorWorking: false, errors: [`Capacitor HTTP: ${error.message}`] });
+                }
+            } else {
+                console.log('⚠️ Not in Capacitor environment');
+            }
+        }
+        
+        async function forcePluginInit() {
+            if (window.forcePluginInit) {
+                try {
+                    console.log('🔧 Forcing plugin initialization...');
+                    const result = await window.forcePluginInit();
+                    console.log('📊 Force plugin init result:', result);
+                    
+                    if (result.success) {
+                        displayTestResults({ 
+                            pluginInitSuccess: true, 
+                            pluginType: result.pluginType,
+                            errors: [] 
+                        });
+                    } else {
+                        displayTestResults({ 
+                            pluginInitSuccess: false, 
+                            errors: [result.reason],
+                            pluginDetails: result.details
+                        });
+                    }
+                } catch (error) {
+                    console.error('❌ Force plugin init failed:', error);
+                    displayTestResults({ 
+                        pluginInitSuccess: false, 
+                        errors: [`Force init: ${error.message}`] 
+                    });
+                }
+            } else {
+                console.error('❌ forcePluginInit not available');
+            }
+        }
+        
+        async function testModelLoading() {
+            if (window.ModelService) {
+                try {
+                    console.log('🧪 Testing model loading functionality...');
+                    
+                    // Test API connection first
+                    const connectionTest = await window.ModelService.testConnection();
+                    console.log('✅ API connection test result:', connectionTest);
+                    
+                    if (connectionTest) {
+                        // Try to get free models
+                        const freeModels = await window.ModelService.getFreeModels();
+                        console.log('✅ Free models loaded successfully:', freeModels);
+                        displayTestResults({ 
+                            modelLoadingWorking: true, 
+                            errors: [],
+                            modelCount: freeModels?.length || 0
+                        });
+                    } else {
+                        displayTestResults({ 
+                            modelLoadingWorking: false, 
+                            errors: ['API connection failed']
+                        });
+                    }
+                } catch (error) {
+                    console.error('❌ Model loading test failed:', error);
+                    displayTestResults({ 
+                        modelLoadingWorking: false, 
+                        errors: [`Model loading: ${error.message}`]
+                    });
+                }
+            } else {
+                console.error('❌ ModelService not available');
+                displayTestResults({ 
+                    modelLoadingWorking: false, 
+                    errors: ['ModelService not loaded']
+                });
+            }
+        }
+        
+        function displayTestResults(results) {
+            const resultsDiv = document.getElementById('test-results');
+            
+            let html = '<h4>Test Results:</h4>';
+            
+            if (results.capacitorAvailable !== undefined) {
+                html += `<p><strong>Capacitor Available:</strong> ${results.capacitorAvailable ? '✅ Yes' : '❌ No'}</p>`;
+            }
+            
+            if (results.capacitorWorking !== undefined) {
+                html += `<p><strong>Capacitor HTTP Working:</strong> ${results.capacitorWorking ? '✅ Yes' : '❌ No'}</p>`;
+            }
+            
+            if (results.pluginType && results.pluginType !== 'none') {
+                html += `<p><strong>Plugin Type:</strong> ${results.pluginType}</p>`;
+            }
+            
+            if (results.pluginInitSuccess !== undefined) {
+                html += `<p><strong>Plugin Init Success:</strong> ${results.pluginInitSuccess ? '✅ Yes' : '❌ No'}</p>`;
+                if (results.pluginType) {
+                    html += `<p><strong>Plugin Type:</strong> ${results.pluginType}</p>`;
+                }
+            }
+            
+            if (results.fetchWorking !== undefined) {
+                html += `<p><strong>Standard Fetch Working:</strong> ${results.fetchWorking ? '✅ Yes' : '❌ No'}</p>`;
+            }
+            
+            if (results.modelLoadingWorking !== undefined) {
+                html += `<p><strong>Model Loading Working:</strong> ${results.modelLoadingWorking ? '✅ Yes' : '❌ No'}</p>`;
+                if (results.modelCount !== undefined) {
+                    html += `<p><strong>Models Loaded:</strong> ${results.modelCount}</p>`;
+                }
+            }
+            
+            if (results.pluginDetails) {
+                html += '<p><strong>Plugin Details:</strong></p><ul>';
+                Object.entries(results.pluginDetails).forEach(([key, value]) => {
+                    html += `<li><strong>${key}:</strong> ${JSON.stringify(value)}</li>`;
+                });
+                html += '</ul>';
+            }
+            
+            if (results.errors && results.errors.length > 0) {
+                html += '<p><strong>Errors:</strong></p><ul>';
+                results.errors.forEach(error => {
+                    html += `<li class="error">${error}</li>`;
+                });
+                html += '</ul>';
+            }
+            
+            resultsDiv.innerHTML = html;
+        }
+        
+        function clearLogs() {
+            document.getElementById('console-logs').textContent = '';
+        }
+        
+        // Initialize when page loads
+        document.addEventListener('DOMContentLoaded', loadScripts);
+    </script>
+</body>
+</html>

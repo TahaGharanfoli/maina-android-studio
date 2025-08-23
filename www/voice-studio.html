@@ -1,0 +1,1229 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="mobile-web-app-capable" content="yes">
+    <title>AI Voice Generator</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            background: #1a1a1a;
+            color: white;
+            min-height: 100vh;
+            overflow: hidden;
+            -webkit-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+            user-select: none;
+            -webkit-touch-callout: none;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        .container {
+            width: 100vw;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
+        }
+
+        /* Header */
+        .header {
+            display: flex;
+            align-items: center;
+            padding: 12px 20px;
+            background: rgba(0, 0, 0, 0.3);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .back-btn {
+            background: none;
+            border: none;
+            color: white;
+            font-size: 18px;
+            cursor: pointer;
+            padding: 8px;
+            border-radius: 8px;
+            transition: background 0.2s;
+        }
+
+        .back-btn:hover {
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .header-info {
+            width: 34px;
+            height: 34px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            color: rgba(255, 255, 255, 0.6);
+            font-weight: 500;
+        }
+        
+        .header-title {
+            flex: 1;
+            text-align: center;
+            font-size: 17px;
+            font-weight: 600;
+        }
+
+        /* Main Content */
+        .main-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 40px 20px;
+            position: relative;
+        }
+
+        /* Initial Options */
+        .options-container {
+            display: flex;
+            flex-direction: column;
+            gap: 24px;
+            width: 100%;
+            max-width: 300px;
+        }
+
+        .option-card {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 16px;
+            padding: 24px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
+            -webkit-tap-highlight-color: transparent;
+            touch-action: manipulation;
+        }
+
+        .option-card:hover {
+            background: rgba(255, 255, 255, 0.1);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+        }
+
+        .option-icon {
+            font-size: 32px;
+            margin-bottom: 12px;
+            color: #8B5CF6;
+        }
+
+        .option-title {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+
+        .option-description {
+            font-size: 14px;
+            color: rgba(255, 255, 255, 0.7);
+        }
+        
+        .permission-status {
+            font-size: 12px;
+            margin-top: 8px;
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-weight: 500;
+        }
+        
+        .permission-status.granted {
+            background: rgba(34, 197, 94, 0.2);
+            color: #22c55e;
+        }
+        
+        .permission-status.denied {
+            background: rgba(239, 68, 68, 0.2);
+            color: #ef4444;
+        }
+        
+        .permission-status.prompt {
+            background: rgba(251, 191, 36, 0.2);
+            color: #fbbf24;
+        }
+
+        /* Recording Interface */
+        .recording-interface {
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            width: 100%;
+            height: 100%;
+        }
+
+        .recording-circle {
+            width: 200px;
+            height: 200px;
+            border-radius: 50%;
+            background: #2a2a2a;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            margin-bottom: 60px;
+            transition: all 0.3s ease;
+        }
+
+        .recording-circle.recording {
+            background: linear-gradient(45deg, #8B5CF6, #3B82F6);
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% {
+                box-shadow: 0 0 0 0 rgba(139, 92, 246, 0.4);
+            }
+            70% {
+                box-shadow: 0 0 0 20px rgba(139, 92, 246, 0);
+            }
+            100% {
+                box-shadow: 0 0 0 0 rgba(139, 92, 246, 0);
+            }
+        }
+
+        .recording-timer {
+            font-size: 32px;
+            font-weight: 300;
+            color: white;
+            font-family: 'SF Mono', Monaco, monospace;
+        }
+
+        .recording-wave {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 220px;
+            height: 220px;
+            border: 2px solid rgba(139, 92, 246, 0.3);
+            border-radius: 50%;
+            opacity: 0;
+            animation: wave 2s infinite;
+        }
+
+        .recording-circle.recording .recording-wave {
+            opacity: 1;
+        }
+
+        @keyframes wave {
+            0% {
+                transform: translate(-50%, -50%) scale(1);
+                opacity: 0.5;
+            }
+            100% {
+                transform: translate(-50%, -50%) scale(1.2);
+                opacity: 0;
+            }
+        }
+
+        /* Control Panel */
+        .control-panel {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 20px;
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 16px 24px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .control-btn {
+            width: 56px;
+            height: 56px;
+            border-radius: 50%;
+            border: none;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            transition: all 0.2s ease;
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            -webkit-tap-highlight-color: transparent;
+            touch-action: manipulation;
+        }
+
+        .control-btn:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: scale(1.05);
+        }
+
+        .control-btn.primary {
+            width: 64px;
+            height: 64px;
+            background: #8B5CF6;
+            font-size: 24px;
+        }
+
+        .control-btn.primary:hover {
+            background: #7C3AED;
+        }
+
+        .control-btn.recording {
+            background: #EF4444;
+        }
+
+        .control-btn.recording:hover {
+            background: #DC2626;
+        }
+
+        /* File Upload */
+        .file-upload {
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            gap: 24px;
+            width: 100%;
+            max-width: 400px;
+        }
+
+        .upload-area {
+            width: 100%;
+            height: 200px;
+            border: 2px dashed rgba(139, 92, 246, 0.5);
+            border-radius: 16px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            background: rgba(139, 92, 246, 0.05);
+        }
+
+        .upload-area:hover {
+            border-color: #8B5CF6;
+            background: rgba(139, 92, 246, 0.1);
+        }
+
+        .upload-area.dragover {
+            border-color: #8B5CF6;
+            background: rgba(139, 92, 246, 0.2);
+        }
+
+        .upload-icon {
+            font-size: 48px;
+            color: #8B5CF6;
+            margin-bottom: 16px;
+        }
+
+        .upload-text {
+            font-size: 16px;
+            font-weight: 500;
+            margin-bottom: 8px;
+        }
+
+        .upload-subtext {
+            font-size: 14px;
+            color: rgba(255, 255, 255, 0.6);
+        }
+
+        #fileInput {
+            display: none;
+        }
+
+        /* Audio Player */
+        .audio-player {
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            gap: 24px;
+            width: 100%;
+            max-width: 400px;
+        }
+
+        .audio-controls {
+            width: 100%;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 16px;
+            padding: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .audio-element {
+            width: 100%;
+            margin-bottom: 16px;
+        }
+
+        /* Hidden elements */
+        .hidden {
+            display: none !important;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <div class="header">
+            <button class="back-btn" onclick="goBack()">
+                <i class="fas fa-chevron-left"></i>
+            </button>
+            <div class="header-title">AI Voice Generator</div>
+            <div class="header-info" id="headerInfo"></div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="main-content">
+            <!-- Initial Options -->
+            <div class="options-container" id="optionsContainer">
+                <div class="option-card" onclick="showFileUpload()">
+                    <div class="option-icon">
+                        <i class="fas fa-file-audio"></i>
+                    </div>
+                    <div class="option-title">Upload Audio File</div>
+                    <div class="option-description">Choose an audio file from your device</div>
+                    <div class="permission-status prompt" id="filePermissionStatus">File access: Checking...</div>
+                </div>
+
+                <div class="option-card" onclick="showRecording()">
+                    <div class="option-icon">
+                        <i class="fas fa-microphone"></i>
+                    </div>
+                    <div class="option-title">Record Voice</div>
+                    <div class="option-description">Record your voice directly</div>
+                    <div class="permission-status prompt" id="micPermissionStatus">Microphone: Checking...</div>
+                </div>
+            </div>
+
+            <!-- Recording Interface -->
+            <div class="recording-interface" id="recordingInterface">
+                <div class="recording-circle" id="recordingCircle">
+                    <div class="recording-wave"></div>
+                    <div class="recording-timer" id="recordingTimer">00:00</div>
+                </div>
+                
+                <div class="control-panel">
+                    <button class="control-btn" onclick="resetRecording()" title="Reset">
+                        <i class="fas fa-redo"></i>
+                    </button>
+                    <button class="control-btn primary" id="recordBtn" onclick="toggleRecording()" title="Record">
+                        <i class="fas fa-microphone"></i>
+                    </button>
+                    <button class="control-btn" onclick="stopRecording()" title="Stop">
+                        <i class="fas fa-check"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- File Upload -->
+            <div class="file-upload" id="fileUpload">
+                <div class="upload-area" onclick="document.getElementById('fileInput').click()">
+                    <div class="upload-icon">
+                        <i class="fas fa-cloud-upload-alt"></i>
+                    </div>
+                    <div class="upload-text">Upload Audio File</div>
+                    <div class="upload-subtext">Click to browse or drag and drop</div>
+                </div>
+                <input type="file" id="fileInput" accept="audio/*" onchange="handleFileUpload(event)">
+            </div>
+
+            <!-- Audio Player -->
+            <div class="audio-player" id="audioPlayer">
+                <div class="audio-controls">
+                    <audio controls class="audio-element" id="audioElement"></audio>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let mediaRecorder;
+        let audioChunks = [];
+        let isRecording = false;
+        let recordingStartTime;
+        let timerInterval;
+
+        // Permission states
+        let microphonePermission = null;
+        let filePermission = null;
+        
+        // Authentication check
+        document.addEventListener('DOMContentLoaded', async () => {
+            console.log('🎵 Voice Studio loaded');
+            
+            // Basic authentication check
+            try {
+                let attempts = 0;
+                while (!window.authService && attempts < 20) {
+                    await new Promise(resolve => setTimeout(resolve, 100));
+                    attempts++;
+                }
+                
+                if (window.authService) {
+                    const isAuthenticated = await window.authService.checkAuthenticationAndRedirect('voice-studio');
+                    if (!isAuthenticated) {
+                        console.log('❌ Authentication failed');
+                        return;
+                    }
+                }
+            } catch (error) {
+                console.error('❌ Authentication check failed:', error);
+            }
+            
+            // Check initial permissions
+            await checkPermissions();
+        });
+        
+        // Check permissions function
+        async function checkPermissions() {
+            try {
+                console.log('🔍 Checking initial permissions...');
+                
+                // Check microphone permission
+                if (navigator.permissions) {
+                    try {
+                        const micResult = await navigator.permissions.query({ name: 'microphone' });
+                        microphonePermission = micResult.state;
+                        console.log('Initial microphone permission:', microphonePermission);
+                        
+                        micResult.onchange = () => {
+                            microphonePermission = micResult.state;
+                            console.log('Microphone permission changed:', microphonePermission);
+                            updatePermissionUI();
+                        };
+                    } catch (error) {
+                        console.log('Microphone permission query not supported:', error);
+                        microphonePermission = 'prompt'; // Unknown state
+                    }
+                } else {
+                    console.log('Permissions API not supported');
+                    microphonePermission = 'prompt'; // Unknown state
+                }
+                
+                // Check file API support
+                if (window.File && window.FileReader && window.FileList && window.Blob) {
+                    filePermission = 'granted';
+                    console.log('✅ File API supported');
+                } else {
+                    filePermission = 'denied';
+                    console.log('❌ File API not supported');
+                }
+                
+                updatePermissionUI();
+                
+            } catch (error) {
+                console.log('Permission check failed:', error);
+                microphonePermission = 'prompt';
+                filePermission = 'prompt';
+            }
+        }
+        
+        // Update UI based on permission status
+        function updatePermissionUI() {
+            console.log('🔄 Permission status update:', {
+                microphone: microphonePermission,
+                file: filePermission
+            });
+            
+            // Update microphone permission status
+            const micStatus = document.getElementById('micPermissionStatus');
+            if (micStatus) {
+                micStatus.className = 'permission-status ' + microphonePermission;
+                switch (microphonePermission) {
+                    case 'granted':
+                        micStatus.textContent = 'Microphone: Ready';
+                        break;
+                    case 'denied':
+                        micStatus.textContent = 'Microphone: Denied';
+                        break;
+                    case 'prompt':
+                    default:
+                        micStatus.textContent = 'Microphone: Tap to allow';
+                        break;
+                }
+            }
+            
+            // Update file permission status
+            const fileStatus = document.getElementById('filePermissionStatus');
+            if (fileStatus) {
+                fileStatus.className = 'permission-status ' + filePermission;
+                switch (filePermission) {
+                    case 'granted':
+                        fileStatus.textContent = 'File access: Ready';
+                        break;
+                    case 'denied':
+                        fileStatus.textContent = 'File access: Not supported';
+                        break;
+                    case 'prompt':
+                    default:
+                        fileStatus.textContent = 'File access: Ready';
+                        break;
+                }
+            }
+        }
+
+        async function showFileUpload() {
+            // Request file access permission (for mobile)
+            const hasPermission = await requestFilePermission();
+            if (!hasPermission) {
+                alert('File access permission is required to upload audio files. Please grant permission in your device settings.');
+                return;
+            }
+            
+            document.getElementById('optionsContainer').classList.add('hidden');
+            document.getElementById('fileUpload').style.display = 'flex';
+            updateHeaderInfo('Upload');
+        }
+        
+        // Request file permission
+        async function requestFilePermission() {
+            try {
+                console.log('📁 Checking file access permission...');
+                
+                // For file access, we can't really check permission in advance
+                // The permission is granted when user interacts with file input
+                // But we can check if File API is supported
+                if (!window.File || !window.FileReader || !window.FileList || !window.Blob) {
+                    console.error('❌ File APIs not supported');
+                    alert('File upload is not supported in this browser. Please use a modern browser like Chrome, Firefox, or Safari.');
+                    return false;
+                }
+                
+                // Check if we're in a secure context (required for some file operations)
+                if (location.protocol !== 'https:' && location.hostname !== 'localhost' && location.hostname !== '127.0.0.1') {
+                    console.warn('⚠️ Not in secure context, file operations may be limited');
+                }
+                
+                console.log('✅ File API supported');
+                return true;
+                
+            } catch (error) {
+                console.error('❌ File permission check failed:', error);
+                alert('File access is not available: ' + error.message);
+                return false;
+            }
+        }
+
+        async function showRecording() {
+            // Request microphone permission
+            const hasPermission = await requestMicrophonePermission();
+            if (!hasPermission) {
+                alert('Microphone access permission is required to record audio. Please grant permission and try again.');
+                return;
+            }
+            
+            document.getElementById('optionsContainer').classList.add('hidden');
+            document.getElementById('recordingInterface').style.display = 'flex';
+            updateHeaderInfo('Record');
+        }
+        
+        // Request microphone permission
+        async function requestMicrophonePermission() {
+            try {
+                console.log('🎤 Requesting microphone permission...');
+                
+                // Check if permission is already granted
+                if (navigator.permissions) {
+                    const permission = await navigator.permissions.query({ name: 'microphone' });
+                    console.log('Current microphone permission state:', permission.state);
+                    
+                    if (permission.state === 'granted') {
+                        console.log('✅ Microphone permission already granted');
+                        microphonePermission = 'granted';
+                        return true;
+                    } else if (permission.state === 'denied') {
+                        console.log('❌ Microphone permission denied');
+                        microphonePermission = 'denied';
+                        alert('Microphone access has been denied. Please enable microphone access in your browser settings:\n\n1. Click the lock icon in the address bar\n2. Set microphone to "Allow"\n3. Refresh the page and try again');
+                        return false;
+                    }
+                }
+                
+                // Request permission by trying to access microphone
+                const stream = await navigator.mediaDevices.getUserMedia({ 
+                    audio: {
+                        echoCancellation: true,
+                        noiseSuppression: true,
+                        autoGainControl: true
+                    }
+                });
+                
+                // Permission granted, stop the test stream immediately
+                stream.getTracks().forEach(track => track.stop());
+                microphonePermission = 'granted';
+                console.log('✅ Microphone permission granted');
+                return true;
+                
+            } catch (error) {
+                console.error('❌ Microphone permission request failed:', error);
+                microphonePermission = 'denied';
+                
+                // Handle specific errors with helpful messages
+                if (error.name === 'NotAllowedError') {
+                    alert('Microphone access was denied. To use voice recording:\n\n1. Click the microphone icon in your browser\'s address bar\n2. Select "Always allow" for microphone access\n3. Try recording again\n\nOn mobile devices, check your browser and device settings.');
+                } else if (error.name === 'NotFoundError') {
+                    alert('No microphone found on your device. Please connect a microphone and try again.');
+                } else if (error.name === 'NotReadableError') {
+                    alert('Microphone is currently being used by another application. Please close other apps using the microphone and try again.');
+                } else if (error.name === 'OverconstrainedError') {
+                    alert('Microphone settings are not supported. Please try again.');
+                } else {
+                    alert('Unable to access microphone: ' + error.message + '\n\nPlease check your device settings and try again.');
+                }
+                return false;
+            }
+        }
+
+        function goBack() {
+            // Check which screen is currently visible
+            const optionsVisible = !document.getElementById('optionsContainer').classList.contains('hidden');
+            const recordingVisible = document.getElementById('recordingInterface').style.display === 'flex';
+            const fileUploadVisible = document.getElementById('fileUpload').style.display === 'flex';
+            const audioPlayerVisible = document.getElementById('audioPlayer').style.display === 'flex';
+            
+            console.log('Back button pressed - Current state:', {
+                options: optionsVisible,
+                recording: recordingVisible,
+                fileUpload: fileUploadVisible,
+                audioPlayer: audioPlayerVisible
+            });
+            
+            if (optionsVisible) {
+                // If on main options screen, go back to select-model page
+                console.log('Going back to select-model page');
+                updateHeaderInfo('');
+                
+                // Get current token and redirect to select-model.html
+                const token = window.tokenManager ? window.tokenManager.getAccessToken() : null;
+                if (token) {
+                    const url = `select-model.html?token=${encodeURIComponent(token)}&from=voice-studio`;
+                    window.location.href = url;
+                } else {
+                    // Fallback without token
+                    window.location.href = 'select-model.html?from=voice-studio';
+                }
+            } else if (audioPlayerVisible) {
+                // If on audio player, go back to options
+                console.log('Going back to options from audio player');
+                updateHeaderInfo('');
+                showOptionsScreen();
+            } else if (recordingVisible) {
+                // If on recording screen, go back to options
+                console.log('Going back to options from recording');
+                updateHeaderInfo('');
+                showOptionsScreen();
+            } else if (fileUploadVisible) {
+                // If on file upload screen, go back to options
+                console.log('Going back to options from file upload');
+                updateHeaderInfo('');
+                showOptionsScreen();
+            } else {
+                // Fallback - go back to options
+                console.log('Fallback: going back to options');
+                updateHeaderInfo('');
+                showOptionsScreen();
+            }
+        }
+        
+        // Update header info to show current step
+        function updateHeaderInfo(step) {
+            const headerInfo = document.getElementById('headerInfo');
+            if (headerInfo) {
+                headerInfo.textContent = step;
+            }
+        }
+        
+        // Helper function to show options screen
+        function showOptionsScreen() {
+            // Hide all screens
+            document.getElementById('recordingInterface').style.display = 'none';
+            document.getElementById('fileUpload').style.display = 'none';
+            document.getElementById('audioPlayer').style.display = 'none';
+            
+            // Show options
+            document.getElementById('optionsContainer').classList.remove('hidden');
+            updateHeaderInfo('');
+            
+            // Reset recording state
+            resetRecording();
+        }
+
+        async function toggleRecording() {
+            if (!isRecording) {
+                startRecording();
+            } else {
+                pauseRecording();
+            }
+        }
+
+        async function startRecording() {
+            try {
+                // Check permission first
+                if (microphonePermission === 'denied') {
+                    alert('Microphone access is denied. Please enable microphone access in your device settings.');
+                    return;
+                }
+                
+                console.log('🎤 Starting recording...');
+                const stream = await navigator.mediaDevices.getUserMedia({ 
+                    audio: {
+                        echoCancellation: true,
+                        noiseSuppression: true,
+                        autoGainControl: true
+                    }
+                });
+                
+                // Use PCM WAV format for maximum compatibility
+                let mimeType = 'audio/wav';
+                
+                // Fallback options if WAV is not supported
+                if (!MediaRecorder.isTypeSupported('audio/wav')) {
+                    if (MediaRecorder.isTypeSupported('audio/webm')) {
+                        mimeType = 'audio/webm';
+                    } else if (MediaRecorder.isTypeSupported('audio/mp4')) {
+                        mimeType = 'audio/mp4';
+                    } else {
+                        mimeType = 'audio/webm'; // Final fallback
+                    }
+                }
+                
+                console.log('🎵 Using MIME type for recording:', mimeType);
+                mediaRecorder = new MediaRecorder(stream, { mimeType: mimeType });
+                audioChunks = [];
+                
+                mediaRecorder.ondataavailable = event => {
+                    if (event.data.size > 0) {
+                        audioChunks.push(event.data);
+                    }
+                };
+                
+                mediaRecorder.onstop = async () => {
+                    console.log('🎤 Recording stopped, processing audio...');
+                    const originalMimeType = mediaRecorder.mimeType;
+                    const audioBlob = new Blob(audioChunks, { type: originalMimeType });
+                    
+                    console.log('🎵 Original recording:', {
+                        mimeType: originalMimeType,
+                        size: audioBlob.size
+                    });
+                    
+                    try {
+                        // Convert to WAV format for better server compatibility
+                        const wavBlob = await convertToWav(audioBlob);
+                        
+                        const timestamp = new Date().getTime();
+                        const fileName = `recording_${timestamp}.wav`;
+                        const audioFile = new File([wavBlob], fileName, { type: 'audio/wav' });
+                        
+                        console.log('📁 Converted file for upload:');
+                        console.log('  - Filename:', fileName);
+                        console.log('  - MIME Type:', 'audio/wav');
+                        console.log('  - Size:', audioFile.size);
+                        
+                        // Upload and proceed to conversion
+                        await uploadAndProceed(audioFile);
+                        
+                    } catch (conversionError) {
+                        console.error('❌ Audio conversion failed:', conversionError);
+                        
+                        // Fallback: use original format with proper MIME type
+                        const timestamp = new Date().getTime();
+                        let fileName, finalMimeType;
+                        
+                        if (originalMimeType.includes('webm')) {
+                            fileName = `recording_${timestamp}.webm`;
+                            finalMimeType = 'audio/webm';
+                        } else if (originalMimeType.includes('mp4') || originalMimeType.includes('aac')) {
+                            fileName = `recording_${timestamp}.m4a`;
+                            finalMimeType = 'audio/m4a';
+                        } else {
+                            fileName = `recording_${timestamp}.webm`;
+                            finalMimeType = 'audio/webm';
+                        }
+                        
+                        const audioFile = new File([audioBlob], fileName, { type: finalMimeType });
+                        
+                        console.log('📁 Fallback file for upload:');
+                        console.log('  - Filename:', fileName);
+                        console.log('  - MIME Type:', finalMimeType);
+                        console.log('  - Size:', audioFile.size);
+                        
+                        // Upload and proceed to conversion
+                        await uploadAndProceed(audioFile);
+                    }
+                };
+                
+                mediaRecorder.onerror = (event) => {
+                    console.error('MediaRecorder error:', event.error);
+                    alert('Recording error: ' + event.error.message);
+                };
+                
+                mediaRecorder.start(1000); // Collect data every second
+                isRecording = true;
+                recordingStartTime = Date.now();
+                
+                // Update UI
+                document.getElementById('recordingCircle').classList.add('recording');
+                document.getElementById('recordBtn').classList.add('recording');
+                document.getElementById('recordBtn').innerHTML = '<i class="fas fa-pause"></i>';
+                
+                // Start timer
+                startTimer();
+                
+                console.log('✅ Recording started successfully');
+                
+            } catch (error) {
+                console.error('❌ Error starting recording:', error);
+                
+                // Handle specific errors
+                if (error.name === 'NotAllowedError') {
+                    alert('Microphone access denied. Please allow microphone access and try again.');
+                    microphonePermission = 'denied';
+                } else if (error.name === 'NotFoundError') {
+                    alert('No microphone found on your device.');
+                } else if (error.name === 'NotReadableError') {
+                    alert('Microphone is being used by another application.');
+                } else {
+                    alert('Unable to start recording: ' + error.message);
+                }
+            }
+        }
+
+        function pauseRecording() {
+            if (mediaRecorder && isRecording) {
+                mediaRecorder.pause();
+                isRecording = false;
+                
+                // Update UI
+                document.getElementById('recordingCircle').classList.remove('recording');
+                document.getElementById('recordBtn').classList.remove('recording');
+                document.getElementById('recordBtn').innerHTML = '<i class="fas fa-microphone"></i>';
+                
+                clearInterval(timerInterval);
+            }
+        }
+
+        function stopRecording() {
+            if (mediaRecorder) {
+                mediaRecorder.stop();
+                mediaRecorder.stream.getTracks().forEach(track => track.stop());
+                isRecording = false;
+                
+                // Update UI
+                document.getElementById('recordingCircle').classList.remove('recording');
+                document.getElementById('recordBtn').classList.remove('recording');
+                document.getElementById('recordBtn').innerHTML = '<i class="fas fa-microphone"></i>';
+                
+                clearInterval(timerInterval);
+                
+                // The audio will be processed in mediaRecorder.onstop event
+                console.log('🎵 Recording stopped, processing...');
+            }
+        }
+
+        function resetRecording() {
+            if (mediaRecorder && isRecording) {
+                mediaRecorder.stop();
+                mediaRecorder.stream.getTracks().forEach(track => track.stop());
+            }
+            
+            isRecording = false;
+            audioChunks = [];
+            
+            // Reset UI
+            document.getElementById('recordingCircle').classList.remove('recording');
+            document.getElementById('recordBtn').classList.remove('recording');
+            document.getElementById('recordBtn').innerHTML = '<i class="fas fa-microphone"></i>';
+            document.getElementById('recordingTimer').textContent = '00:00';
+            
+            clearInterval(timerInterval);
+        }
+
+        function startTimer() {
+            timerInterval = setInterval(() => {
+                const elapsed = Date.now() - recordingStartTime;
+                const seconds = Math.floor(elapsed / 1000);
+                const minutes = Math.floor(seconds / 60);
+                const remainingSeconds = seconds % 60;
+                
+                document.getElementById('recordingTimer').textContent = 
+                    `${minutes.toString().padStart(2, '0')}:${remainingSeconds.toString().padStart(2, '0')}`;
+            }, 1000);
+        }
+
+        function handleFileUpload(event) {
+            const file = event.target.files[0];
+            console.log('📁 File selected:', file?.name, file?.type);
+            
+            if (!file) {
+                console.log('❌ No file selected');
+                return;
+            }
+            
+            // Validate file type - prioritize WAV and MP3
+            const validAudioTypes = [
+                'audio/wav', 'audio/mp3', 'audio/mpeg',  // Preferred formats
+                'audio/ogg', 'audio/aac', 'audio/m4a', 'audio/flac', 'audio/webm'  // Supported formats
+            ];
+            
+            const isValidAudio = file.type.startsWith('audio/') || 
+                               validAudioTypes.includes(file.type) ||
+                               /\.(wav|mp3|ogg|aac|m4a|flac|webm)$/i.test(file.name);
+            
+            if (isValidAudio) {
+                console.log('✅ Valid audio file detected');
+                
+                // Check file size (limit to 50MB for mobile performance)
+                const maxSize = 50 * 1024 * 1024; // 50MB
+                if (file.size > maxSize) {
+                    alert('File is too large. Please select a file smaller than 50MB.');
+                    return;
+                }
+                
+                // Upload file and proceed to conversion
+                uploadAndProceed(file);
+            } else {
+                console.log('❌ Invalid file type:', file.type);
+                alert('Please select a valid audio file (MP3, WAV, OGG, AAC, M4A, FLAC, WebM).');
+            }
+        }
+
+        async function uploadAndProceed(file) {
+            try {
+                console.log('🚀 Starting file upload...');
+                
+                // Show loading state
+                const uploadArea = document.querySelector('.upload-area');
+                const originalContent = uploadArea.innerHTML;
+                uploadArea.innerHTML = `
+                    <div class="upload-icon">
+                        <i class="fas fa-spinner fa-spin"></i>
+                    </div>
+                    <div class="upload-text">Uploading...</div>
+                    <div class="upload-subtext">Please wait while we upload your audio file</div>
+                `;
+                
+                // Initialize voice conversion service
+                const voiceService = new VoiceConversionService();
+                
+                // Upload the file
+                const uploadResult = await voiceService.uploadVoice(file);
+                console.log('✅ Upload successful:', uploadResult);
+                
+                // Store upload result for conversion page
+                localStorage.setItem('uploadedAudio', JSON.stringify(uploadResult));
+                
+                // Navigate to conversion page
+                const token = window.tokenManager ? window.tokenManager.getAccessToken() : null;
+                const params = new URLSearchParams({
+                    voice_id: uploadResult.voice_id,
+                    duration: uploadResult.duration,
+                    format: uploadResult.format,
+                    from: 'voice-studio'
+                });
+                
+                if (token) {
+                    params.set('token', token);
+                }
+                
+                const conversionUrl = `voice-conversion.html?${params.toString()}`;
+                console.log('🌍 Navigating to:', conversionUrl);
+                window.location.href = conversionUrl;
+                
+            } catch (error) {
+                console.error('❌ Upload failed:', error);
+                alert(`Upload failed: ${error.message}`);
+                
+                // Restore original upload area
+                const uploadArea = document.querySelector('.upload-area');
+                uploadArea.innerHTML = `
+                    <div class="upload-icon">
+                        <i class="fas fa-cloud-upload-alt"></i>
+                    </div>
+                    <div class="upload-text">Upload Audio File</div>
+                    <div class="upload-subtext">Click to browse or drag and drop</div>
+                `;
+            }
+        }
+
+        // Drag and drop functionality
+        document.addEventListener('DOMContentLoaded', () => {
+            const uploadArea = document.querySelector('.upload-area');
+            if (!uploadArea) return;
+            
+            ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+                uploadArea.addEventListener(eventName, preventDefaults, false);
+                document.body.addEventListener(eventName, preventDefaults, false);
+            });
+            
+            function preventDefaults(e) {
+                e.preventDefault();
+                e.stopPropagation();
+            }
+            
+            ['dragenter', 'dragover'].forEach(eventName => {
+                uploadArea.addEventListener(eventName, highlight, false);
+            });
+            
+            ['dragleave', 'drop'].forEach(eventName => {
+                uploadArea.addEventListener(eventName, unhighlight, false);
+            });
+            
+            function highlight() {
+                uploadArea.classList.add('dragover');
+            }
+            
+            function unhighlight() {
+                uploadArea.classList.remove('dragover');
+            }
+            
+            uploadArea.addEventListener('drop', handleDrop, false);
+            
+            function handleDrop(e) {
+                console.log('📁 File dropped');
+                const dt = e.dataTransfer;
+                const files = dt.files;
+                
+                if (files.length > 0) {
+                    const file = files[0];
+                    console.log('📁 Dropped file:', file.name, file.type);
+                    
+                    // Validate file type - prioritize WAV and MP3
+                    const validAudioTypes = [
+                        'audio/wav', 'audio/mp3', 'audio/mpeg',  // Preferred formats
+                        'audio/ogg', 'audio/aac', 'audio/m4a', 'audio/flac', 'audio/webm'  // Supported formats
+                    ];
+                    
+                    const isValidAudio = file.type.startsWith('audio/') || 
+                                       validAudioTypes.includes(file.type) ||
+                                       /\.(wav|mp3|ogg|aac|m4a|flac|webm)$/i.test(file.name);
+                    
+                    if (isValidAudio) {
+                        // Check file size (limit to 50MB for mobile performance)
+                        const maxSize = 50 * 1024 * 1024; // 50MB
+                        if (file.size > maxSize) {
+                            alert('File is too large. Please select a file smaller than 50MB.');
+                            return;
+                        }
+                        
+                        console.log('✅ Valid audio file, uploading and proceeding to conversion');
+                        uploadAndProceed(file);
+                    } else {
+                        console.log('❌ Invalid file type');
+                        alert('Please drop a valid audio file (MP3, WAV, OGG, AAC, M4A, FLAC, WebM).');
+                    }
+                } else {
+                    console.log('❌ No files in drop');
+                }
+            }
+        });
+        
+        // Audio conversion function to convert recorded audio to WAV format
+        async function convertToWav(audioBlob) {
+            return new Promise((resolve, reject) => {
+                try {
+                    // Create audio context
+                    const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                    
+                    // Create file reader to read the blob
+                    const fileReader = new FileReader();
+                    
+                    fileReader.onload = async function(e) {
+                        try {
+                            // Decode the audio data
+                            const arrayBuffer = e.target.result;
+                            const audioBuffer = await audioContext.decodeAudioData(arrayBuffer);
+                            
+                            // Convert to WAV format
+                            const wavBuffer = audioBufferToWav(audioBuffer);
+                            const wavBlob = new Blob([wavBuffer], { type: 'audio/wav' });
+                            
+                            console.log('✅ Audio converted to WAV successfully');
+                            resolve(wavBlob);
+                        } catch (decodeError) {
+                            console.error('❌ Audio decode failed:', decodeError);
+                            reject(decodeError);
+                        }
+                    };
+                    
+                    fileReader.onerror = function(error) {
+                        console.error('❌ FileReader error:', error);
+                        reject(error);
+                    };
+                    
+                    // Read the blob as array buffer
+                    fileReader.readAsArrayBuffer(audioBlob);
+                    
+                } catch (error) {
+                    console.error('❌ Audio conversion setup failed:', error);
+                    reject(error);
+                }
+            });
+        }
+        
+        // Convert AudioBuffer to WAV format
+        function audioBufferToWav(audioBuffer) {
+            const numChannels = audioBuffer.numberOfChannels;
+            const sampleRate = audioBuffer.sampleRate;
+            const format = 1; // PCM
+            const bitDepth = 16;
+            
+            const bytesPerSample = bitDepth / 8;
+            const blockAlign = numChannels * bytesPerSample;
+            
+            const buffer = audioBuffer.getChannelData(0);
+            const length = buffer.length;
+            const arrayBuffer = new ArrayBuffer(44 + length * bytesPerSample);
+            const view = new DataView(arrayBuffer);
+            
+            // WAV header
+            const writeString = (offset, string) => {
+                for (let i = 0; i < string.length; i++) {
+                    view.setUint8(offset + i, string.charCodeAt(i));
+                }
+            };
+            
+            writeString(0, 'RIFF');
+            view.setUint32(4, 36 + length * bytesPerSample, true);
+            writeString(8, 'WAVE');
+            writeString(12, 'fmt ');
+            view.setUint32(16, 16, true);
+            view.setUint16(20, format, true);
+            view.setUint16(22, numChannels, true);
+            view.setUint32(24, sampleRate, true);
+            view.setUint32(28, sampleRate * blockAlign, true);
+            view.setUint16(32, blockAlign, true);
+            view.setUint16(34, bitDepth, true);
+            writeString(36, 'data');
+            view.setUint32(40, length * bytesPerSample, true);
+            
+            // Convert float samples to 16-bit PCM
+            let offset = 44;
+            for (let i = 0; i < length; i++) {
+                const sample = Math.max(-1, Math.min(1, buffer[i]));
+                view.setInt16(offset, sample * 0x7FFF, true);
+                offset += 2;
+            }
+            
+            return arrayBuffer;
+        }
+    </script>
+    
+    <!-- Load token manager and auth service -->
+    <script src="js/token-manager.js"></script>
+    <script src="js/auth-service.js"></script>
+    <script src="js/app-init.js"></script>
+    <script src="js/voice-conversion-service.js"></script>
+</body>
+</html>
