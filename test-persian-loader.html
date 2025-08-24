@@ -1,0 +1,364 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Persian Loading Animation Test</title>
+    <style>
+        body {
+            font-family: 'Vazirmatn', 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+            background: linear-gradient(135deg, #000000 0%, #1F2937 100%);
+            color: white;
+            margin: 0;
+            padding: 20px;
+            min-height: 100vh;
+        }
+
+        .test-container {
+            max-width: 700px;
+            margin: 0 auto;
+            padding: 40px;
+            text-align: center;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+        }
+
+        .test-container h1 {
+            background: linear-gradient(135deg, #6366F1, #8B5CF6, #A855F7);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            font-size: 2.2rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+        }
+
+        .test-button {
+            background: linear-gradient(135deg, #6366F1 0%, #8B5CF6 100%);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 12px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 600;
+            margin: 10px;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            font-family: 'Vazirmatn', 'Inter', system-ui, sans-serif;
+        }
+
+        .test-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 0 40px rgba(99, 102, 241, 0.4);
+        }
+
+        .feature-card {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 16px;
+            padding: 1.5rem;
+            margin: 1.5rem 0;
+            backdrop-filter: blur(8px);
+            text-align: left;
+        }
+
+        .feature-card h3 {
+            color: #8B5CF6;
+            margin-bottom: 1rem;
+            font-weight: 600;
+        }
+
+        .demo-controls {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+            justify-content: center;
+            margin: 2rem 0;
+        }
+
+        .form-demo {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 12px;
+            padding: 12px 16px;
+            font-family: 'Vazirmatn', 'Inter', system-ui, sans-serif;
+            color: white;
+            backdrop-filter: blur(8px);
+            transition: all 0.3s ease;
+        }
+
+        .form-demo:focus {
+            outline: none;
+            border-color: #6366F1;
+            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+        }
+
+        .interaction-test {
+            background: rgba(139, 92, 246, 0.1);
+            border: 1px solid rgba(139, 92, 246, 0.3);
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin: 1.5rem 0;
+        }
+
+        .status-badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            margin: 0 4px;
+        }
+
+        .status-success {
+            background: rgba(34, 197, 94, 0.1);
+            border: 1px solid rgba(34, 197, 94, 0.3);
+            color: #86EFAC;
+        }
+
+        .status-enhanced {
+            background: rgba(168, 85, 247, 0.1);
+            border: 1px solid rgba(168, 85, 247, 0.3);
+            color: #C4B5FD;
+        }
+
+        .gradient-text {
+            background: linear-gradient(135deg, #6366F1, #8B5CF6, #A855F7);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            font-weight: 600;
+        }
+    </style>
+</head>
+<body>
+    <div class="test-container">
+        <h1>Persian Loading System with Auth.html Design 🎨</h1>
+        <p class="gradient-text">Enhanced loading animations with glassmorphism effects and interactive emojis</p>
+        
+        <div class="interaction-test">
+            <h3 style="color: #8B5CF6; margin-bottom: 1rem;">🛡️ Complete Interaction Blocking Test</h3>
+            <p style="font-size: 14px; margin-bottom: 1.5rem;">When loading is shown, all user interactions are completely blocked using auth.html design patterns:</p>
+            <div style="display: flex; gap: 12px; flex-wrap: wrap; justify-content: center;">
+                <button class="test-button" id="testButton1" onclick="alert('Button 1 clicked! This should be blocked when loading.')">
+                    🎯 Test Button 1
+                </button>
+                <button class="test-button" id="testButton2" onclick="alert('Button 2 clicked! This should be blocked when loading.')">
+                    🚀 Test Button 2
+                </button>
+                <input type="text" class="form-demo" placeholder="Try typing here..." style="width: 150px;">
+                <select class="form-demo" style="width: 120px;">
+                    <option>Option 1</option>
+                    <option>Option 2</option>
+                </select>
+            </div>
+        </div>
+        
+        <div class="feature-card">
+            <h3>🎨 Enhanced Features from Auth.html Design System</h3>
+            <div style="display: flex; flex-wrap: wrap; gap: 8px; margin: 1rem 0;">
+                <span class="status-success">✅ Glassmorphism Effects</span>
+                <span class="status-success">✅ Purple Gradient Colors</span>
+                <span class="status-success">✅ Vazirmatn Font</span>
+                <span class="status-enhanced">✨ Interactive Emojis</span>
+                <span class="status-enhanced">✨ Enhanced Animations</span>
+                <span class="status-enhanced">✨ Backdrop Blur</span>
+            </div>
+            <ul style="text-align: left; margin: 1rem 0; padding-left: 1.5rem;">
+                <li><strong>🎭 Visual Design:</strong> Glassmorphism container with backdrop blur and purple gradient shadows</li>
+                <li><strong>🎯 Typography:</strong> Vazirmatn font family matching auth.html for Persian text consistency</li>
+                <li><strong>🎨 Color Palette:</strong> Exact gradient colors (#6366F1, #8B5CF6, #A855F7) from auth.html</li>
+                <li><strong>✨ Enhanced Animations:</strong> Improved emoji bounce with rotation and enhanced glow effects</li>
+                <li><strong>📱 Mobile Responsive:</strong> Optimized breakpoints and touch-friendly interactions</li>
+            </ul>
+        </div>
+        
+        <div class="demo-controls">
+            <button class="test-button" onclick="PersianLoader.showWithEmoji('welcome')">
+                👋 Welcome Loading
+            </button>
+            <button class="test-button" onclick="PersianLoader.showWithEmoji('voiceConversion')">
+                🎤 Voice AI Processing
+            </button>
+            <button class="test-button" onclick="PersianLoader.showWithEmoji('uploading')">
+                📄 File Upload
+            </button>
+            <button class="test-button" onclick="PersianLoader.showWithEmoji('authenticating')">
+                🔐 Authentication
+            </button>
+            <button class="test-button" onclick="PersianLoader.showWithEmoji('connecting')">
+                🌐 Server Connection
+            </button>
+            <button class="test-button" onclick="PersianLoader.showWithEmoji('success')">
+                🎉 Success State
+            </button>
+            <button class="test-button" onclick="PersianLoader.hide()" style="background: linear-gradient(135deg, #EF4444 0%, #DC2626 100%);">
+                ❌ Hide & Restore
+            </button>
+        </div>
+        
+        <div class="feature-card">
+            <h3>🚀 Technical Implementation</h3>
+            <div style="font-family: 'SF Mono', Monaco, monospace; font-size: 13px; text-align: left;">
+                <div style="margin: 0.5rem 0;"><strong>Colors:</strong> <code>linear-gradient(135deg, #6366F1, #8B5CF6, #A855F7)</code></div>
+                <div style="margin: 0.5rem 0;"><strong>Font:</strong> <code>'Vazirmatn', 'Inter', system-ui</code></div>
+                <div style="margin: 0.5rem 0;"><strong>Backdrop:</strong> <code>blur(24px)</code> with glassmorphism container</div>
+                <div style="margin: 0.5rem 0;"><strong>Shadows:</strong> Purple glow effects with <code>rgba(99, 102, 241, 0.4)</code></div>
+                <div style="margin: 0.5rem 0;"><strong>Emojis:</strong> Interactive bouncing with rotation and enhanced drop-shadow</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Load centralized Persian loader -->
+    <script src="www/js/persian-loader.js"></script>
+    <script>
+        // Enhanced Demo function for testing the auth.html styled loader
+        function authStyleDemo() {
+            let messages = [
+                { key: 'welcome', duration: 2000 },
+                { key: 'authenticating', duration: 1500 },
+                { key: 'connecting', duration: 1500 },
+                { key: 'fetchingModels', duration: 2000 },
+                { key: 'success', duration: 1500 }
+            ];
+            
+            let index = 0;
+            function showNext() {
+                if (index < messages.length) {
+                    const msg = messages[index];
+                    PersianLoader.showWithEmoji(msg.key);
+                    
+                    setTimeout(() => {
+                        index++;
+                        if (index < messages.length) {
+                            showNext();
+                        } else {
+                            setTimeout(() => PersianLoader.hide(), 1000);
+                        }
+                    }, msg.duration);
+                }
+            }
+            
+            showNext();
+        }
+        
+        // Function to test complete interaction blocking with visual feedback
+        function testInteractionBlocking() {
+            PersianLoader.showWithEmoji('working', 'بررسی بلاک کردن تعاملات...', '🛡️');
+            
+            // Show blocking confirmation
+            setTimeout(() => {
+                PersianLoader.updateWithEmoji('success', 'تمام تعاملات بلاک شده است!', '✅');
+            }, 2000);
+            
+            // Show restoration message
+            setTimeout(() => {
+                PersianLoader.updateWithEmoji('ready', 'آماده برای بازگردانی تعاملات...', '🎆');
+            }, 4000);
+            
+            // Hide and restore interactions
+            setTimeout(() => {
+                PersianLoader.hide();
+                // Show success alert after interactions are restored
+                setTimeout(() => {
+                    alert('✅ تعاملات بازگردانده شد! حالا می‌توانید دوباره کلیک کنید.');
+                }, 300);
+            }, 6000);
+        }
+        
+        // Advanced emoji cycling demo
+        function emojiCyclingDemo() {
+            const emojiSequence = [
+                { emoji: '🚀', text: 'آماده‌سازی...', duration: 1000 },
+                { emoji: '⚙️', text: 'پردازش اطلاعات...', duration: 1200 },
+                { emoji: '🎤', text: 'تبدیل صدا...', duration: 1500 },
+                { emoji: '🌐', text: 'اتصال به سرور...', duration: 1000 },
+                { emoji: '✨', text: 'نهایی‌سازی...', duration: 1000 },
+                { emoji: '🎉', text: 'موفقیت‌آمیز!', duration: 1500 }
+            ];
+            
+            let index = 0;
+            PersianLoader.show(emojiSequence[0].text, 0, emojiSequence[0].emoji);
+            
+            const interval = setInterval(() => {
+                index++;
+                if (index < emojiSequence.length) {
+                    const current = emojiSequence[index];
+                    PersianLoader.updateText(current.text, current.emoji);
+                } else {
+                    clearInterval(interval);
+                    setTimeout(() => PersianLoader.hide(), 1000);
+                }
+            }, 1200);
+        }
+        
+        // Enhanced modern animation demo
+        function modernAnimationDemo() {
+            PersianLoader.showWithEmoji('ready', 'تجربه انیمیشن مدرن و روان...', '✨');
+            
+            setTimeout(() => {
+                PersianLoader.updateWithEmoji('processing', 'حس کردن حرکات طبیعی...', '🌊');
+            }, 2000);
+            
+            setTimeout(() => {
+                PersianLoader.updateWithEmoji('magic', 'جلوه‌های بصری پیشرفته...', '🎭');
+            }, 4000);
+            
+            setTimeout(() => {
+                PersianLoader.updateWithEmoji('success', 'انیمیشن مدرن کامل شد!', '🎉');
+            }, 6000);
+            
+            setTimeout(() => {
+                PersianLoader.hide();
+            }, 8000);
+        }
+        
+        // Add enhanced demo buttons
+        document.addEventListener('DOMContentLoaded', () => {
+            const container = document.querySelector('.demo-controls');
+            
+            // Auth-style sequence demo button
+            const authDemoButton = document.createElement('button');
+            authDemoButton.className = 'test-button';
+            authDemoButton.style.background = 'linear-gradient(135deg, #F59E0B 0%, #D97706 100%)';
+            authDemoButton.innerHTML = '🎨 Auth Style Demo';
+            authDemoButton.onclick = authStyleDemo;
+            container.appendChild(authDemoButton);
+            
+            // Interaction blocking test button
+            const blockingTestButton = document.createElement('button');
+            blockingTestButton.className = 'test-button';
+            blockingTestButton.style.background = 'linear-gradient(135deg, #8B5CF6 0%, #A855F7 100%)';
+            blockingTestButton.innerHTML = '🛡️ Test Blocking (6s)';
+            blockingTestButton.onclick = testInteractionBlocking;
+            container.appendChild(blockingTestButton);
+            
+            // Emoji cycling demo
+            const emojiDemoButton = document.createElement('button');
+            emojiDemoButton.className = 'test-button';
+            emojiDemoButton.style.background = 'linear-gradient(135deg, #06B6D4 0%, #0891B2 100%)';
+            emojiDemoButton.innerHTML = '🎆 Emoji Cycling';
+            emojiDemoButton.onclick = emojiCyclingDemo;
+            container.appendChild(emojiDemoButton);
+            
+            // Modern animation demo
+            const modernDemoButton = document.createElement('button');
+            modernDemoButton.className = 'test-button';
+            modernDemoButton.style.background = 'linear-gradient(135deg, #10B981 0%, #059669 100%)';
+            modernDemoButton.innerHTML = '🌊 Modern Flow (8s)';
+            modernDemoButton.onclick = modernAnimationDemo;
+            container.appendChild(modernDemoButton);
+        });
+        
+        // Enhanced console logging
+        console.log('🎨 Enhanced PersianLoader with Auth.html Design System loaded');
+        console.log('🛡️ Features: Glassmorphism, Purple Gradients, Vazirmatn Font, Interactive Emojis');
+        console.log('📱 Mobile optimized with auth.html responsive design patterns');
+        console.log('⚙️ API: showWithEmoji(), updateWithEmoji(), enhanced blocking system');
+    </script>
+</body>
+</html>

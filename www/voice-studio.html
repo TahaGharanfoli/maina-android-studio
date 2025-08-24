@@ -849,6 +849,10 @@
                 
                 mediaRecorder.onstop = async () => {
                     console.log('🎤 Recording stopped, processing audio...');
+                    
+                    // Show loading animation for audio processing
+                    PersianLoader.show(PersianLoader.messages.audioProcessing);
+                    
                     const originalMimeType = mediaRecorder.mimeType;
                     const audioBlob = new Blob(audioChunks, { type: originalMimeType });
                     
@@ -858,6 +862,9 @@
                     });
                     
                     try {
+                        // Update loading text for conversion process
+                        PersianLoader.updateText(PersianLoader.messages.converting);
+                        
                         // Convert to WAV format for better server compatibility
                         const wavBlob = await convertToWav(audioBlob);
                         
@@ -875,6 +882,9 @@
                         
                     } catch (conversionError) {
                         console.error('❌ Audio conversion failed:', conversionError);
+                        
+                        // Update loading text for fallback
+                        PersianLoader.updateText(PersianLoader.messages.preparing);
                         
                         // Fallback: use original format with proper MIME type
                         const timestamp = new Date().getTime();
@@ -1042,16 +1052,8 @@
             try {
                 console.log('🚀 Starting file upload...');
                 
-                // Show loading state
-                const uploadArea = document.querySelector('.upload-area');
-                const originalContent = uploadArea.innerHTML;
-                uploadArea.innerHTML = `
-                    <div class="upload-icon">
-                        <i class="fas fa-spinner fa-spin"></i>
-                    </div>
-                    <div class="upload-text">Uploading...</div>
-                    <div class="upload-subtext">Please wait while we upload your audio file</div>
-                `;
+                // Show Persian loading animation
+                PersianLoader.show(PersianLoader.messages.uploading);
                 
                 // Initialize voice conversion service
                 const voiceService = new VoiceConversionService();
@@ -1059,6 +1061,9 @@
                 // Upload the file
                 const uploadResult = await voiceService.uploadVoice(file);
                 console.log('✅ Upload successful:', uploadResult);
+                
+                // Update loading text for navigation
+                PersianLoader.updateText(PersianLoader.messages.navigating);
                 
                 // Store upload result for conversion page
                 localStorage.setItem('uploadedAudio', JSON.stringify(uploadResult));
@@ -1078,21 +1083,20 @@
                 
                 const conversionUrl = `voice-conversion.html?${params.toString()}`;
                 console.log('🌍 Navigating to:', conversionUrl);
-                window.location.href = conversionUrl;
+                
+                // Small delay before navigation to show the transition text
+                setTimeout(() => {
+                    window.location.href = conversionUrl;
+                }, 500);
                 
             } catch (error) {
                 console.error('❌ Upload failed:', error);
-                alert(`Upload failed: ${error.message}`);
                 
-                // Restore original upload area
-                const uploadArea = document.querySelector('.upload-area');
-                uploadArea.innerHTML = `
-                    <div class="upload-icon">
-                        <i class="fas fa-cloud-upload-alt"></i>
-                    </div>
-                    <div class="upload-text">Upload Audio File</div>
-                    <div class="upload-subtext">Click to browse or drag and drop</div>
-                `;
+                // Hide loading animation first
+                PersianLoader.hide();
+                
+                // Show error message
+                alert(`Upload failed: ${error.message}`);
             }
         }
 
@@ -1260,6 +1264,7 @@
     </script>
     
     <!-- Load token manager and auth service -->
+    <script src="js/persian-loader.js"></script>
     <script src="js/token-manager.js"></script>
     <script src="js/auth-service.js"></script>
     <script src="js/app-init.js"></script>

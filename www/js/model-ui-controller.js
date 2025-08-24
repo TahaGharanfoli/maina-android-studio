@@ -111,6 +111,9 @@ class ModelUIController {
         try {
             console.log(`🔄 Loading models for tab: ${tab}`);
             
+            // Show loading animation
+            PersianLoader.show(PersianLoader.messages.fetchingModels);
+            
             let response;
             
             switch(tab) {
@@ -131,9 +134,15 @@ class ModelUIController {
                     break;
             }
             
+            // Hide loading animation
+            PersianLoader.hide();
+            
             console.log(`✅ Models loaded for ${tab}:`, this.modelsData[tab]);
         } catch (error) {
             console.error('❌ Failed to load models:', error);
+            
+            // Hide loading animation
+            PersianLoader.hide();
             
             // Try to discover available endpoints
             if (error.message.includes('API connection test failed') || error.message.includes('All free model endpoints failed')) {
@@ -350,7 +359,14 @@ class ModelUIController {
     async discoverEndpoints() {
         try {
             console.log('🔍 Discovering available API endpoints...');
+            
+            // Show loading animation
+            PersianLoader.show(PersianLoader.messages.connecting);
+            
             const availableEndpoints = await this.modelService.getAvailableEndpoints();
+            
+            // Hide loading animation
+            PersianLoader.hide();
             
             // Update debug panel
             document.getElementById('endpointStatus').innerHTML = 
@@ -365,6 +381,10 @@ class ModelUIController {
             }
         } catch (error) {
             console.error('❌ Failed to discover endpoints:', error);
+            
+            // Hide loading animation
+            PersianLoader.hide();
+            
             document.getElementById('endpointStatus').innerHTML = 'Error: ' + error.message;
             alert('Failed to discover endpoints. Please check the console for details.');
         }
@@ -400,7 +420,14 @@ class ModelUIController {
     async testAPIConnection() {
         try {
             console.log('🧪 Testing API connection...');
+            
+            // Show loading animation
+            PersianLoader.show(PersianLoader.messages.connecting);
+            
             const isConnected = await this.modelService.testConnection();
+            
+            // Hide loading animation
+            PersianLoader.hide();
             
             if (isConnected) {
                 alert('✅ API connection successful!');
@@ -411,6 +438,10 @@ class ModelUIController {
             }
         } catch (error) {
             console.error('❌ API connection test failed:', error);
+            
+            // Hide loading animation
+            PersianLoader.hide();
+            
             alert('❌ API connection test failed: ' + error.message);
             document.getElementById('authStatus').innerHTML = '❌ Test Error: ' + error.message;
         }
@@ -420,8 +451,12 @@ class ModelUIController {
         try {
             console.log('🧪 Testing all API endpoints...');
             
+            // Show loading animation
+            PersianLoader.show(PersianLoader.messages.connecting);
+            
             // Test free models
             try {
+                PersianLoader.updateText('در حال تست مدل‌های رایگان...');
                 const freeResponse = await this.modelService.getFreeModels();
                 console.log('✅ Free models endpoint working:', freeResponse);
                 alert(`✅ Free models: ${freeResponse.data?.data?.length || 0} models found`);
@@ -432,6 +467,7 @@ class ModelUIController {
             
             // Test paid models
             try {
+                PersianLoader.updateText('در حال تست مدل‌های پولی...');
                 const paidResponse = await this.modelService.getPaidModels();
                 console.log('✅ Paid models endpoint working:', paidResponse);
                 alert(`✅ Paid models: ${paidResponse.data?.data?.length || 0} models found`);
@@ -442,6 +478,7 @@ class ModelUIController {
             
             // Test shop models
             try {
+                PersianLoader.updateText('در حال تست فروشگاه...');
                 const shopResponse = await this.modelService.getShopModels();
                 console.log('✅ Shop models endpoint working:', shopResponse);
                 alert(`✅ Shop models: ${shopResponse.data?.data?.length || 0} models found`);
@@ -450,8 +487,15 @@ class ModelUIController {
                 alert('❌ Shop models endpoint failed: ' + error.message);
             }
             
+            // Hide loading animation
+            PersianLoader.hide();
+            
         } catch (error) {
             console.error('❌ Testing all endpoints failed:', error);
+            
+            // Hide loading animation
+            PersianLoader.hide();
+            
             alert('❌ Testing all endpoints failed: ' + error.message);
         }
     }
