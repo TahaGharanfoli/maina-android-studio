@@ -20,6 +20,7 @@
     }
   },
   "server": {
+    "url": "file:///android_asset/public/launcher.html",
     "allowNavigation": [
       "https://api.seektir.com/*",
       "https://*.seektir.com/*",
@@ -37,6 +38,10 @@
     "loggingBehavior": "debug",
     "useLegacyBridge": false,
     "requestTimeout": 30000,
-    "appendUserAgent": "MaynaSound-App"
+    "appendUserAgent": "MaynaSound-App",
+    "permissions": [
+      "android.permission.RECORD_AUDIO",
+      "android.permission.MODIFY_AUDIO_SETTINGS"
+    ]
   }
 }

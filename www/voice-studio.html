@@ -633,7 +633,46 @@
             try {
                 console.log('🎤 Requesting microphone permission...');
                 
-                // Check if permission is already granted
+                // Check if we're in Capacitor (Android app)
+                if (window.Capacitor && window.Capacitor.isNativePlatform()) {
+                    console.log('📱 Running in Capacitor native app');
+                    
+                    // Try to access microphone directly for Android
+                    try {
+                        const stream = await navigator.mediaDevices.getUserMedia({ 
+                            audio: {
+                                echoCancellation: true,
+                                noiseSuppression: true,
+                                autoGainControl: true
+                            }
+                        });
+                        
+                        // Permission granted, stop the test stream immediately
+                        stream.getTracks().forEach(track => track.stop());
+                        microphonePermission = 'granted';
+                        console.log('✅ Microphone permission granted via getUserMedia');
+                        return true;
+                        
+                    } catch (nativeError) {
+                        console.error('❌ Native microphone access failed:', nativeError);
+                        microphonePermission = 'denied';
+                        
+                        if (nativeError.name === 'NotAllowedError') {
+                            alert('Microphone access was denied. To use voice recording:\n\n1. Go to Settings > Apps > Mayna Sound\n2. Tap Permissions\n3. Turn on Microphone\n4. Return to the app and try again');
+                        } else if (nativeError.name === 'NotFoundError') {
+                            alert('No microphone found on your device. Please connect a microphone and try again.');
+                        } else if (nativeError.name === 'NotReadableError') {
+                            alert('Microphone is currently being used by another application. Please close other apps using the microphone and try again.');
+                        } else {
+                            alert('Unable to access microphone: ' + nativeError.message + '\n\nPlease check your device settings and try again.');
+                        }
+                        return false;
+                    }
+                }
+                
+                // Web browser permission check (for development/testing)
+                console.log('🌐 Running in web browser');
+                
                 if (navigator.permissions) {
                     const permission = await navigator.permissions.query({ name: 'microphone' });
                     console.log('Current microphone permission state:', permission.state);
