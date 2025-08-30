@@ -421,6 +421,39 @@
             color: var(--white);
         }
 
+        /* Loading State Styles */
+        .loading-container {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: var(--space-xl);
+            min-height: 300px;
+        }
+
+        .loading-spinner {
+            width: 40px;
+            height: 40px;
+            border: 3px solid rgba(255, 255, 255, 0.1);
+            border-top: 3px solid var(--brand-primary);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-bottom: var(--space-md);
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .loading-text {
+            color: var(--black-300);
+            font-size: var(--font-size-md);
+            font-weight: var(--font-weight-medium);
+            text-align: center;
+        }
+
         /* Mobile Responsiveness */
         @media (max-width: 480px) {
             .models-grid {
@@ -665,7 +698,13 @@
             <button class="tab-btn">Shop</button>
         </div>
 
-        <div class="models-grid" id="modelsGrid">
+        <!-- Loading State -->
+        <div class="loading-container" id="loadingContainer">
+            <div class="loading-spinner"></div>
+            <div class="loading-text">Loading Models...</div>
+        </div>
+
+        <div class="models-grid" id="modelsGrid" style="display: none;">
             <!-- Models will be loaded dynamically -->
         </div>
 
@@ -692,6 +731,30 @@
     <script src="js/style-guide-master.js"></script>
     
     <script>
+        // Loading state management functions
+        function showLoading() {
+            const loadingContainer = document.getElementById('loadingContainer');
+            const modelsGrid = document.getElementById('modelsGrid');
+            
+            if (loadingContainer) loadingContainer.style.display = 'flex';
+            if (modelsGrid) modelsGrid.style.display = 'none';
+        }
+        
+        function hideLoading() {
+            const loadingContainer = document.getElementById('loadingContainer');
+            const modelsGrid = document.getElementById('modelsGrid');
+            
+            if (loadingContainer) loadingContainer.style.display = 'none';
+            if (modelsGrid) modelsGrid.style.display = 'grid';
+        }
+        
+        // Make functions globally available
+        window.showLoading = showLoading;
+        window.hideLoading = hideLoading;
+        
+        // Show loading immediately when page loads
+        showLoading();
+        
         // Check if we came from generator page
         let cameFromGenerator = false;
         let urlToken = null;
@@ -786,6 +849,19 @@
                 console.log('✅ Token available, initializing ModelUIController...');
                 if (!window.modelUIController) {
                     window.modelUIController = new ModelUIController();
+                    
+                    // Wait for ModelUIController to finish loading models
+                    // Set a timeout to hide loading after initialization completes
+                    setTimeout(() => {
+                        console.log('📊 Models should be loaded, hiding loading state');
+                        hideLoading();
+                    }, 2000); // Give ModelUIController time to load models
+                    
+                    // Fallback: Hide loading after maximum wait time
+                    setTimeout(() => {
+                        console.log('⏰ Fallback: Hiding loading state after maximum wait time');
+                        hideLoading();
+                    }, 5000); // Maximum 5 seconds loading
                 }
                 
             } catch (error) {

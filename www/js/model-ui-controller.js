@@ -144,6 +144,12 @@ class ModelUIController {
             // Hide loading animation
             PersianLoader.hide();
             
+            // Hide loading state even on error
+            if (window.hideLoading) {
+                console.log('⚠️ Models loading failed, hiding loading state');
+                window.hideLoading();
+            }
+            
             // Try to discover available endpoints
             if (error.message.includes('API connection test failed') || error.message.includes('All free model endpoints failed')) {
                 console.log('🔍 Attempting to discover available endpoints...');
@@ -175,13 +181,18 @@ class ModelUIController {
                     </div>
                 </div>
             `;
-            return;
+        } else {
+            modelsGrid.innerHTML = models.map(model => this.createModelCard(model)).join('');
+            
+            // Add event listeners to new cards
+            this.attachModelCardListeners();
         }
-
-        modelsGrid.innerHTML = models.map(model => this.createModelCard(model)).join('');
         
-        // Add event listeners to new cards
-        this.attachModelCardListeners();
+        // Hide loading state when models are rendered
+        if (window.hideLoading) {
+            console.log('✅ Models rendered successfully, hiding loading state');
+            window.hideLoading();
+        }
     }
 
     createModelCard(model) {
